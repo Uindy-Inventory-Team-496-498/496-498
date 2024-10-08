@@ -1,0 +1,24 @@
+{
+  "name": "django",
+  "version": "99.99.99",
+  "description": "The web framework for perfectionists with deadlines.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/django/django.git"
+  },
+  "keywords": [
+    "django",
+    "python",
+    "web"
+  ],
+  "author": "Django Software Foundation",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/django/django/issues"
+  },
+  "homepage": "https://github.com/django/django#readme"
+}

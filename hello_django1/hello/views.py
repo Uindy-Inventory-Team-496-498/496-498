@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from hello.forms import LogMessageForm
 from hello.models import LogMessage, Movie
 from django.views.generic import ListView
+from django.shortcuts import get_object_or_404
 
 def movie_list(request):
     movies = Movie.objects.all()
@@ -44,6 +45,15 @@ def log_message(request):
             message = form.save(commit=False)
             message.log_date = datetime.now()
             message.save()
-            return redirect("home")
+            return redirect("log")
     else:
         return render(request, "hello/log_message.html", {"form": form})
+    
+def delete_message(request, message_id):
+    message = get_object_or_404(LogMessage, id=message_id)
+
+    if request.method == "POST":
+        message.delete()
+        return redirect("log")
+    
+    return render(request, "hello/delete_message.html", {"message": message})
