@@ -8,17 +8,4 @@ Log a message
     {{ form.as_p }}
     <button type="submit" class="save btn btn-default">Log</button>
 </form>
-<ul>
-    {% for message in messages %}
-    <li>
-        {{ message.text }} - {{ message.log_date }}
-        <form method="POST" action="{% url 'delete_message' message.id %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Delete</button>
-        </form>
-    </li>
-    {% empty %}
-    <li>No messages logged yet.</li>
-    {% endfor %}
-</ul>
 {% endblock %}

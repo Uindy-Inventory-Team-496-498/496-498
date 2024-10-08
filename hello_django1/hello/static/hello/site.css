@@ -34,3 +34,15 @@ input[name=message] {
     text-align: left;
     padding-right: 15px;
 }
+
+.btn-delete {
+    width: 100%;
+    padding: 5px 10px;
+    text-align: center;
+    display: inline-block;
+}
+
+td {
+    vertical-align: middle;
+    text-align: center;
+}
