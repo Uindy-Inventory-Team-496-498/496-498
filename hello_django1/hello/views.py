@@ -6,6 +6,7 @@ from hello.forms import LogMessageForm
 from hello.models import LogMessage
 from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 
 class HomeListView(ListView):
     """Renders the home page, with a list of all messages."""
@@ -17,6 +18,12 @@ class HomeListView(ListView):
 
 def about(request):
     return render(request, "hello/about.html")
+
+def login(request):
+    return render(request, "hello/login.html")
+
+def home(request):
+    return render(request, "hello/home.html")
 
 def contact(request):
     return render(request, "hello/contact.html")
