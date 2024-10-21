@@ -46,5 +46,8 @@ def delete_message(request, id):
     if request.method == "POST":
         message.delete()
         return redirect("home")
+    
+def qr_code_scanner(request):
+    return render(request, 'hello/scanner.html')
    
 

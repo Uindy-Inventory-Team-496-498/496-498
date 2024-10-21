@@ -15,4 +15,5 @@ urlpatterns = [
     path("log/", views.log_message, name="log"),
     path("delete/<int:id>/", views.delete_message, name='delete_message'),
     path("login/", views.login, name="login"),
+    path('scanner/', views.qr_code_scanner, name='scanner'),
 ]
