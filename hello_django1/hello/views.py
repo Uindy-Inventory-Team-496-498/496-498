@@ -7,7 +7,6 @@ from hello.forms import LogChemicalForm
 from hello.models import LogChemical
 from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 
 class HomeListView(ListView):
     """Renders the home page, with a list of all messages."""
@@ -19,12 +18,6 @@ class HomeListView(ListView):
 
 def about(request):
     return render(request, "hello/about.html")
-
-def login(request):
-    return render(request, "hello/login.html")
-
-def home(request):
-    return render(request, "hello/home.html")
 
 def contact(request):
     return render(request, "hello/contact.html")
@@ -47,8 +40,5 @@ def delete_chemical(request, id):
     if request.method == "POST":
         chemical.delete()
         return redirect("home")
-    
-def qr_code_scanner(request):
-    return render(request, 'hello/scanner.html')
    
 
