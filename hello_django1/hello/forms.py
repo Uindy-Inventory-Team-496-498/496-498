@@ -1,7 +1,7 @@
 from django import forms
-from hello.models import LogChemical
+from hello.models import LogMessage
 
-class LogChemicalForm(forms.ModelForm):
+class LogMessageForm(forms.ModelForm):
     class Meta:
-        model = LogChemical
-        fields = ("chemical",) #Trailing comma is required
+        model = LogMessage
+        fields = ("message",) #Trailing comma is required
