@@ -21,7 +21,7 @@ class HomeListView(ListView):
         return context
 
 def about(request):
-    return render(request, "hello/about.html")
+    return render(request, "about.html")
 
 def login_view(request):
     if request.method == 'POST':
@@ -40,10 +40,10 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 def home(request):
-    return render(request, "hello/home.html")
+    return render(request, "home.html")
 
 def contact(request):
-    return render(request, "hello/contact.html")
+    return render(request, "contact.html")
 
 def log_message(request):
     form = LogMessageForm(request.POST or None)
@@ -55,7 +55,7 @@ def log_message(request):
             message.save()
             return redirect("log")
     else:
-        return render(request, "hello/log_message.html", {"form": form})
+        return render(request, "log_message.html", {"form": form})
     
 def delete_message(request, id):
     message = get_object_or_404(LogMessage, id=id)
@@ -65,6 +65,6 @@ def delete_message(request, id):
         return redirect("home")
     
 def qr_code_scanner(request):
-    return render(request, 'hello/scanner.html')
+    return render(request, 'scanner.html')
    
 
