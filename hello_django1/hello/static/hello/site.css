@@ -1,8 +1,8 @@
 .navbar {
-    background-color: lightslategray;
+    background-color: rgb(136, 39, 39);
     font-size: 1em;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    color: white;
+    color: lightgray;
     padding: 8px 5px 8px 5px;
 }
 
@@ -35,14 +35,17 @@ input[name=message] {
     padding-right: 15px;
 }
 
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
 .btn-delete {
-    width: 100%;
     padding: 5px 10px;
-    text-align: center;
-    display: inline-block;
 }
 
 td {
     vertical-align: middle;
-    text-align: center;
 }
