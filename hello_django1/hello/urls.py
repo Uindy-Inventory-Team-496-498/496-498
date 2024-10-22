@@ -12,6 +12,8 @@ urlpatterns = [
     path("", home_list_view, name="home"),
     path("about/", views.about, name="about"),
     path("contact/", views.contact, name="contact"),
-    path("log/", views.log_chemical, name="log"),
-    path("delete/<int:id>/", views.delete_chemical, name='delete_message'),
+    path("log/", views.log_message, name="log"),
+    path("delete/<int:id>/", views.delete_message, name='delete_message'),
+    path("login/", views.login, name="login"),
+    path('scanner/', views.qr_code_scanner, name='scanner'),
 ]
