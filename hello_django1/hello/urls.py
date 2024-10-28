@@ -6,10 +6,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 
+
 home_list_view = views.HomeListView.as_view(
     queryset=LogChemical.objects.order_by("-log_date")[:5],
-    context_object_name ="chemical_list",
-    template_name = "home.html",
+    context_object_name="chemical_list",
+    template_name="home.html",
 )
 
 curr_list_view = views.ChemListView.as_view(
