@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 class HomeListView(ListView):
     """Renders the home page, with a list of all messages."""
@@ -92,3 +93,5 @@ def search_by_qr_code(request):
         return JsonResponse(data, status=200)
     except currentlyInStorageTable.DoesNotExist:
         return JsonResponse({"error": "Chemical not found."}, status=404)
+    else:
+        return JsonResponse({"error": "Invalid search input."}, status=400)
