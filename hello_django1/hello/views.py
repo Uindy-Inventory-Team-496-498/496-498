@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 
@@ -44,6 +45,7 @@ class HomeListView(ListView):
         context = super(HomeListView, self).get_context_data(**kwargs)
         return context
 
+@login_required
 def about(request):
     return render(request, "about.html")
 
@@ -66,12 +68,15 @@ def login_view(request):
         form = CustomLoginForm()
     return render(request, 'login.html', {'form': form})
 
+@login_required
 def home(request):
     return render(request, "home.html")
 
+@login_required
 def contact(request):
     return render(request, "contact.html")
 
+@login_required
 def log_chemical(request):
     form = LogChemicalForm(request.POST or None)
 
@@ -84,13 +89,15 @@ def log_chemical(request):
     else:
         return render(request, "log_message.html", {"form": form})
 
+@login_required
 def delete_chemical(request, id):
     chemical = get_object_or_404(LogChemical, id=id)
 
     if request.method == "POST":
         chemical.delete()
         return redirect("home")
-    
+
+@login_required  
 def qr_code_scanner(request):
     return render(request, 'scanner.html')
 

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'hello',
+    'accounts',
 ]
 
 
@@ -112,7 +113,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = False
+USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -127,6 +128,7 @@ STATIC_ROOT = BASE_DIR / 'static_collected'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = "/home" 
+LOGIN_REDIRECT_URL = "/" 
+LOGOUT_REDIRECT_URL = "/"
 
 ALLOWED_HOSTS = ['*']
