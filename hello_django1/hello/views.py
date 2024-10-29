@@ -12,6 +12,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.contrib import messages
 
 class ChemListView(ListView):
@@ -35,7 +36,7 @@ def edit_chemical(request, id):
         # Create the form with the existing chemical data pre-filled
         form = EditChemicalForm(instance=chemical)
     return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
-    
+
 class HomeListView(ListView):
     """Renders the home page, with a list of all messages."""
     model = LogChemical
