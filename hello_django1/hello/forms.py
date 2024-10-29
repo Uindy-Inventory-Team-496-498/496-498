@@ -1,7 +1,12 @@
 from django import forms
-from hello.models import LogMessage
+from hello.models import LogChemical
+from django.contrib.auth.forms import AuthenticationForm
 
-class LogMessageForm(forms.ModelForm):
+class LogChemicalForm(forms.ModelForm):
     class Meta:
-        model = LogMessage
-        fields = ("message",) #Trailing comma is required
+        model = LogChemical
+        fields = ("chemical",) #Trailing comma is required
+
+class CustomLoginForm(AuthenticationForm):
+    username = forms.CharField(label='Username', max_length=150)
+    password = forms.CharField(label='Password', widget=forms.PasswordInput)

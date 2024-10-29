@@ -1,63 +1,94 @@
 import re
+from django.utils import timezone
 from django.utils.timezone import datetime
-from django.shortcuts import render
-from django.shortcuts import redirect
-from hello.forms import LogMessageForm
-from hello.models import LogMessage
+from hello.forms import LogChemicalForm
+from hello.models import LogChemical
+from hello.models import QRCodeData, currentlyInStorageTable
 from django.views.generic import ListView
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate
+from .forms import CustomLoginForm
+from django.contrib.auth.decorators import login_required
 
 class HomeListView(ListView):
     """Renders the home page, with a list of all messages."""
-    model = LogMessage
+    model = LogChemical
 
     def get_context_data(self, **kwargs):
         context = super(HomeListView, self).get_context_data(**kwargs)
         return context
 
 def about(request):
-    return render(request, "hello/about.html")
+    return render(request, "about.html")
 
-def login(request):
-    return render(request, "hello/login.html")
+def login_view(request):
+    if request.method == 'POST':
+        form = CustomLoginForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+            else:
+                form.add_error(None, "Invalid username or password")
+    else:
+        form = CustomLoginForm()
+    return render(request, 'login.html', {'form': form})
 
 def home(request):
-    return render(request, "hello/home.html")
+    return render(request, "home.html")
 
 def contact(request):
-    return render(request, "hello/contact.html")
+    return render(request, "contact.html")
 
-def log_message(request):
-    form = LogMessageForm(request.POST or None)
+def log_chemical(request):
+    form = LogChemicalForm(request.POST or None)
 
     if request.method == "POST":
         if form.is_valid():
-            message = form.save(commit=False)
-            message.log_date = datetime.now()
-            message.save()
+            chemical = form.save(commit=False)
+            chemical.log_date = datetime.now()
+            chemical.save()
             return redirect("log")
     else:
-        return render(request, "hello/log_message.html", {"form": form})
-    
-def delete_message(request, id):
-    message = get_object_or_404(LogMessage, id=id)
+        return render(request, "log_message.html", {"form": form})
+
+def delete_chemical(request, id):
+    chemical = get_object_or_404(LogChemical, id=id)
 
     if request.method == "POST":
-        message.delete()
+        chemical.delete()
         return redirect("home")
     
 def qr_code_scanner(request):
-    return render(request, 'hello/scanner.html')
+    return render(request, 'scanner.html')
+
+def qr_code_scan(request):
+    return render(request, 'scan.html')
+
+def search_qr_code(request, qr_code):
+    record = get_object_or_404(QRCodeData, qr_code=qr_code)  # Query using the QR code data
+    response_data = {
+        'id': record.id,
+        'name': record.name,
+        'description': record.description,
+    }
+    return JsonResponse(response_data)
 
 
-def searching(request):
-	#filter() returns row matching search value, need to pull input from user
-	#, right now just using bottleIDNUM for ease of integrating barcode scanner
-	searchData = currentlyInStorageTable.objects.filter(chemBottleIDNUM_exacts=1).values()
-	template = loader.get_template('template.html')
-	context = {
-		'currentlyInStorageTableSearch': searchData,
-	}
-	return HttpResponse(template.render(context, request))
-
+def search_by_qr_code(request):
+    chem_id = request.GET.get('chem_id')  # assuming the QR code scanner sends the ID as 'chem_id'
+    try:
+        chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)
+        data = {
+            "chemName": chemical.chemName,
+            "chemLocation": chemical.chemLocation,
+            "chemAmountInBottle": chemical.chemAmountInBottle,
+            "chemStorageType": chemical.chemStorageType,
+        }
+        return JsonResponse(data, status=200)
+    except currentlyInStorageTable.DoesNotExist:
+        return JsonResponse({"error": "Chemical not found."}, status=404)

@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block title %}
+    Home
+{% endblock %}
+{% block content %}
+    <h2>Logged Chemicals</h2>
+
+    {% if chemical_list %}
+    <table class="chemical_list">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Message</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for chemical in chemical_list %}
+            <tr>
+                <td>{{ chemical.log_date | date:'d M Y'}}</td>
+                <td>{{ chemical.log_date | date:'H:i:s'}}</td>
+                <td>
+                    {{ chemical.chemical }}
+                </td>
+                <td>
+                    <form action="{% url 'delete_message' chemical.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="button-container">
+                            <button type="submit" class="btn btn-delete">Delete</button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No chemicals have been logged. Use the <a href="{% url 'log' %}">Log Chemical form</a>.</p>
+    {% endif %}
+{% endblock %}
