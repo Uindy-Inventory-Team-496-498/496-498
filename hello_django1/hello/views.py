@@ -1,14 +1,12 @@
 import re
 from django.utils import timezone
 from django.utils.timezone import datetime
-from django.shortcuts import render
-from django.shortcuts import redirect
 from hello.forms import LogChemicalForm
 from hello.models import LogChemical
+from hello.models import QRCodeData, currentlyInStorageTable
 from django.views.generic import ListView
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm
 from django.contrib.auth.decorators import login_required
@@ -67,7 +65,32 @@ def delete_chemical(request, id):
     
 def qr_code_scanner(request):
     return render(request, 'scanner.html')
-   
+
+def qr_code_scan(request):
+    return render(request, 'scan.html')
+
+def search_qr_code(request, qr_code):
+    record = get_object_or_404(QRCodeData, qr_code=qr_code)  # Query using the QR code data
+    response_data = {
+        'id': record.id,
+        'name': record.name,
+        'description': record.description,
+    }
+    return JsonResponse(response_data)
+
+def search_by_qr_code(request):
+    chem_id = request.GET.get('chem_id')  # assuming the QR code scanner sends the ID as 'chem_id'
+    try:
+        chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)
+        data = {
+            "chemName": chemical.chemName,
+            "chemLocation": chemical.chemLocation,
+            "chemAmountInBottle": chemical.chemAmountInBottle,
+            "chemStorageType": chemical.chemStorageType,
+        }
+        return JsonResponse(data, status=200)
+    except currentlyInStorageTable.DoesNotExist:
+        return JsonResponse({"error": "Chemical not found."}, status=404)   
 
 def searching(request):
 	#filter() returns row matching search value, need to pull input from user
@@ -78,4 +101,3 @@ def searching(request):
 		'currentlyInStorageTableSearch': searchData,
 	}
 	return HttpResponse(template.render(context, request))
-
