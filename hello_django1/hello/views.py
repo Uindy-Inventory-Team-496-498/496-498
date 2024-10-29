@@ -15,7 +15,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 
-class ChemListView(ListView):
+class ChemListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
     model = currentlyInStorageTable
 
@@ -37,7 +37,7 @@ def edit_chemical(request, id):
         form = EditChemicalForm(instance=chemical)
     return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
 
-class HomeListView(ListView, LoginRequiredMixin):
+class HomeListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
     model = LogChemical
 
