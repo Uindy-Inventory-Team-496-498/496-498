@@ -1,0 +1,35 @@
+[
+    {
+        "model": "hello.currentlyinstoragetable",
+        "pk": 1,
+        "fields": {
+            "chemBottleIDNUM": 1,
+            "chemName": "Sodium Chloride",
+            "chemLocation": "Shelf A",
+            "chemAmountInBottle": 50.0,
+            "chemStorageType": "Solid"
+        }
+    },
+    {
+        "model": "hello.currentlyinstoragetable",
+        "pk": 2,
+        "fields": {
+            "chemBottleIDNUM": 2,
+            "chemName": "Hydrochloric Acid",
+            "chemLocation": "Cabinet B",
+            "chemAmountInBottle": 20.5,
+            "chemStorageType": "Liquid"
+        }
+    },
+    {
+        "model": "hello.currentlyinstoragetable",
+        "pk": 3,
+        "fields": {
+            "chemBottleIDNUM": 3,
+            "chemName": "Ethanol",
+            "chemLocation": "Shelf C",
+            "chemAmountInBottle": 75.0,
+            "chemStorageType": "Liquid"
+        }
+    }
+]
