@@ -11,6 +11,14 @@ from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm
 from django.contrib.auth.decorators import login_required
 
+class ChemListView(ListView):
+    """Renders the home page, with a list of all messages."""
+    model = currentlyInStorageTable
+
+    def get_context_data(self, **kwargs):
+        context = super(ChemListView, self).get_context_data(**kwargs)
+        return context
+    
 class HomeListView(ListView):
     """Renders the home page, with a list of all messages."""
     model = LogChemical
@@ -21,6 +29,9 @@ class HomeListView(ListView):
 
 def about(request):
     return render(request, "about.html")
+
+def current_chemicals(request):
+    return render(request, "currchemicals.html")
 
 def login_view(request):
     if request.method == 'POST':

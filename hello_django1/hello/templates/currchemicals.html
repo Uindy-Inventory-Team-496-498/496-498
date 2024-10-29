@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block title %}
+    Chemicals DB
+{% endblock %}
+{% block content %}
+    <h2>Logged Chemicals</h2>
+
+    {% if chemical_list_db %}
+    <table class="chemical_list_db">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Amount</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for chemical in chemical_list_db %}
+            <tr>
+                <td>{{ chemical.chemBottleIDNUM}}</td>
+                <td>{{ chemical.chemName }}</td>
+                <td>{{ chemical.chemLocation }}</td>
+                <td>{{ chemical.chemAmountInBottle }}</td>
+                <td>{{ chemical.chemStorageType }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No chemicals have been logged.</p>
+    {% endif %}
+{% endblock %}
