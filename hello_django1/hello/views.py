@@ -107,7 +107,7 @@ def search_by_qr_code(request):
 def searching(request):
 	#filter() returns row matching search value, need to pull input from user
 	#, right now just using bottleIDNUM for ease of integrating barcode scanner
-	searchData = currentlyInStorageTable.objects.filter(chemBottleIDNUM_icontains=1).values()
+	searchData = currentlyInStorageTable.objects.filter(chemBottleIDNUM_exacts=1).values()
 	template = loader.get_template('template.html')
 	context = {
 		'currentlyInStorageTableSearch': searchData,
