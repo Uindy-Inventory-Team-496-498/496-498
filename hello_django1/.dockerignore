@@ -13,6 +13,7 @@
 **/*.*proj.user
 **/*.dbmdl
 **/*.jfm
+**/*.pyc
 **/bin
 **/charts
 **/docker-compose*
