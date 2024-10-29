@@ -37,7 +37,7 @@ def edit_chemical(request, id):
         form = EditChemicalForm(instance=chemical)
     return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
 
-class HomeListView(ListView):
+class HomeListView(ListView, LoginRequiredMixin):
     """Renders the home page, with a list of all messages."""
     model = LogChemical
 
