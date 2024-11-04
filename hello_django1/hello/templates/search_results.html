@@ -1,8 +1,7 @@
-{% extends "layout.html" %} <!-- Optional, if you have a base template -->
+{% extends "layout.html" %}
 
 {% block content %}
 <h1>Search Results for "{{ query }}"</h1>
-
 <ul>
     {% for item in results %}
         <li>{{ item.chemName }} - {{ item.chemBottleIDNUM }}</li>
@@ -10,5 +9,4 @@
         <li>No results found.</li>
     {% endfor %}
 </ul>
-
 {% endblock %}
