@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+
 
 class HomeListView(ListView):
     """Renders the home page, with a list of all messages."""
