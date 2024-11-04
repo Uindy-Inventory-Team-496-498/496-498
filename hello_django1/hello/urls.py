@@ -19,6 +19,7 @@ curr_list_view = views.ChemListView.as_view(
 )
 
 urlpatterns = [
+    path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
     path("", home_list_view, name="home"),
     path("about/", views.about, name="about"),
     path("contact/", views.contact, name="contact"),
@@ -29,5 +30,4 @@ urlpatterns = [
     path('search/', views.search_by_qr_code, name='search_by_qr_code'),
     path('currchemicals/', curr_list_view, name='current_chemicals'),
     path("admin/", admin.site.urls),
-    path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
 ]
