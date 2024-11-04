@@ -14,6 +14,7 @@
                 <th>Location</th>
                 <th>Amount</th>
                 <th>Type</th>
+                 <th>Edit</th>
             </tr>
         </thead>
         <tbody>
@@ -24,6 +25,7 @@
                 <td>{{ chemical.chemLocation }}</td>
                 <td>{{ chemical.chemAmountInBottle }}</td>
                 <td>{{ chemical.chemStorageType }}</td>
+                <td><a href="{% url 'edit_chemical' chemical.id %}">Edit</a></td>  
             </tr>
             {% endfor %}
         </tbody>
