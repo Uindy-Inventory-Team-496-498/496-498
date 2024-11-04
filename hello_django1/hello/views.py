@@ -11,6 +11,14 @@ from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm
 from django.contrib.auth.decorators import login_required
 
+class ChemListView(ListView):
+    """Renders the home page, with a list of all messages."""
+    model = currentlyInStorageTable
+
+    def get_context_data(self, **kwargs):
+        context = super(ChemListView, self).get_context_data(**kwargs)
+        return context
+    
 class HomeListView(ListView):
     """Renders the home page, with a list of all messages."""
     model = LogChemical
@@ -21,6 +29,9 @@ class HomeListView(ListView):
 
 def about(request):
     return render(request, "about.html")
+
+def current_chemicals(request):
+    return render(request, "currchemicals.html")
 
 def login_view(request):
     if request.method == 'POST':
@@ -78,7 +89,6 @@ def search_qr_code(request, qr_code):
     }
     return JsonResponse(response_data)
 
-
 def search_by_qr_code(request):
     chem_id = request.GET.get('chem_id')  # assuming the QR code scanner sends the ID as 'chem_id'
     try:
@@ -91,4 +101,14 @@ def search_by_qr_code(request):
         }
         return JsonResponse(data, status=200)
     except currentlyInStorageTable.DoesNotExist:
-        return JsonResponse({"error": "Chemical not found."}, status=404)
+        return JsonResponse({"error": "Chemical not found."}, status=404)   
+
+def searching(request):
+	#filter() returns row matching search value, need to pull input from user
+	#, right now just using bottleIDNUM for ease of integrating barcode scanner
+	searchData = currentlyInStorageTable.objects.filter(chemBottleIDNUM_exacts=1).values()
+	template = loader.get_template('template.html')
+	context = {
+		'currentlyInStorageTableSearch': searchData,
+	}
+	return HttpResponse(template.render(context, request))
