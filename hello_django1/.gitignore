@@ -13,4 +13,4 @@
 **/*.*proj.user
 **/*.dbmdl
 **/*.jfm
-**/*.pyc
+**/*.pyc__pycache__/
