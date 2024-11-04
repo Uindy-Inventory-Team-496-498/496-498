@@ -30,4 +30,6 @@ urlpatterns = [
     path('search/', views.search_by_qr_code, name='search_by_qr_code'),
     path('currchemicals/', curr_list_view, name='current_chemicals'),
     path("admin/", admin.site.urls),
+    path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
+	path('edit/<int:id>/', views.edit_chemical, name='edit_chemical'), 
 ]
