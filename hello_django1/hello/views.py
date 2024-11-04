@@ -4,8 +4,7 @@ from django.utils.timezone import datetime
 from hello.forms import LogChemicalForm
 from hello.forms import EditChemicalForm
 from hello.models import LogChemical
-
-from hello.models import QRCodeData, currentlyInStorageTable
+from hello.models import LogChemical, QRCodeData, currentlyInStorageTable
 from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -131,5 +130,14 @@ def searching(request):
 		'currentlyInStorageTableSearch': searchData,
 	}
 	return HttpResponse(template.render(context, request))
-   
 
+# Basic Search Implementation
+def basic_search(request):
+    query = request.GET.get('query', '')  # Get the search term from the request
+    results = currentlyInStorageTable.objects.filter(
+        chemBottleIDNUM__icontains=query
+    ) | currentlyInStorageTable.objects.filter(
+        chemName__icontains=query
+    )  # Search by ID or name using icontains for partial matches
+    
+    return render(request, 'search_results.html', {'results': results, 'query': query})
