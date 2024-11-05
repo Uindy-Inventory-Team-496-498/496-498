@@ -96,13 +96,25 @@ def search_by_qr_code(request):
     else:
         return JsonResponse({"error": "Invalid search input."}, status=400) 
     
-# Basic Search Implementation
-def basic_search(request):
-    query = request.GET.get('query', '')  # Get the search term from the request
-    results = currentlyInStorageTable.objects.filter(
-        chemBottleIDNUM__icontains=query
-    ) | currentlyInStorageTable.objects.filter(
-        chemName__icontains=query
-    )  # Search by ID or name using icontains for partial matches
-    
-    return render(request, 'search_results.html', {'results': results, 'query': query})
+
+def search_page(request):
+    query = request.GET.get('query', '').strip()
+    results = []
+    message = None
+
+    if query:
+        results = currentlyInStorageTable.objects.filter(
+            chemName__icontains=query
+        ) | currentlyInStorageTable.objects.filter(
+            chemBottleIDNUM__icontains=query
+        )
+        if not results:
+            message = "No results found."
+    elif request.GET:
+        message = "Please enter a search term."
+
+    return render(request, 'search.html', {
+        'results': results,
+        'query': query,
+        'message': message
+    })

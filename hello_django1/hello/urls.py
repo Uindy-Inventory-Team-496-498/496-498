@@ -20,7 +20,7 @@ urlpatterns = [
     path("delete/<int:id>/", views.delete_chemical, name='delete_message'),
     path('scanner/', views.qr_code_scanner, name='scanner'),
     path('scan/', views.qr_code_scan, name='scan'),
-    path("search/", views.basic_search, name="basic_search"),
+    path("search/", views.search_page, name="search"),
     path("search_by_qr_code/", views.search_by_qr_code, name="search_by_qr_code"),
     path("admin/", admin.site.urls),
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
