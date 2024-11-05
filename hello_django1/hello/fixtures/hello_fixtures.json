@@ -31,5 +31,27 @@
             "chemAmountInBottle": 75.0,
             "chemStorageType": "Liquid"
         }
+    },
+    {
+        "model": "hello.currentlyinstoragetable",
+        "pk": 4,
+        "fields": {
+            "chemBottleIDNUM": 4,
+            "chemName": "Nitrogen",
+            "chemLocation": "Shelf D",
+            "chemAmountInBottle": 45.0,
+            "chemStorageType": "Liquid"
+        }
+    },
+    {
+        "model": "hello.currentlyinstoragetable",
+        "pk": 5,
+        "fields": {
+            "chemBottleIDNUM": 5,
+            "chemName": "Potassium Nitrate",
+            "chemLocation": "Shelf E",
+            "chemAmountInBottle": 30.0,
+            "chemStorageType": "Solid"
+        }
     }
 ]

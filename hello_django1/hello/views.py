@@ -107,5 +107,3 @@ def search_by_qr_code(request):
         return JsonResponse(data, status=200)
     except currentlyInStorageTable.DoesNotExist:
         return JsonResponse({"error": "Chemical not found."}, status=404)
-    else:
-        return JsonResponse({"error": "Invalid search input."}, status=400)
