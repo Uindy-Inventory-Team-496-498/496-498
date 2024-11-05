@@ -11,6 +11,7 @@ from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm
 from django.contrib.auth.decorators import login_required
 
+<<<<<<< HEAD
 class ChemListView(ListView):
     """Renders the home page, with a list of all messages."""
     model = currentlyInStorageTable
@@ -19,6 +20,9 @@ class ChemListView(ListView):
         context = super(ChemListView, self).get_context_data(**kwargs)
         return context
     
+=======
+
+>>>>>>> yazeed-db-edits
 class HomeListView(ListView):
     """Renders the home page, with a list of all messages."""
     model = LogChemical
@@ -103,3 +107,5 @@ def search_by_qr_code(request):
         return JsonResponse(data, status=200)
     except currentlyInStorageTable.DoesNotExist:
         return JsonResponse({"error": "Chemical not found."}, status=404)
+    else:
+        return JsonResponse({"error": "Invalid search input."}, status=400)
