@@ -11,32 +11,19 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 
-class ChemListView(ListView):
+class ChemListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
     model = currentlyInStorageTable
 
     def get_context_data(self, **kwargs):
         context = super(ChemListView, self).get_context_data(**kwargs)
         return context
-		
-def edit_chemical(request, id):
-    chemical = get_object_or_404(currentlyInStorageTable, pk=id)
-    if request.method == 'POST':
-        # Use the EditChemicalForm to handle form submission
-        form = EditChemicalForm(request.POST, instance=chemical)
-        if form.is_valid():
-            form.save()  # Save the updated chemical data
-            messages.success(request, 'Chemical updated successfully!')  # Add a success message
-            return redirect('current_chemicals')  # Redirect back to the list view
-    else:
-        # Create the form with the existing chemical data pre-filled
-        form = EditChemicalForm(instance=chemical)
-    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
 
-class HomeListView(ListView):
+class HomeListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
     model = LogChemical
 
@@ -44,6 +31,7 @@ class HomeListView(ListView):
         context = super(HomeListView, self).get_context_data(**kwargs)
         return context
 
+@login_required
 def about(request):
     return render(request, "about.html")
 
@@ -66,12 +54,15 @@ def login_view(request):
         form = CustomLoginForm()
     return render(request, 'login.html', {'form': form})
 
+@login_required
 def home(request):
     return render(request, "home.html")
 
+@login_required
 def contact(request):
     return render(request, "contact.html")
 
+@login_required
 def log_chemical(request):
     form = LogChemicalForm(request.POST or None)
 
@@ -84,19 +75,23 @@ def log_chemical(request):
     else:
         return render(request, "log_message.html", {"form": form})
 
+@login_required
 def delete_chemical(request, id):
     chemical = get_object_or_404(LogChemical, id=id)
 
     if request.method == "POST":
         chemical.delete()
         return redirect("home")
-    
+
+@login_required  
 def qr_code_scanner(request):
     return render(request, 'scanner.html')
 
+@login_required
 def qr_code_scan(request):
     return render(request, 'scan.html')
 
+@login_required
 def search_qr_code(request, qr_code):
     record = get_object_or_404(QRCodeData, qr_code=qr_code)  # Query using the QR code data
     response_data = {
@@ -106,7 +101,7 @@ def search_qr_code(request, qr_code):
     }
     return JsonResponse(response_data)
 
-
+@login_required
 def search_by_qr_code(request):
     chem_id = request.GET.get('chem_id')  # assuming the QR code scanner sends the ID as 'chem_id'
     try:
@@ -122,7 +117,8 @@ def search_by_qr_code(request):
         return JsonResponse({"error": "Chemical not found."}, status=404)
     else:
         return JsonResponse({"error": "Invalid search input."}, status=400) 
-    
+
+@login_required
 def searching(request):
 	#filter() returns row matching search value, need to pull input from user
 	#, right now just using bottleIDNUM for ease of integrating barcode scanner
@@ -134,6 +130,7 @@ def searching(request):
 	return HttpResponse(template.render(context, request))
 
 # Basic Search Implementation
+@login_required
 def basic_search(request):
     query = request.GET.get('query', '')  # Get the search term from the request
     results = currentlyInStorageTable.objects.filter(
@@ -144,6 +141,7 @@ def basic_search(request):
     
     return render(request, 'search_results.html', {'results': results, 'query': query})
 
+@login_required
 def search_page(request):
     query = request.GET.get('query', '').strip()
     results = []
@@ -165,3 +163,18 @@ def search_page(request):
         'query': query,
         'message': message
     })
+
+@login_required
+def edit_chemical(request, id):
+    chemical = get_object_or_404(currentlyInStorageTable, pk=id)
+    if request.method == 'POST':
+        # Use the EditChemicalForm to handle form submission
+        form = EditChemicalForm(request.POST, instance=chemical)
+        if form.is_valid():
+            form.save()  # Save the updated chemical data
+            messages.success(request, 'Chemical updated successfully!')  # Add a success message
+            return redirect('current_chemicals')  # Redirect back to the list view
+    else:
+        # Create the form with the existing chemical data pre-filled
+        form = EditChemicalForm(instance=chemical)
+    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
