@@ -1,10 +1,6 @@
 import re
-from django.utils import timezone
-from django.utils.timezone import datetime
-from hello.forms import LogChemicalForm
 from hello.forms import EditChemicalForm
-from hello.models import LogChemical
-from hello.models import LogChemical, QRCodeData, currentlyInStorageTable
+from hello.models import QRCodeData, currentlyInStorageTable
 from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -22,18 +18,6 @@ class ChemListView(LoginRequiredMixin,ListView):
     def get_context_data(self, **kwargs):
         context = super(ChemListView, self).get_context_data(**kwargs)
         return context
-
-class HomeListView(LoginRequiredMixin,ListView):
-    """Renders the home page, with a list of all messages."""
-    model = LogChemical
-
-    def get_context_data(self, **kwargs):
-        context = super(HomeListView, self).get_context_data(**kwargs)
-        return context
-
-@login_required
-def about(request):
-    return render(request, "about.html")
 
 def current_chemicals(request):
     return render(request, "currchemicals.html")
@@ -59,33 +43,12 @@ def home(request):
     return render(request, "home.html")
 
 @login_required
-def contact(request):
-    return render(request, "contact.html")
-
-@login_required
-def log_chemical(request):
-    form = LogChemicalForm(request.POST or None)
-
-    if request.method == "POST":
-        if form.is_valid():
-            chemical = form.save(commit=False)
-            chemical.log_date = datetime.now()
-            chemical.save()
-            return redirect("log")
-    else:
-        return render(request, "log_message.html", {"form": form})
-
-@login_required
 def delete_chemical(request, id):
     chemical = get_object_or_404(LogChemical, id=id)
 
     if request.method == "POST":
         chemical.delete()
         return redirect("home")
-
-@login_required  
-def qr_code_scanner(request):
-    return render(request, 'scanner.html')
 
 @login_required
 def qr_code_scan(request):
@@ -99,47 +62,8 @@ def search_qr_code(request, qr_code):
         'name': record.name,
         'description': record.description,
     }
-    return JsonResponse(response_data)
+    return JsonResponse(response_data) 
 
-@login_required
-def search_by_qr_code(request):
-    chem_id = request.GET.get('chem_id')  # assuming the QR code scanner sends the ID as 'chem_id'
-    try:
-        chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)
-        data = {
-            "chemName": chemical.chemName,
-            "chemLocation": chemical.chemLocation,
-            "chemAmountInBottle": chemical.chemAmountInBottle,
-            "chemStorageType": chemical.chemStorageType,
-        }
-        return JsonResponse(data, status=200)
-    except currentlyInStorageTable.DoesNotExist:
-        return JsonResponse({"error": "Chemical not found."}, status=404)
-    else:
-        return JsonResponse({"error": "Invalid search input."}, status=400) 
-
-@login_required
-def searching(request):
-	#filter() returns row matching search value, need to pull input from user
-	#, right now just using bottleIDNUM for ease of integrating barcode scanner
-	searchData = currentlyInStorageTable.objects.filter(chemBottleIDNUM_exacts=1).values()
-	template = loader.get_template('template.html')
-	context = {
-		'currentlyInStorageTableSearch': searchData,
-	}
-	return HttpResponse(template.render(context, request))
-
-# Basic Search Implementation
-@login_required
-def basic_search(request):
-    query = request.GET.get('query', '')  # Get the search term from the request
-    results = currentlyInStorageTable.objects.filter(
-        chemBottleIDNUM__icontains=query
-    ) | currentlyInStorageTable.objects.filter(
-        chemName__icontains=query
-    )  # Search by ID or name using icontains for partial matches
-    
-    return render(request, 'search_results.html', {'results': results, 'query': query})
 
 @login_required
 def search_page(request):
