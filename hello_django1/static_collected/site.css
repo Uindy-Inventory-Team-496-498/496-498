@@ -35,6 +35,7 @@ input[name=message] {
     padding-right: 15px;
 }
 
+<<<<<<< Updated upstream
 .search-button {
     padding: 8px 12px;
     background-color: #8b0000;
@@ -49,6 +50,8 @@ input[name=message] {
     background-color: #a52a2a;
 }
 
+=======
+>>>>>>> Stashed changes
 .button-container {
     display: flex;
     justify-content: center;
