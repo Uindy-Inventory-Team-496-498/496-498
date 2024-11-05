@@ -19,7 +19,6 @@ curr_list_view = views.ChemListView.as_view(
 )
 
 urlpatterns = [
-    path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
     path("", home_list_view, name="home"),
     path("about/", views.about, name="about"),
     path("contact/", views.contact, name="contact"),
