@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block title %}
+    Search Inventory
+{% endblock %}
+{% block content %}
+    <div class="search-container">
+        <!-- search.html -->
+        <form action="{% url 'search' %}" method="get" class="search-form">
+            <input 
+                type="text" 
+                name="query" 
+                id="query" 
+                placeholder="Enter chemical name or ID..." 
+                class="search-input"
+                value="{{ query }}"
+            >
+            <button type="submit" class="search-button">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <div class="results-container">
+        <h2>Search Results for "{{ query }}"</h2>
+
+        {% if message %}
+            <p class="alert-message">{{ message }}</p>
+        {% elif results %}
+            <p class="results-count">{{ results|length }} result(s) found</p>
+
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Chemical Name</th>
+                        <th>Bottle ID</th>
+                        <th>Location</th>
+                        <th>Amount</th>
+                        <th>Storage Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in results %}
+                        <tr>
+                            <td>{{ item.chemName }}</td>
+                            <td>{{ item.chemBottleIDNUM }}</td>
+                            <td>{{ item.chemLocation }}</td>
+                            <td>{{ item.chemAmountInBottle }}</td>
+                            <td>{{ item.chemStorageType }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="alert-message">No results found for "{{ query }}"</p>
+        {% endif %}
+    </div>
+{% endblock %}
