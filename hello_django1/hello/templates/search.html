@@ -21,7 +21,7 @@
     </div>
 
     <div class="results-container">
-        <h2>Search Results for "{{ query }}"</h2>
+        <h2>Search Results for {{ query }}</h2>
 
         {% if message %}
             <p class="alert-message">{{ message }}</p>
@@ -51,7 +51,7 @@
                 </tbody>
             </table>
         {% else %}
-            <p class="alert-message">No results found for "{{ query }}"</p>
+            <p class="alert-message">No results found for {{ query }}</p>
         {% endif %}
     </div>
 {% endblock %}

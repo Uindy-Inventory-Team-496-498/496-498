@@ -63,3 +63,32 @@ input[name=message] {
 td {
     vertical-align: middle;
 }
+
+/* Center the search container */
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+/* Center the results container */
+.results-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Center-align the table within the results */
+.results-table {
+    width: 80%;
+    margin: 0 auto;
+    width: 100%; /* Optional, adjust if needed */
+    border-collapse: collapse;
+}
+
+/* Optional: Center-align table headers and text */
+.results-table th,
+.results-table td {
+    text-align: center;
+}
