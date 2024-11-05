@@ -22,20 +22,6 @@ class ChemListView(LoginRequiredMixin,ListView):
     def get_context_data(self, **kwargs):
         context = super(ChemListView, self).get_context_data(**kwargs)
         return context
-		
-def edit_chemical(request, id):
-    chemical = get_object_or_404(currentlyInStorageTable, pk=id)
-    if request.method == 'POST':
-        # Use the EditChemicalForm to handle form submission
-        form = EditChemicalForm(request.POST, instance=chemical)
-        if form.is_valid():
-            form.save()  # Save the updated chemical data
-            messages.success(request, 'Chemical updated successfully!')  # Add a success message
-            return redirect('current_chemicals')  # Redirect back to the list view
-    else:
-        # Create the form with the existing chemical data pre-filled
-        form = EditChemicalForm(instance=chemical)
-    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
 
 class HomeListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
@@ -131,7 +117,8 @@ def search_by_qr_code(request):
         return JsonResponse({"error": "Chemical not found."}, status=404)
     else:
         return JsonResponse({"error": "Invalid search input."}, status=400) 
-    
+
+@login_required
 def searching(request):
 	#filter() returns row matching search value, need to pull input from user
 	#, right now just using bottleIDNUM for ease of integrating barcode scanner
@@ -143,6 +130,7 @@ def searching(request):
 	return HttpResponse(template.render(context, request))
 
 # Basic Search Implementation
+@login_required
 def basic_search(request):
     query = request.GET.get('query', '')  # Get the search term from the request
     results = currentlyInStorageTable.objects.filter(
@@ -153,6 +141,7 @@ def basic_search(request):
     
     return render(request, 'search_results.html', {'results': results, 'query': query})
 
+@login_required
 def search_page(request):
     query = request.GET.get('query', '').strip()
     results = []
@@ -174,3 +163,18 @@ def search_page(request):
         'query': query,
         'message': message
     })
+
+@login_required
+def edit_chemical(request, id):
+    chemical = get_object_or_404(currentlyInStorageTable, pk=id)
+    if request.method == 'POST':
+        # Use the EditChemicalForm to handle form submission
+        form = EditChemicalForm(request.POST, instance=chemical)
+        if form.is_valid():
+            form.save()  # Save the updated chemical data
+            messages.success(request, 'Chemical updated successfully!')  # Add a success message
+            return redirect('current_chemicals')  # Redirect back to the list view
+    else:
+        # Create the form with the existing chemical data pre-filled
+        form = EditChemicalForm(instance=chemical)
+    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
