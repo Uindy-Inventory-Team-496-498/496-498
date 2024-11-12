@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Chemical</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'site.css' %}"/>
+</head>
+<body>
+    <h1>Edit Chemical</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}  
+        <button type="submit">Save Changes</button>
+    </form>
+</body>
+</html>

@@ -1,8 +1,5 @@
 import re
-from django.utils import timezone
-from django.utils.timezone import datetime
-from hello.forms import LogChemicalForm
-from hello.models import LogChemical
+from hello.forms import EditChemicalForm
 from hello.models import QRCodeData, currentlyInStorageTable
 from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
@@ -10,15 +7,23 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
+from django.contrib import messages
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 class ChemListView(ListView):
+=======
+class ChemListView(LoginRequiredMixin,ListView):
+>>>>>>> 9e4dc3b0d76c9064854f4ee56dbc17f3e668b0b9
     """Renders the home page, with a list of all messages."""
     model = currentlyInStorageTable
 
     def get_context_data(self, **kwargs):
         context = super(ChemListView, self).get_context_data(**kwargs)
         return context
+<<<<<<< HEAD
     
 =======
 
@@ -33,6 +38,8 @@ class HomeListView(ListView):
 
 def about(request):
     return render(request, "about.html")
+=======
+>>>>>>> 9e4dc3b0d76c9064854f4ee56dbc17f3e668b0b9
 
 def current_chemicals(request):
     return render(request, "currchemicals.html")
@@ -53,37 +60,23 @@ def login_view(request):
         form = CustomLoginForm()
     return render(request, 'login.html', {'form': form})
 
+@login_required
 def home(request):
     return render(request, "home.html")
 
-def contact(request):
-    return render(request, "contact.html")
-
-def log_chemical(request):
-    form = LogChemicalForm(request.POST or None)
-
-    if request.method == "POST":
-        if form.is_valid():
-            chemical = form.save(commit=False)
-            chemical.log_date = datetime.now()
-            chemical.save()
-            return redirect("log")
-    else:
-        return render(request, "log_message.html", {"form": form})
-
+@login_required
 def delete_chemical(request, id):
     chemical = get_object_or_404(LogChemical, id=id)
 
     if request.method == "POST":
         chemical.delete()
         return redirect("home")
-    
-def qr_code_scanner(request):
-    return render(request, 'scanner.html')
 
+@login_required
 def qr_code_scan(request):
     return render(request, 'scan.html')
 
+@login_required
 def search_qr_code(request, qr_code):
     record = get_object_or_404(QRCodeData, qr_code=qr_code)  # Query using the QR code data
     response_data = {
@@ -91,9 +84,10 @@ def search_qr_code(request, qr_code):
         'name': record.name,
         'description': record.description,
     }
-    return JsonResponse(response_data)
+    return JsonResponse(response_data) 
 
 
+<<<<<<< HEAD
 def search_by_qr_code(request):
     chem_id = request.GET.get('chem_id')  # assuming the QR code scanner sends the ID as 'chem_id'
     try:
@@ -107,3 +101,42 @@ def search_by_qr_code(request):
         return JsonResponse(data, status=200)
     except currentlyInStorageTable.DoesNotExist:
         return JsonResponse({"error": "Chemical not found."}, status=404)
+=======
+@login_required
+def search_page(request):
+    query = request.GET.get('query', '').strip()
+    results = []
+    message = None
+
+    if query:
+        results = currentlyInStorageTable.objects.filter(
+            chemName__icontains=query
+        ) | currentlyInStorageTable.objects.filter(
+            chemBottleIDNUM__icontains=query
+        )
+        if not results:
+            message = "No results found."
+    elif request.GET:
+        message = "Please enter a search term."
+
+    return render(request, 'search.html', {
+        'results': results,
+        'query': query,
+        'message': message
+    })
+
+@login_required
+def edit_chemical(request, id):
+    chemical = get_object_or_404(currentlyInStorageTable, pk=id)
+    if request.method == 'POST':
+        # Use the EditChemicalForm to handle form submission
+        form = EditChemicalForm(request.POST, instance=chemical)
+        if form.is_valid():
+            form.save()  # Save the updated chemical data
+            messages.success(request, 'Chemical updated successfully!')  # Add a success message
+            return redirect('current_chemicals')  # Redirect back to the list view
+    else:
+        # Create the form with the existing chemical data pre-filled
+        form = EditChemicalForm(instance=chemical)
+    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
+>>>>>>> 9e4dc3b0d76c9064854f4ee56dbc17f3e668b0b9
