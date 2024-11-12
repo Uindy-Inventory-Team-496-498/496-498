@@ -11,23 +11,18 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 class ChemListView(ListView):
-=======
+
 class ChemListView(LoginRequiredMixin,ListView):
->>>>>>> 9e4dc3b0d76c9064854f4ee56dbc17f3e668b0b9
     """Renders the home page, with a list of all messages."""
     model = currentlyInStorageTable
 
     def get_context_data(self, **kwargs):
         context = super(ChemListView, self).get_context_data(**kwargs)
         return context
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> yazeed-db-edits
+
 class HomeListView(ListView):
     """Renders the home page, with a list of all messages."""
     model = LogChemical
@@ -38,8 +33,6 @@ class HomeListView(ListView):
 
 def about(request):
     return render(request, "about.html")
-=======
->>>>>>> 9e4dc3b0d76c9064854f4ee56dbc17f3e668b0b9
 
 def current_chemicals(request):
     return render(request, "currchemicals.html")
@@ -87,7 +80,7 @@ def search_qr_code(request, qr_code):
     return JsonResponse(response_data) 
 
 
-<<<<<<< HEAD
+
 def search_by_qr_code(request):
     chem_id = request.GET.get('chem_id')  # assuming the QR code scanner sends the ID as 'chem_id'
     try:
@@ -101,7 +94,7 @@ def search_by_qr_code(request):
         return JsonResponse(data, status=200)
     except currentlyInStorageTable.DoesNotExist:
         return JsonResponse({"error": "Chemical not found."}, status=404)
-=======
+
 @login_required
 def search_page(request):
     query = request.GET.get('query', '').strip()
@@ -139,4 +132,4 @@ def edit_chemical(request, id):
         # Create the form with the existing chemical data pre-filled
         form = EditChemicalForm(instance=chemical)
     return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
->>>>>>> 9e4dc3b0d76c9064854f4ee56dbc17f3e668b0b9
+
