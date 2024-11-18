@@ -9,9 +9,18 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
+# Install required system packages for MySQL client
+RUN apt-get update && apt-get install -y \
+    default-libmysqlclient-dev \
+    build-essential \
+    pkg-config \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install pip requirements
-COPY requirements.txt . 
-RUN python -m pip install -r requirements.txt
+COPY requirements.txt .
+RUN python -m pip install --no-cache-dir --upgrade pip && \
+    python -m pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /app
 COPY . /app
