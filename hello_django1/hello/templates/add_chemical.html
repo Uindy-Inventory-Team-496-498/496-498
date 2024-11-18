@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Add New Chemical
+{% endblock %}
+
+{% block content %}
+    <h2>Add a New Chemical</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Chemical</button>
+    </form>
+{% endblock %}

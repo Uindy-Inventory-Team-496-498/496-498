@@ -1,135 +1,154 @@
 {% extends "layout.html" %}
+
 {% block title %}
     Chemicals DB
 {% endblock %}
+
 {% block content %}
     <h2>Logged Chemicals</h2>
 
-{% if chemical_list_db %}
-<label for="sort-actions">Sort list by:</label>
-<select name="sort-actions" id="sort-actions">
-    <option value="a-z">A-Z</option>
-    <option value="z-a">Z-A</option>
-    <option value="amount-asc">Amount (Low to High)</option>
-    <option value="amount-desc">Amount (High to Low)</option>
-    <option value="id-asc">ID# (Low to High)</option>
-    <option value="id-desc">ID# (High to Low)</option>
-</select><br>
+    <form action="{% url 'add_chemical' %}" method="get">
+        <button type="submit" class="button-style">Add New Chemical</button>
+    </form>
 
-<p style="display: inline;"><strong>Chemical Type:</strong></p>
-<input type="radio" id="any-type" name="type-choice" value="any" checked onchange="filterList()">
-<label for="any-type">Any</label>
-<input type="radio" id="solid" name="type-choice" value="solid" onchange="filterList()">
-<label for="solid">Solid</label>
-<input type="radio" id="liquid" name="type-choice" value="liquid" onchange="filterList()">
-<label for="liquid">Liquid</label><br>
+    {% if chemical_list_db %}
+    <label for="sort-actions">Sort list by:</label>
+    <select name="sort-actions" id="sort-actions">
+        <option value="a-z">A-Z</option>
+        <option value="z-a">Z-A</option>
+        <option value="amount-asc">Amount (Low to High)</option>
+        <option value="amount-desc">Amount (High to Low)</option>
+        <option value="id-asc">ID# (Low to High)</option>
+        <option value="id-desc">ID# (High to Low)</option>
+    </select><br>
 
-<p style="display: inline;"><strong>Location:</strong></p>
-<input type="radio" id="any-location" name="location" value="any" checked onchange="filterList()">
-<label for="any-location">Any</label>
-<input type="radio" id="shelves" name="location" value="shelves" onchange="filterList()">
-<label for="shelves">Shelves</label>
-<input type="radio" id="cabinets" name="location" value="cabinets" onchange="filterList()">
-<label for="cabinets">Cabinets</label><br>
+    <p style="display: inline;"><strong>Chemical Type:</strong></p>
+    <input type="radio" id="any-type" name="type-choice" value="any" checked onchange="filterList()">
+    <label for="any-type">Any</label>
+    <input type="radio" id="solid" name="type-choice" value="solid" onchange="filterList()">
+    <label for="solid">Solid</label>
+    <input type="radio" id="liquid" name="type-choice" value="liquid" onchange="filterList()">
+    <label for="liquid">Liquid</label><br>
 
-<button id="sort-list-button" onclick="sortList()">Sort List</button>
+    <p style="display: inline;"><strong>Location:</strong></p>
+    <input type="radio" id="any-location" name="location" value="any" checked onchange="filterList()">
+    <label for="any-location">Any</label>
+    <input type="radio" id="shelves" name="location" value="shelves" onchange="filterList()">
+    <label for="shelves">Shelves</label>
+    <input type="radio" id="cabinets" name="location" value="cabinets" onchange="filterList()">
+    <label for="cabinets">Cabinets</label><br>
 
-<table class="chemical_list_db">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Location</th>
-            <th>Amount</th>
-            <th>Type</th>
-            <th>Edit</th>
-        </tr>
-    </thead>
-    <tbody id="chemical-table-body">
-        {% for chemical in chemical_list_db %}
-        <tr class="chemical-row" data-type="{{ chemical.chemStorageType|lower }}" data-location="{{ chemical.chemLocation|lower }}">
-            <td>{{ chemical.chemBottleIDNUM }}</td>
-            <td>{{ chemical.chemName }}</td>
-            <td>{{ chemical.chemLocation }}</td>
-            <td>{{ chemical.chemAmountInBottle }}</td>
-            <td>{{ chemical.chemStorageType }}</td>
-            <td><a href="{% url 'edit_chemical' chemical.id %}">Edit</a></td>  
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <button id="sort-list-button" onclick="sortList()">Sort List</button>
 
-<script>
-    function sortList() {
-        const sortOption = document.getElementById("sort-actions").value;
-        const tableBody = document.getElementById("chemical-table-body");
-        const rows = Array.from(tableBody.rows);
+    <table class="chemical_list_db">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Amount</th>
+                <th>Type</th>
+                <th>Edit</th>
+                <th>Delete</th> 
+            </tr>
+        </thead>
+        <tbody id="chemical-table-body">
+            {% for chemical in chemical_list_db %}
+            <tr class="chemical-row" data-type="{{ chemical.chemStorageType|lower }}" data-location="{{ chemical.chemLocation|lower }}">
+                <td>{{ chemical.chemBottleIDNUM }}</td>
+                <td>{{ chemical.chemName }}</td>
+                <td>{{ chemical.chemLocation }}</td>
+                <td>{{ chemical.chemAmountInBottle }}</td>
+                <td>{{ chemical.chemStorageType }}</td>
+                <td>
+                    <!-- Edit Chemical Button -->
+                    <form action="{% url 'edit_chemical' chemical.id %}" method="get" style="display:inline;">
+                        <button type="submit" class="button-style">Edit</button>
+                    </form>
+                </td>
+                <td>
+                    <!-- Delete Chemical Button -->
+                    <form method="POST" action="{% url 'delete_chemical' chemical.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete this chemical?')" class="button-style">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        rows.sort((a, b) => {
-            const aValue = getSortValue(a, sortOption);
-            const bValue = getSortValue(b, sortOption);
+    <script>
+        function sortList() {
+            const sortOption = document.getElementById("sort-actions").value;
+            const tableBody = document.getElementById("chemical-table-body");
+            const rows = Array.from(tableBody.rows);
 
+            rows.sort((a, b) => {
+                const aValue = getSortValue(a, sortOption);
+                const bValue = getSortValue(b, sortOption);
+
+                switch (sortOption) {
+                    case 'a-z':
+                        return aValue.localeCompare(bValue);
+                    case 'z-a':
+                        return bValue.localeCompare(aValue);
+                    case 'amount-asc':
+                        return parseFloat(a.cells[3].textContent) - parseFloat(b.cells[3].textContent); // Sort by amount ascending
+                    case 'amount-desc':
+                        return parseFloat(b.cells[3].textContent) - parseFloat(a.cells[3].textContent); // Sort by amount descending
+                    case 'id-asc':
+                        return parseInt(a.cells[0].textContent) - parseInt(b.cells[0].textContent); // Sort by ID ascending
+                    case 'id-desc':
+                        return parseInt(b.cells[0].textContent) - parseInt(a.cells[0].textContent); // Sort by ID descending
+                    default:
+                        return 0;
+                }
+            });
+
+            tableBody.innerHTML = '';
+
+            rows.forEach(row => tableBody.appendChild(row));
+        }
+
+        function getSortValue(row, sortOption) {
             switch (sortOption) {
                 case 'a-z':
-                    return aValue.localeCompare(bValue);
                 case 'z-a':
-                    return bValue.localeCompare(aValue);
+                    return row.cells[1].textContent; 
                 case 'amount-asc':
-                    return parseFloat(a.cells[3].textContent) - parseFloat(b.cells[3].textContent); // Sort by amount ascending
                 case 'amount-desc':
-                    return parseFloat(b.cells[3].textContent) - parseFloat(a.cells[3].textContent); // Sort by amount descending
+                    return row.cells[3].textContent;
                 case 'id-asc':
-                    return parseInt(a.cells[0].textContent) - parseInt(b.cells[0].textContent); // Sort by ID ascending
                 case 'id-desc':
-                    return parseInt(b.cells[0].textContent) - parseInt(a.cells[0].textContent); // Sort by ID descending
+                    return row.cells[0].textContent;
                 default:
-                    return 0;
+                    return ''; 
             }
-        });
-
-        tableBody.innerHTML = '';
-
-        rows.forEach(row => tableBody.appendChild(row));
-    }
-
-    function getSortValue(row, sortOption) {
-        switch (sortOption) {
-            case 'a-z':
-            case 'z-a':
-                return row.cells[1].textContent; 
-            case 'amount-asc':
-            case 'amount-desc':
-                return row.cells[3].textContent;
-            case 'id-asc':
-            case 'id-desc':
-                return row.cells[0].textContent;
-            default:
-                return ''; 
         }
-    }
 
-    function filterList() {
-        const selectedType = document.querySelector('input[name="type-choice"]:checked').value;
-        const selectedLocation = document.querySelector('input[name="location"]:checked').value;
-        const rows = document.querySelectorAll('.chemical-row');
+        function filterList() {
+            const selectedType = document.querySelector('input[name="type-choice"]:checked').value;
+            const selectedLocation = document.querySelector('input[name="location"]:checked').value;
+            const rows = document.querySelectorAll('.chemical-row');
 
-        rows.forEach(row => {
-            const rowType = row.getAttribute('data-type');
-            const rowLocation = row.getAttribute('data-location');
-            
-            const typeMatches = (selectedType === 'any' || rowType === selectedType);
-            const locationMatches = (selectedLocation === 'any' || rowLocation === selectedLocation);
+            rows.forEach(row => {
+                const rowType = row.getAttribute('data-type');
+                const rowLocation = row.getAttribute('data-location');
+                
+                const typeMatches = (selectedType === 'any' || rowType === selectedType);
+                const locationMatches = (selectedLocation === 'any' || rowLocation === selectedLocation);
 
-            if (typeMatches && locationMatches) {
-                row.style.display = ''; // Show row
-            } else {
-                row.style.display = 'none'; // Hide row
-            }
-        });
-    }
-</script>
+                if (typeMatches && locationMatches) {
+                    row.style.display = ''; // Show row
+                } else {
+                    row.style.display = 'none'; // Hide row
+                }
+            });
+        }
+    </script>
 
-{% else %}
-<p>No chemicals have been logged.</p>
-{% endif %}
+    {% else %}
+    <p>No chemicals have been logged.</p>
+    {% endif %}
 {% endblock %}
