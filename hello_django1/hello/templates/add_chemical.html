@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Edit Chemical</h1>
+    <h2>Add a New Chemical</h2>
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}  
-        <button type="submit">Save Changes</button>
+        {{ form.as_p }}
+        <button type="submit">Add Chemical</button>
     </form>
 {% endblock %}

@@ -63,3 +63,26 @@ input[name=message] {
 td {
     vertical-align: middle;
 }
+
+.button-style {
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 14px;
+    color: white;
+    background-color: #607892;
+    border: 1px solid #607892;
+    border-radius: 3px;
+    text-align: center;
+    text-decoration: none; 
+    cursor: pointer;
+}
+
+.button-style:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.button-style:active {
+    background-color: #004085;
+    border-color: #004085;
+}
