@@ -13,8 +13,12 @@
   <tr>
     <th>chemical Bottle ID</th>
     <th>chemical Name</th>
-    <th>chemical Location</th>
+    <th>chemical Cabinet</th>
+	<th>chemical Shelf</th>
 	<th>chemical Amount In Bottle</th>
+	<th>chemical Amount Unit</th>
+	<th>chemical Concentration</th>
+	<th>chemical SDS</th>
 	<th>chemical storage type</th>
 
   </tr>
@@ -22,8 +26,12 @@
     <tr>
       <td>{{ x.chemBottleIDNUM }}</td>
 	  <td>{{ x.chemName }}</td>
-      <td>{{ x.chemLocation }}</td>
+      <td>{{ x.chemLocationCabinet }}</td>
+	  <td>{{ x.chemLocationShelf }}</td>
 	  <td>{{ x.chemAmountInBottle }}</td>
+	  <td>{{ x.chemAmountUnit }}</td>
+	  <td>{{ x.chemConcentration }}</td>
+	  <td>{{ x.chemSDS}}</td>
       <td>{{ x.chemStorageType }}</td>
     </tr>
   {% endfor %}

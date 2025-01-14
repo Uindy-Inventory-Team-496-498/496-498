@@ -12,8 +12,12 @@ class LogChemical(models.Model):
 class currentlyInStorageTable(models.Model):
 	chemBottleIDNUM = models.IntegerField()
 	chemName = models.CharField(max_length=255)
-	chemLocation = models.CharField(max_length=255)
+	chemLocationCabinet = models.CharField(null = True, max_length=255)
+	chemLocationShelf = models.CharField(null = True,max_length=255)
 	chemAmountInBottle = models.FloatField()
+	chemAmountUnit = models.CharField(null = True, max_length=255)
+	chemConcentration = models.CharField(null = True, max_length=255)
+	chemSDS = models.IntegerField(null = True)
 	chemStorageType = models.CharField(max_length=255)
 	 
 	 

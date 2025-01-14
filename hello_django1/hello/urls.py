@@ -14,7 +14,8 @@ home_list_view = views.HomeListView.as_view(
 )
 
 curr_list_view = views.ChemListView.as_view(
-    queryset=currentlyInStorageTable.objects.order_by("-chemBottleIDNUM")[:5],
+	#removed the [:5] at the end of the following line to display entire database
+    queryset=currentlyInStorageTable.objects.order_by("-chemBottleIDNUM"),
     context_object_name ="chemical_list_db",
     template_name = "currchemicals.html",
 )

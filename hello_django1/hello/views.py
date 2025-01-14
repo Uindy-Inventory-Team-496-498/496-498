@@ -137,7 +137,7 @@ def basic_search(request):
         chemBottleIDNUM__icontains=query
     ) | currentlyInStorageTable.objects.filter(
         chemName__icontains=query
-    )  # Search by ID or name using icontains for partial matches
+    ) | currentlyInStorageTable.objects.filter( chemAmountUnit_icontains=query)  # Search by ID or name using icontains for partial matches
     
     return render(request, 'search_results.html', {'results': results, 'query': query})
 
