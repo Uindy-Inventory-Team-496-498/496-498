@@ -1,10 +1,10 @@
-version: '3.8'
-
 services:
   web:
     build: ./hello_django1
+    container_name: django_web
     ports:
       - "8000:8000"
+    restart: always
     environment:
       MYSQL_DATABASE: my_database
       MYSQL_USER: my_user
@@ -16,11 +16,12 @@ services:
     volumes:
       - static_volume:/app/static_collected
     command: >
-      sh -c "python manage.py migrate && python manage.py loaddata hello/fixtures/hello_fixtures.json && python manage.py runserver 0.0.0.0:8000"
+      sh -c "./wait-for-it.sh mysql:3306 --timeout=30 --strict -- python manage.py migrate && python manage.py loaddata hello/fixtures/hello_fixtures.json && python manage.py runserver 0.0.0.0:8000"
 
   mysql:
     image: mysql:8.0
-    container_name: mysql
+    container_name: mysql_db
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: my_database
