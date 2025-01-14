@@ -7,6 +7,7 @@ use ```docker-compose up -d``` to start the docker container (including the MySQ
 use ```docker-compose down``` to stop the running container
 
 go to <http://localhost:8000>
+if inaccesible, double check docker. Sometimes the "web-1" container stops running and needs to be started again (press the play button in docker desktop). Known bug, will try to figure out why
 
 useful commands:
 
