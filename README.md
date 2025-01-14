@@ -1,6 +1,6 @@
 # Chemistry Inventory System
 
-Note: MySQL needs to be installed manually before running the below configuration
+Note: MySQL needs to be installed manually before running the below configuration, try '''pip install mysql'''
 
 use '''docker-compose build''' to create the relevant docker image (This will need to be run anytime changes are made to the web app)
 
