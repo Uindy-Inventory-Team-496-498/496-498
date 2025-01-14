@@ -28,7 +28,9 @@
     <input type="radio" id="solid" name="type-choice" value="solid" onchange="filterList()">
     <label for="solid">Solid</label>
     <input type="radio" id="liquid" name="type-choice" value="liquid" onchange="filterList()">
-    <label for="liquid">Liquid</label><br>
+    <label for="liquid">Liquid</label>
+<input type="radio" id="gas" name="type-choice" value="gas" onchange="filterList()">
+<label for="gas">Gas</label><br>
 
     <p style="display: inline;"><strong>Location:</strong></p>
     <input type="radio" id="any-location" name="location" value="any" checked onchange="filterList()">
@@ -135,10 +137,21 @@
             rows.forEach(row => {
                 const rowType = row.getAttribute('data-type');
                 const rowLocation = row.getAttribute('data-location');
-                
+    
+            // Check if the row matches the selected type
                 const typeMatches = (selectedType === 'any' || rowType === selectedType);
-                const locationMatches = (selectedLocation === 'any' || rowLocation === selectedLocation);
 
+                // Check if the row matches the selected location
+            let locationMatches = false;
+            if (selectedLocation === 'any') {
+                locationMatches = true;
+            } else if (selectedLocation === 'shelves') {
+                locationMatches = rowLocation.includes("shelf");
+            } else if (selectedLocation === 'cabinets') {
+                locationMatches = rowLocation.includes("cabinet");
+            }
+
+            // Show or hide the row based on type and location matching
                 if (typeMatches && locationMatches) {
                     row.style.display = ''; // Show row
                 } else {
