@@ -1,7 +1,9 @@
 # Chemistry Inventory System
 
 use '''docker-compose build''' to create the relevant docker image (This will need to be run anytime changes are made to the web app)
+
 use '''docker-compose up -d''' to start the docker container (including the MySQL database)
+
 use '''docker-compose down''' to stop the running container
 
 useful commands:
