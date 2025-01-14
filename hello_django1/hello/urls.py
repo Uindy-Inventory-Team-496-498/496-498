@@ -22,6 +22,9 @@ urlpatterns = [
     path("", views.home, name="home"),
     path('scan/', views.qr_code_scan, name='scan'),
     path("search/", views.search_page, name="search"),
+    path('search_by_qr/', views.search_qr_code, name='search_qr_code'),
     path('currchemicals/', curr_list_view, name='current_chemicals'),
 	path('edit/<int:id>/', views.edit_chemical, name='edit_chemical'), 
+    path('add/', views.add_chemical, name='add_chemical'),
+    path('delete/<int:id>/', views.delete_chemical, name='delete_chemical'),
 ]

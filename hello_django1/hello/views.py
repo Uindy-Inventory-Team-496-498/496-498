@@ -43,26 +43,27 @@ def home(request):
     return render(request, "home.html")
 
 @login_required
-def delete_chemical(request, id):
-    chemical = get_object_or_404(LogChemical, id=id)
-
-    if request.method == "POST":
-        chemical.delete()
-        return redirect("home")
-
-@login_required
 def qr_code_scan(request):
     return render(request, 'scan.html')
 
 @login_required
-def search_qr_code(request, qr_code):
-    record = get_object_or_404(QRCodeData, qr_code=qr_code)  # Query using the QR code data
-    response_data = {
-        'id': record.id,
-        'name': record.name,
-        'description': record.description,
-    }
-    return JsonResponse(response_data) 
+def search_qr_code(request):
+    chem_id = request.GET.get('chem_id')  # Get chem_id from query parameters
+    if not chem_id:
+        return JsonResponse({'error': 'No chemical ID provided'}, status=400)
+
+    # Try to get the chemical data from the database
+    try:
+        chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)  # Assuming chemBottleIDNUM is used as ID
+        response_data = {
+            'chemName': chemical.chemName,
+            'chemLocation': chemical.chemLocation,
+            'chemAmountInBottle': chemical.chemAmountInBottle,
+            'chemStorageType': chemical.chemStorageType,
+        }
+        return JsonResponse(response_data)
+    except currentlyInStorageTable.DoesNotExist:
+        return JsonResponse({'error': 'Chemical not found'}, status=404)
 
 
 @login_required
@@ -102,3 +103,27 @@ def edit_chemical(request, id):
         # Create the form with the existing chemical data pre-filled
         form = EditChemicalForm(instance=chemical)
     return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
+
+@login_required
+def add_chemical(request):
+    if request.method == 'POST':
+        form = EditChemicalForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the new chemical data
+            messages.success(request, 'Chemical added successfully!')
+            return redirect('current_chemicals')  # Redirect to the list view
+    else:
+        form = EditChemicalForm()
+
+    return render(request, 'add_chemical.html', {'form': form})
+
+@login_required
+def delete_chemical(request, id):
+    chemical = get_object_or_404(currentlyInStorageTable, id=id)
+
+    if request.method == "POST":
+        chemical.delete()
+        messages.success(request, 'Chemical deleted successfully!')
+        return redirect("current_chemicals")  # Redirect to the list view
+
+    return render(request, 'confirm_delete.html', {'chemical': chemical})
