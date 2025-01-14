@@ -1,5 +1,7 @@
 # Chemistry Inventory System
 
+Note: MySQL needs to be installed manually before running the below configuration
+
 use '''docker-compose build''' to create the relevant docker image (This will need to be run anytime changes are made to the web app)
 
 use '''docker-compose up -d''' to start the docker container (including the MySQL database)
