@@ -16,7 +16,7 @@ services:
     volumes:
       - static_volume:/app/static_collected
     command: >
-      sh -c "./wait-for-it.sh mysql:3306 --timeout=30 --strict -- python manage.py migrate && python manage.py loaddata hello/fixtures/hello_fixtures.json && python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py migrate && python manage.py loaddata hello/fixtures/hello_fixtures.json && python manage.py runserver 0.0.0.0:8000"
 
   mysql:
     image: mysql:8.0
