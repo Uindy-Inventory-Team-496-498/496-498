@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && apt-get install -y netcat-openbsd
+
 # Install pip requirements
 COPY requirements.txt .
 RUN python -m pip install --no-cache-dir --upgrade pip && \
@@ -30,4 +32,4 @@ RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /
 USER appuser
 
 # Entrypoint to run migrations and load fixture data
-CMD ["sh", "-c", "python manage.py migrate && python manage.py loaddata hello/fixtures/hello_fixtures.json && gunicorn --bind 0.0.0.0:8000 web_project.wsgi"]
+CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python manage.py migrate && python manage.py loaddata hello/fixtures/hello_fixtures.json && gunicorn --bind 0.0.0.0:8000 web_project.wsgi"]

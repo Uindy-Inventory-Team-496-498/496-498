@@ -7,7 +7,7 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 
 curr_list_view = views.ChemListView.as_view(
-    queryset=currentlyInStorageTable.objects.order_by("-chemBottleIDNUM")[:5],
+    queryset=currentlyInStorageTable.objects.order_by("-chemBottleIDNUM"),
     context_object_name ="chemical_list_db",
     template_name = "currchemicals.html",
 )

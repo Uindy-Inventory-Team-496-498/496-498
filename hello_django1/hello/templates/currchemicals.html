@@ -47,8 +47,12 @@
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Location</th>
+                <th>Cabinet</th>
+			        <th>Shelf</th>
                 <th>Amount</th>
+                    <th>Unit</th>
+                    <th>Concentration</th>
+                    <th>SDS</th>
                 <th>Type</th>
                 <th>Edit</th>
                 <th>Delete</th> 
@@ -56,11 +60,15 @@
         </thead>
         <tbody id="chemical-table-body">
             {% for chemical in chemical_list_db %}
-            <tr class="chemical-row" data-type="{{ chemical.chemStorageType|lower }}" data-location="{{ chemical.chemLocation|lower }}">
+            <tr class="chemical-row" data-type="{{ chemical.chemStorageType|lower }}" data-location="{{ chemical.chemLocationCabinet|lower }}">
                 <td>{{ chemical.chemBottleIDNUM }}</td>
                 <td>{{ chemical.chemName }}</td>
-                <td>{{ chemical.chemLocation }}</td>
+                <td>{{ chemical.chemLocationCabinet }}</td>
+			        <td>{{ chemical.chemLocationShelf }}</td>
                 <td>{{ chemical.chemAmountInBottle }}</td>
+                    <td>{{ chemical.chemAmountUnit }}</td>
+                    <td>{{ chemical.chemConcentration }}</td>
+                    <td>{{ chemical.chemSDS }}</td>
                 <td>{{ chemical.chemStorageType }}</td>
                 <td>
                     <!-- Edit Chemical Button -->

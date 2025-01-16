@@ -17,7 +17,8 @@ services:
       - static_volume:/app/static_collected
     command: >
       sh -c "python manage.py makemigrations hello && python manage.py migrate && python manage.py loaddata hello/fixtures/hello_fixtures.json && python manage.py runserver 0.0.0.0:8000"
-
+    #
+    #until nc -z mysql 3306; do echo 'Waiting for MySQL...'; sleep 2; done && 
   mysql:
     image: mysql:8.0
     container_name: mysql_db
