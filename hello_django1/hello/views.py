@@ -43,6 +43,19 @@ def home(request):
     return render(request, "home.html")
 
 @login_required
+def add_chemical_page(request):
+    if request.method == 'POST':
+        form = EditChemicalForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the new chemical data
+            messages.success(request, 'Chemical added successfully!')
+            return redirect('current_chemicals')  # Redirect to the list view
+    else:
+        form = EditChemicalForm()
+
+    return render(request, 'add_chemical_page.html', {'form': form})
+
+@login_required
 def qr_code_scan(request):
     return render(request, 'scan.html')
 

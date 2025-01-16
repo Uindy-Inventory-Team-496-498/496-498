@@ -11,6 +11,7 @@
 <div class="navbar">
     <a href="{% url 'home' %}" class="navbar-brand">Home</a>
     <a href="{% url 'current_chemicals' %}" class="navbar-item">Chemicals DB</a>
+    <a href="{% url 'add_chemical_page' %}" class="navbar-item">Add Chemical</a>
     <a href="{% url 'search' %}" class="navbar-item">Search</a>
     <a href="{% url 'scan' %}" class="navbar-item" target="_blank">Access Scanner Test</a>
     <form method="post" action="{% url 'logout' %}" style="display: inline;">

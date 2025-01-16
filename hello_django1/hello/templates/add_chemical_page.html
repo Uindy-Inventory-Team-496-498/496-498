@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block title %}
+    Add Chemical Via Scanner
+{% endblock %}
+{% block content %}
+    <h1>Click button to add chemical by scanner</h1>
+    <button onclick="loadAddChem()">SCAN NOW</button>
+
+    <script>
+        function loadAddChem() {
+            window.location.href = '/add/';
+        }
+    </script>
+{% endblock %}
