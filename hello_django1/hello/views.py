@@ -65,6 +65,28 @@ def search_qr_code(request):
     except currentlyInStorageTable.DoesNotExist:
         return JsonResponse({'error': 'Chemical not found'}, status=404)
 
+@login_required
+def searching(request):
+	#filter() returns row matching search value, need to pull input from user
+	#, right now just using bottleIDNUM for ease of integrating barcode scanner
+	searchData = currentlyInStorageTable.objects.filter(chemBottleIDNUM_exacts=1).values()
+	template = loader.get_template('template.html')
+	context = {
+		'currentlyInStorageTableSearch': searchData,
+	}
+	return HttpResponse(template.render(context, request))
+
+# Basic Search Implementation
+@login_required
+def basic_search(request):
+    query = request.GET.get('query', '')  # Get the search term from the request
+    results = currentlyInStorageTable.objects.filter(
+        chemBottleIDNUM__icontains=query
+    ) | currentlyInStorageTable.objects.filter(
+        chemName__icontains=query
+    ) | currentlyInStorageTable.objects.filter( chemAmountUnit_icontains=query)  # Search by ID or name using icontains for partial matches
+    
+    return render(request, 'search_results.html', {'results': results, 'query': query})
 
 @login_required
 def search_page(request):
