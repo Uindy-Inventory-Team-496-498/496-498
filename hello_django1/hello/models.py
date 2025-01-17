@@ -1,17 +1,30 @@
 from django.db import models
 from django.utils import timezone
 	
+def get_model_by_name(model_name):
+    model_mapping = {
+        'currentlyinstoragetable': (currentlyInStorageTable, ['chemBottleIDNUM', 'chemName', 'chemLocationCabinet', 'chemAmountInBottle']),
+        'allchemicalstable': (allChemicalsTable, ['id', 'name']),
+    }
+    return model_mapping.get(model_name.lower())
+
 class currentlyInStorageTable(models.Model):
-	chemBottleIDNUM = models.IntegerField()
+	chemBottleIDNUM = models.IntegerField(primary_key=True)
 	chemName = models.CharField(max_length=255)
-	chemLocationCabinet = models.CharField(null = True, max_length=255)
-	chemLocationShelf = models.CharField(null = True,max_length=255)
-	chemAmountInBottle = models.FloatField()
+	chemLocationCabinet = models.CharField(max_length=255, default="None")
+	chemLocationShelf = models.CharField(null = True, max_length=255)
+	chemAmountInBottle = models.FloatField(default="None")
 	chemAmountUnit = models.CharField(null = True, max_length=255)
 	chemConcentration = models.CharField(null = True, max_length=255)
 	chemSDS = models.IntegerField(null = True)
-	chemStorageType = models.CharField(max_length=255)
+	chemStorageType = models.CharField(null = True, max_length=255)
 	
+	# def save(self, *args, **kwargs):
+	# 	if self.chemBottleIDNUM is None:  # Check if chemBottleIDNUM is not set
+	# 		max_id = currentlyInStorageTable.objects.aggregate(models.Max('chemBottleIDNUM'))['chemBottleIDNUM__max']
+	# 		self.chemBottleIDNUM = (max_id or 0) + 1
+	# 	super(currentlyInStorageTable, self).save(*args, **kwargs)
+
 class allChemicalsTable(models.Model):
 	MATERIAL_TYPE_CHOICES = [
         ('Acid', 'Acid'),
@@ -24,9 +37,9 @@ class allChemicalsTable(models.Model):
         ('Synthetics', 'Synthetics'),
         ('Instrumental Chemical', 'Instrumental Chemical'),
     ]
-
-	material_type = models.CharField(max_length=50, choices=MATERIAL_TYPE_CHOICES)
-	name = models.CharField(max_length=255)
+	id = models.IntegerField(primary_key=True)
+	material_type = models.CharField(max_length=50, choices=MATERIAL_TYPE_CHOICES, null=True)
+	name = models.CharField(max_length=255, null=True)
 	concentration = models.CharField(max_length=50, blank=True, null=True)
 	amount = models.CharField(max_length=50, blank=True, null=True)
 	location = models.CharField(max_length=255, blank=True, null=True)

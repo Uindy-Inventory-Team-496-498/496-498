@@ -1,15 +1,15 @@
 import re
-from hello.forms import EditChemicalForm
-from hello.models import QRCodeData, currentlyInStorageTable
+from hello.models import QRCodeData, currentlyInStorageTable, allChemicalsTable, get_model_by_name
 from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
-from .forms import CustomLoginForm
+from .forms import CustomLoginForm, get_dynamic_form
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 
 class ChemListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
@@ -90,40 +90,62 @@ def search_page(request):
     })
 
 @login_required
-def edit_chemical(request, id):
-    chemical = get_object_or_404(currentlyInStorageTable, pk=id)
+def add_chemical(request, model_name):
+    DynamicChemicalForm = get_dynamic_form(model_name)
     if request.method == 'POST':
-        # Use the EditChemicalForm to handle form submission
-        form = EditChemicalForm(request.POST, instance=chemical)
-        if form.is_valid():
-            form.save()  # Save the updated chemical data
-            messages.success(request, 'Chemical updated successfully!')  # Add a success message
-            return redirect('current_chemicals')  # Redirect back to the list view
-    else:
-        # Create the form with the existing chemical data pre-filled
-        form = EditChemicalForm(instance=chemical)
-    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
-
-@login_required
-def add_chemical(request):
-    if request.method == 'POST':
-        form = EditChemicalForm(request.POST)
+        form = DynamicChemicalForm(request.POST)
         if form.is_valid():
             form.save()  # Save the new chemical data
             messages.success(request, 'Chemical added successfully!')
-            return redirect('current_chemicals')  # Redirect to the list view
+            return redirect('currchemicals')
     else:
-        form = EditChemicalForm()
+        form = DynamicChemicalForm()
 
     return render(request, 'add_chemical.html', {'form': form})
 
 @login_required
-def delete_chemical(request, id):
-    chemical = get_object_or_404(currentlyInStorageTable, id=id)
+def edit_chemical(request, model_name, pk):
+    model_class = get_model_by_name(model_name)
+    model = model_class[0]
+    if not model:
+        return render(request, '404.html', status=404)
+    
+    chemical = get_object_or_404(model, pk=pk)
+    DynamicChemicalForm = get_dynamic_form(model_name)
+    
+    if request.method == 'POST':
+        form = DynamicChemicalForm(request.POST, instance=chemical)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Chemical updated successfully!')
+            return redirect('currchemicals')
+    else:
+        form = DynamicChemicalForm(instance=chemical)
+    
+    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical, 'model_name': model_name})
 
-    if request.method == "POST":
+@login_required
+def delete_chemical(request, model_name, pk):
+    model_class = get_model_by_name(model_name)
+    model = model_class[0]
+    if not model:
+        return render(request, '404.html', status=404)
+    
+    chemical = get_object_or_404(model, pk=pk)
+    
+    if request.method == 'POST':
         chemical.delete()
         messages.success(request, 'Chemical deleted successfully!')
-        return redirect("current_chemicals")  # Redirect to the list view
-
+        return redirect('currchemicals')
+    
     return render(request, 'confirm_delete.html', {'chemical': chemical})
+
+@login_required
+def list_chemicals(request, model_name):
+    model_class = get_model_by_name(model_name)
+    model = model_class[0]
+    if not model:
+        return render(request, '404.html', status=404)
+    
+    chemicals = model.objects.all()
+    return render(request, 'list_chemicals.html', {'chemicals': chemicals, 'model_name': model_name})
