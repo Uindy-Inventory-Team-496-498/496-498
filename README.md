@@ -34,3 +34,22 @@ While the container is running, use ```docker exec -it <django_container_name> b
     If you accidentally modify the database directly and migrations are out of sync, you may need to reset migrations:
     ```python manage.py makemigrations --empty <app_name>```
     ```python manage.py migrate --fake```
+
+To startup just the sql container or just the django container:
+
+```docker-compose up <service_name>``
+
+If serious migration issues:
+Step 1: Delete migration files
+```del hello\migrations\000*.py```
+
+Step 2: Reset migration history
+Connect to your database and run the following SQL command
+```USE <your_database_name>;```
+```DELETE FROM django_migrations WHERE app = 'hello';```
+
+Step 3: Create new migrations
+```python manage.py makemigrations hello --noinput```
+
+Step 4: Apply migrations
+```python manage.py migrate --noinput```
