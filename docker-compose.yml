@@ -14,9 +14,11 @@ services:
     depends_on:
       - mysql
     volumes:
+      - ./hello_django1:/app  # Mount the project directory
       - static_volume:/app/static_collected
+      - ./Chemical Intentory Generalized.csv:/app/Chemical Intentory Generalized.csv
     command: >
-      sh -c "until nc -z mysql 3306; do echo 'Waiting for MySQL...'; sleep 2; done && python manage.py makemigrations hello && python manage.py migrate && python manage.py loaddata hello/fixtures/hello_fixtures.json && python manage.py runserver 0.0.0.0:8000"
+      sh -c "until nc -z mysql 3306; do echo 'Waiting for MySQL...'; sleep 2; done && python manage.py runserver 0.0.0.0:8000"
 
   mysql:
     image: mysql:8.0
