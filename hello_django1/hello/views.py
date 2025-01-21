@@ -56,14 +56,15 @@ def search_qr_code(request):
     try:
         chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)  # Assuming chemBottleIDNUM is used as ID
         response_data = {
+            'exists': True,
             'chemName': chemical.chemName,
             'chemLocation': chemical.chemLocation,
             'chemAmountInBottle': chemical.chemAmountInBottle,
             'chemStorageType': chemical.chemStorageType,
         }
-        return JsonResponse(response_data)
     except currentlyInStorageTable.DoesNotExist:
-        return JsonResponse({'error': 'Chemical not found'}, status=404)
+        return JsonResponse({'exists': False, 'error': 'Chemical not found'}, status=404)
+    return JsonResponse(response_data)
 
 
 @login_required

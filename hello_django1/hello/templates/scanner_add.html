@@ -6,6 +6,7 @@ Log a Chemical
 
 {% block content %}
 {% load static %}
+
 <body>
     <h1>Scan from WebCam:</h1>
     <div id="video-container">
@@ -52,10 +53,10 @@ Log a Chemical
                         return response.json();
                     })
                     .then(data => {
-                        if (data.error || !data.exists) {
-                            window.location.href = `/add/?chem_id=${encodeURIComponent(qrCodeValue)}`;
-                        } else {
+                        if (data.exists) {
                             alert("This chemical already exists in the database.");
+                        } else {
+                            window.location.href = `/add/?chem_id=${encodeURIComponent(qrCodeValue)}`;
                         }
                     })
                     .catch(error => {
@@ -70,19 +71,61 @@ Log a Chemical
             }
         }
 
-        const scanner = new QrScanner(video, result => setResult(camQrResult, result));
+        const scanner = new QrScanner(video, result => setResult(camQrResult, result), {
+            onDecodeError: error => {
+                // camQrResult.textContent = error;
+                // camQrResult.style.color = 'inherit';
+            },
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+        });
+
         scanner.start().then(() => {
-            QrScanner.listCameras(true).then(cameras => {
-                cameras.forEach(camera => {
-                    const option = document.createElement('option');
-                    option.value = camera.id;
-                    option.text = camera.label;
-                    camList.add(option);
-                });
-            });
+            // List cameras after the scanner started
+            QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
+                const option = document.createElement('option');
+                option.value = camera.id;
+                option.text = camera.label;
+                camList.add(option);
+            }));
         });
 
         QrScanner.hasCamera().then(hasCamera => camHasCamera.textContent = hasCamera);
+
+        // for debugging
+        window.scanner = scanner;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Optional: Handle additional settings only if the elements are present
+            const scanRegionSelect = document.getElementById('scan-region-highlight-style-select');
+            if (scanRegionSelect) {
+                scanRegionSelect.addEventListener('change', (e) => {
+                    videoContainer.className = e.target.value;
+                    scanner._updateOverlay(); // reposition the highlight because style 2 sets position: relative
+                });
+            }
+
+            const showScanRegionCheckbox = document.getElementById('show-scan-region');
+            if (showScanRegionCheckbox) {
+                showScanRegionCheckbox.addEventListener('change', (e) => {
+                    const input = e.target;
+                    const label = input.parentNode;
+                    label.parentNode.insertBefore(scanner.$canvas, label.nextSibling);
+                    scanner.$canvas.style.display = input.checked ? 'block' : 'none';
+                });
+            }
+
+            const inversionModeSelect = document.getElementById('inversion-mode-select');
+            if (inversionModeSelect) {
+                inversionModeSelect.addEventListener('change', event => {
+                    scanner.setInversionMode(event.target.value);
+                });
+            }
+
+            camList.addEventListener('change', event => {
+                scanner.setCamera(event.target.value);
+            });
+        });
     </script>
 
     <style>
