@@ -63,7 +63,7 @@ def search_qr_code(request):
             'chemStorageType': chemical.chemStorageType,
         }
     except currentlyInStorageTable.DoesNotExist:
-        return JsonResponse({'exists': False, 'error': 'Chemical not found'}, status=404)
+        return JsonResponse({'exists': False, 'error': 'Chemical not found'}, status=404) #  LINE CAUSING ISSUES
     return JsonResponse(response_data)
 
 
