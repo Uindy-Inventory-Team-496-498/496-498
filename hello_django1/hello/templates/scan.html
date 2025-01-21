@@ -75,10 +75,29 @@ Log a chemical
     <b>Location:</b> <span id="result-chemLocation">N/A</span><br>
     <b>Amount in Bottle:</b> <span id="result-chemAmountInBottle">N/A</span><br>
     <b>Storage Type:</b> <span id="result-chemStorageType">N/A</span>
+    <!--add button here-->
+    <button id="delete-chemical" style="display:none;">Delete Chemical</button>
+
+    
 </div>
 
+<<<<<<< Updated upstream
 <!--<script src="../qr-scanner.umd.min.js"></script>-->
 <!--<script src="../qr-scanner.legacy.min.js"></script>-->
+=======
+
+<div>
+    <!-- Delete Chemical Button -->
+    <form id="delete-chemical-form" method="POST" action="#">
+   {% csrf_token %}
+   <button type="submit" onclick="return confirm('Are you sure you want to delete this chemical?')" class="button-style" id="delete-button" style="display:none;">Delete Chemical</button>
+</form>
+</div>
+
+
+
+
+>>>>>>> Stashed changes
 <script type="module">
     import QrScanner from "{% static 'js/qr-scanner.min.js' %}";
 
@@ -106,16 +125,38 @@ Log a chemical
             scanningEnabled = false; // Disable scanning temporarily
 
             // Fetch the data based on the scanned QR code
-            fetch(`/search/?chem_id=${qrCodeValue}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                    } else {
-                        document.getElementById('result-chemName').textContent = data.chemName;
-                        document.getElementById('result-chemLocation').textContent = data.chemLocation;
-                        document.getElementById('result-chemAmountInBottle').textContent = data.chemAmountInBottle;
-                        document.getElementById('result-chemStorageType').textContent = data.chemStorageType;
+            fetch(`/search_by_qr/?chem_id=${qrCodeValue}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();  // Use .text() to check the raw response
+                })
+                .then(text => {
+                    console.log(text);  // Log the response to check if it's valid JSON
+                    try {
+                        const data = JSON.parse(text); // Parse the JSON data
+                        if (data.error) {
+                            alert(data.error);
+                        } else {
+                            document.getElementById('result-chemName').textContent = data.chemName || 'N/A';
+                            document.getElementById('result-chemLocation').textContent = data.chemLocation || 'N/A';
+                            document.getElementById('result-chemAmountInBottle').textContent = data.chemAmountInBottle || 'N/A';
+                            document.getElementById('result-chemStorageType').textContent = data.chemStorageType || 'N/A';
+                            
+                            
+                            const deleteForm = document.getElementById('delete-chemical-form');
+                            deleteForm.action = `/delete/${data.chem_id}/`;
+                             
+                            
+                            // Show the delete button
+                            document.getElementById('delete-button').style.display = 'inline';
+
+
+
+                        }
+                    } catch (e) {
+                        console.error('Invalid JSON:', e);
                     }
                 })
                 .catch(error => console.error('Error fetching data:', error))
@@ -125,6 +166,7 @@ Log a chemical
                         scanningEnabled = true; // Re-enable scanning
                     }, 1000); // 5000 milliseconds = 5 seconds
                 });
+               
         }
     }
 
@@ -209,6 +251,9 @@ Log a chemical
             .catch(e => setResult(fileQrResult, { data: e || 'No QR code found.' }));
     });
 </script>
+
+
+
 
 <style>
     div {

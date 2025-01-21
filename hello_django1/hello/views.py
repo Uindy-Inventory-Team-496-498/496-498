@@ -105,12 +105,22 @@ def search_qr_code(request, qr_code):
 def search_by_qr_code(request):
     chem_id = request.GET.get('chem_id')  # assuming the QR code scanner sends the ID as 'chem_id'
     try:
+<<<<<<< Updated upstream
         chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)
         data = {
             "chemName": chemical.chemName,
             "chemLocation": chemical.chemLocation,
             "chemAmountInBottle": chemical.chemAmountInBottle,
             "chemStorageType": chemical.chemStorageType,
+=======
+        chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)  # Assuming chemBottleIDNUM is used as ID
+        response_data = {
+            'chem_id': chemical.chemBottleIDNUM,  # chem_id used for finding chemical for delete
+            'chemName': chemical.chemName,
+            'chemLocation': chemical.chemLocation,
+            'chemAmountInBottle': chemical.chemAmountInBottle,
+            'chemStorageType': chemical.chemStorageType,
+>>>>>>> Stashed changes
         }
         return JsonResponse(data, status=200)
     except currentlyInStorageTable.DoesNotExist:
