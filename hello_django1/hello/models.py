@@ -10,7 +10,9 @@ def get_model_by_name(model_name):
 
 class currentlyInStorageTable(models.Model):
 	chemBottleIDNUM = models.IntegerField(primary_key=True)
+	chemMaterial = models.CharField(max_length=255)
 	chemName = models.CharField(max_length=255)
+	chemLocationRoom = models.CharField(max_length=255, default="None")
 	chemLocationCabinet = models.CharField(max_length=255, default="None")
 	chemLocationShelf = models.CharField(null = True, max_length=255)
 	chemAmountInBottle = models.FloatField(default="None")
@@ -18,7 +20,8 @@ class currentlyInStorageTable(models.Model):
 	chemConcentration = models.CharField(null = True, max_length=255)
 	chemSDS = models.IntegerField(null = True)
 	chemStorageType = models.CharField(null = True, max_length=255)
-	
+	chemNotes = models.CharField(null = True, max_length=255)
+	chemInstrument = models.CharField(null = True, max_length=255)
 	# def save(self, *args, **kwargs):
 	# 	if self.chemBottleIDNUM is None:  # Check if chemBottleIDNUM is not set
 	# 		max_id = currentlyInStorageTable.objects.aggregate(models.Max('chemBottleIDNUM'))['chemBottleIDNUM__max']
