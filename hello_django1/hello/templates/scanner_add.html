@@ -57,15 +57,13 @@ Log a Chemical
                     })
                     .then(data => {
                         if (data.error || !data.exists) {
-                            // This case should already be handled by the 404 check above
+                            console.log("Error: Chemical Not Found in Database")
                         } else {
                             // If the chemical exists, inform the user
                             alert("This chemical already exists in the database.");
                         }
                     })
                     .catch(error => {
-                        console.error('Error fetching data:', error);
-                        // Redirect to the add page in case of any error
                         window.location.href = `/add/?chem_id=${encodeURIComponent(qrCodeValue)}`;
                     })
                     .finally(() => {
