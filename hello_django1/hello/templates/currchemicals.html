@@ -34,10 +34,21 @@
     <p style="display: inline;"><strong>Location:</strong></p>
     <input type="radio" id="any-location" name="location" value="any" checked onchange="filterList('chemical-table-body')">
     <label for="any-location">Any</label>
-    <input type="radio" id="shelves" name="location" value="shelves" onchange="filterList('chemical-table-body')">
-    <label for="shelves">Shelves</label>
-    <input type="radio" id="cabinets" name="location" value="cabinets" onchange="filterList('chemical-table-body')">
-    <label for="cabinets">Cabinets</label><br>
+    {% for location in chemical_locations %}
+        <input type="radio" id="{{ location|lower }}" name="location" value="{{ location|lower }}" onchange="filterList('chemical-table-body')">
+        <label for="{{ location|lower }}">{{ location }}</label>
+    {% endfor %}
+    <br>
+
+    <p style="display: inline;"><strong>SDS:</strong></p>
+    <input type="radio" id="any-sds" name="sds-choice" value="any" checked onchange="filterList('chemical-table-body')">
+    <label for="any-sds">Any</label>
+    <input type="radio" id="sds-1" name="sds-choice" value="1" onchange="filterList('chemical-table-body')">
+    <label for="sds-1">1</label>
+    <input type="radio" id="sds-0" name="sds-choice" value="0" onchange="filterList('chemical-table-body')">
+    <label for="sds-0">0</label>
+    <input type="radio" id="sds-none" name="sds-choice" value="none" onchange="filterList('chemical-table-body')">
+    <label for="sds-none">None</label><br>
 
     <table class="chemical_list_db">
         <thead>
@@ -60,11 +71,11 @@
         </thead>
         <tbody id="chemical-table-body">
             {% for chemical in chemical_list_db %}
-            <tr class="chemical-row" data-type="{{ chemical.chemMaterial|lower }}" data-location="{{ chemical.chemLocationCabinet|lower }}">
+            <tr class="chemical-row" data-type="{{ chemical.chemMaterial|lower }}" data-location="{{ chemical.chemLocationRoom|default_if_none:'none'|lower }}" data-sds="{{ chemical.chemSDS }}">
                 <td>{{ chemical.chemBottleIDNUM }}</td>
                 <td>{{ chemical.chemMaterial }}</td>
                 <td>{{ chemical.chemName }}</td>
-                <td>{{ chemical.chemLocationRoom }}</td>
+                <td>{{ chemical.chemLocationRoom|default_if_none:'None' }}</td>
                 <td>{{ chemical.chemLocationCabinet }}</td>
                 <td>{{ chemical.chemLocationShelf }}</td>
                 <td>{{ chemical.chemAmountInBottle }}</td>
@@ -146,27 +157,25 @@
         function filterList(tableBodyId) {
             const selectedType = document.querySelector(`input[name="type-choice${tableBodyId === 'chemical-table-body' ? '' : '-all'}"]:checked`).value;
             const selectedLocation = document.querySelector(`input[name="location${tableBodyId === 'chemical-table-body' ? '' : '-all'}"]:checked`).value;
+            const selectedSDS = document.querySelector(`input[name="sds-choice${tableBodyId === 'chemical-table-body' ? '' : '-all'}"]:checked`).value;
             const rows = document.querySelectorAll(`#${tableBodyId} .chemical-row`);
 
             rows.forEach(row => {
                 const rowType = row.getAttribute('data-type');
                 const rowLocation = row.getAttribute('data-location');
+                const rowSDS = row.getAttribute('data-sds');
     
                 // Check if the row matches the selected type
                 const typeMatches = (selectedType === 'any' || rowType === selectedType);
 
                 // Check if the row matches the selected location
-                let locationMatches = false;
-                if (selectedLocation === 'any') {
-                    locationMatches = true;
-                } else if (selectedLocation === 'shelves') {
-                    locationMatches = rowLocation.includes("shelf");
-                } else if (selectedLocation === 'cabinets') {
-                    locationMatches = rowLocation.includes("cabinet");
-                }
+                const locationMatches = (selectedLocation === 'any' || rowLocation === selectedLocation || (selectedLocation === 'none' && !rowLocation));
 
-                // Show or hide the row based on type and location matching
-                if (typeMatches && locationMatches) {
+                // Check if the row matches the selected SDS
+                const sdsMatches = (selectedSDS === 'any' || rowSDS === selectedSDS || (selectedSDS === 'none' && !rowSDS));
+
+                // Show or hide the row based on type, location, and SDS matching
+                if (typeMatches && locationMatches && sdsMatches) {
                     row.style.display = ''; // Show row
                 } else {
                     row.style.display = 'none'; // Hide row
