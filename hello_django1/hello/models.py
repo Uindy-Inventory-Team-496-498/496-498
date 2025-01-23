@@ -24,6 +24,9 @@ class currentlyInStorageTable(models.Model):
 	chemNotes = models.CharField(null = True, max_length=255)
 	chemInstrument = models.CharField(null = True, max_length=255)
 	chemTest = models.CharField(null = True, max_length=255)
+    # chemAddDate = models.DateTimeField(default=timezone.now)
+    # chemCheckedOutBy = models.CharField(max_length=255, default="None")
+    # chemCheckedOutDate = models.DateTimeField(default=timezone.now)
 	# def save(self, *args, **kwargs):
 	# 	if self.chemBottleIDNUM is None:  # Check if chemBottleIDNUM is not set
 	# 		max_id = currentlyInStorageTable.objects.aggregate(models.Max('chemBottleIDNUM'))['chemBottleIDNUM__max']
