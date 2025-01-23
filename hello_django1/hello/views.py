@@ -56,14 +56,15 @@ def search_qr_code(request):
     try:
         chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)  # Assuming chemBottleIDNUM is used as ID
         response_data = {
+            'exists': True,
             'chemName': chemical.chemName,
             'chemLocation': chemical.chemLocation,
             'chemAmountInBottle': chemical.chemAmountInBottle,
             'chemStorageType': chemical.chemStorageType,
         }
-        return JsonResponse(response_data)
     except currentlyInStorageTable.DoesNotExist:
-        return JsonResponse({'error': 'Chemical not found'}, status=404)
+        return JsonResponse({'exists': False, 'error': 'Chemical not found'}, status=404) #  LINE CAUSING ISSUES
+    return JsonResponse(response_data)
 
 
 @login_required
@@ -94,14 +95,20 @@ def add_chemical(request, model_name):
     DynamicChemicalForm = get_dynamic_form(model_name)
     if request.method == 'POST':
         form = DynamicChemicalForm(request.POST)
+        # Use the EditChemicalForm to handle form submission
+        form = EditChemicalForm(request.POST, instance=chemical)
         if form.is_valid():
-            form.save()  # Save the new chemical data
-            messages.success(request, 'Chemical added successfully!')
-            return redirect('currchemicals')
+            form.save()  # Save the updated chemical data
+            messages.success(request, 'Chemical updated successfully!')  # Add a success message
+            return redirect('current_chemicals')  # Redirect back to the list view
     else:
-        form = DynamicChemicalForm()
+        # Create the form with the existing chemical data pre-filled
+        form = EditChemicalForm(instance=chemical)
+    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
 
-    return render(request, 'add_chemical.html', {'form': form})
+@login_required
+def scanner_add(request):
+    return render(request, 'scanner_add.html')
 
 @login_required
 def edit_chemical(request, model_name, pk):

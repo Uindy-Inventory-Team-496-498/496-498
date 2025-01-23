@@ -11,4 +11,14 @@
         {{ form.as_p }}
         <button type="submit">Add Chemical</button>
     </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const chemId = urlParams.get('chem_id');
+
+            if (chemId) {
+                document.getElementById('id_chemBottleIDNUM').value = chemId;
+            }
+        });
+    </script>
 {% endblock %}

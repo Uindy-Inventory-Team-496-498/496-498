@@ -14,6 +14,7 @@
     <a href="{% url 'current_chemicals' %}" class="navbar-item">Chemicals DB TESTING</a>
     <a href="{% url 'search' %}" class="navbar-item">Search</a>
     <a href="{% url 'scan' %}" class="navbar-item" target="_blank">Access Scanner Test</a>
+    <a href="{% url 'scanner_add' %}" class="navbar-item">Add By Scanner</a>
     <form method="post" action="{% url 'logout' %}" style="display: inline;">
         {% csrf_token %}
         <button type="submit" class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer; color: white">
