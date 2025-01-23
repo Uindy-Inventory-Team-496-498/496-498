@@ -95,16 +95,14 @@ def add_chemical(request, model_name):
     DynamicChemicalForm = get_dynamic_form(model_name)
     if request.method == 'POST':
         form = DynamicChemicalForm(request.POST)
-        # Use the EditChemicalForm to handle form submission
-        form = EditChemicalForm(request.POST, instance=chemical)
         if form.is_valid():
-            form.save()  # Save the updated chemical data
-            messages.success(request, 'Chemical updated successfully!')  # Add a success message
-            return redirect('current_chemicals')  # Redirect back to the list view
+            form.save()
+            messages.success(request, 'Chemical added successfully!')
+            return redirect('currchemicals')
     else:
-        # Create the form with the existing chemical data pre-filled
-        form = EditChemicalForm(instance=chemical)
-    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
+        form = DynamicChemicalForm()
+
+    return render(request, 'add_chemical.html', {'form': form, 'model_name': model_name})
 
 @login_required
 def scanner_add(request):

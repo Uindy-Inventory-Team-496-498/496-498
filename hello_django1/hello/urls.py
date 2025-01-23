@@ -31,5 +31,6 @@ urlpatterns = [
     path('edit_chemical/<str:model_name>/<int:pk>/', views.edit_chemical, name='edit_chemical'),
     path('delete_chemical/<str:model_name>/<int:pk>/', views.delete_chemical, name='delete_chemical'),
     path('scanner_add/', views.scanner_add, name='scanner_add'),
+    path('add/<str:model_name>/', views.add_chemical, name='add_chemical'),
 
 ]

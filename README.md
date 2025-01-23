@@ -32,7 +32,7 @@ See current volumes:
 On your host machine
 ```docker exec -it django_web bash```
 
-Inside the container web container
+The commands below are inside the web container
 
 Make migrations:  
 
@@ -43,12 +43,12 @@ Make migrations:
 Apply migrations:
 ```python manage.py migrate```
 
-On your host machine (if necessary)
+For removeing current migrations, sometimes necesarry if there are issues. Will need to remake and apply migrations afterwards. This needs to be done inside the django container. May also need to drop migrations from mysql manually:
+```rm /app/hello/migrations/00*.py```
+
+On your host machine, not inside the container (if necessary)
 Restart the container:
 ```docker-compose restart web```
-
-For removeing current migrations, sometimes necesarry if there are issues. Will need to remake and apply migrations afterwards. May also need to drop migrations from mysql manually:
-```rm /app/hello/migrations/00*.py```
 
 ## Misc Django commands
 
