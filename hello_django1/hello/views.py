@@ -19,8 +19,14 @@ class ChemListView(LoginRequiredMixin,ListView):
         context = super(ChemListView, self).get_context_data(**kwargs)
         return context
 
-def current_chemicals(request):
-    return render(request, "currchemicals.html")
+@login_required
+def currchemicals(request):
+    chemical_list_db = currentlyInStorageTable.objects.all()
+    chemical_types = currentlyInStorageTable.objects.values_list('chemMaterial', flat=True).distinct()
+    return render(request, 'currchemicals.html', {
+        'chemical_list_db': chemical_list_db,
+        'chemical_types': chemical_types,
+    })
 
 def login_view(request):
     if request.method == 'POST':

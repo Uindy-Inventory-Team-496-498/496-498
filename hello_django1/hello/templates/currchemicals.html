@@ -25,12 +25,11 @@
     <p style="display: inline;"><strong>Chemical Type:</strong></p>
     <input type="radio" id="any-type" name="type-choice" value="any" checked onchange="filterList('chemical-table-body')">
     <label for="any-type">Any</label>
-    <input type="radio" id="solid" name="type-choice" value="solid" onchange="filterList('chemical-table-body')">
-    <label for="solid">Solid</label>
-    <input type="radio" id="liquid" name="type-choice" value="liquid" onchange="filterList('chemical-table-body')">
-    <label for="liquid">Liquid</label>
-    <input type="radio" id="gas" name="type-choice" value="gas" onchange="filterList('chemical-table-body')">
-    <label for="gas">Gas</label><br>
+    {% for chem_type in chemical_types %}
+        <input type="radio" id="{{ chem_type|lower }}" name="type-choice" value="{{ chem_type|lower }}" onchange="filterList('chemical-table-body')">
+        <label for="{{ chem_type|lower }}">{{ chem_type }}</label>
+    {% endfor %}
+    <br>
 
     <p style="display: inline;"><strong>Location:</strong></p>
     <input type="radio" id="any-location" name="location" value="any" checked onchange="filterList('chemical-table-body')">
@@ -44,14 +43,17 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Type</th>
+                <th>Material</th>
                 <th>Name</th>
+                <th>Room</th>
                 <th>Cabinet</th>
                 <th>Shelf</th>
                 <th>Amount</th>
                 <th>Unit</th>
                 <th>Concentration</th>
                 <th>SDS</th>
+                <th>Notes</th>
+                <th>Instrument</th>
                 <th>Edit</th>
                 <th>Delete</th> 
             </tr>
@@ -62,21 +64,24 @@
                 <td>{{ chemical.chemBottleIDNUM }}</td>
                 <td>{{ chemical.chemMaterial }}</td>
                 <td>{{ chemical.chemName }}</td>
+                <td>{{ chemical.chemLocationRoom }}</td>
                 <td>{{ chemical.chemLocationCabinet }}</td>
                 <td>{{ chemical.chemLocationShelf }}</td>
                 <td>{{ chemical.chemAmountInBottle }}</td>
                 <td>{{ chemical.chemAmountUnit }}</td>
                 <td>{{ chemical.chemConcentration }}</td>
                 <td>{{ chemical.chemSDS }}</td>
+                <td>{{ chemical.chemNotes }}</td>
+                <td>{{ chemical.chemInstrument }}</td>
                 <td>
                     <!-- Edit Chemical Button -->
-                    <form action="{% url 'edit_chemical' 'currentlyinstoragetable' chemical.pk %}" method="get" style="display:inline;">
+                    <form action="{% url 'edit_chemical' 'currentlyinstoragetable' chemical.chemBottleIDNUM %}" method="get" style="display:inline;">
                         <button type="submit" class="button-style">Edit</button>
                     </form>
                 </td>
                 <td>
                     <!-- Delete Chemical Button -->
-                    <form method="POST" action="{% url 'delete_chemical' 'currentlyinstoragetable' chemical.pk%}" style="display:inline;">
+                    <form method="POST" action="{% url 'delete_chemical' 'currentlyinstoragetable' chemical.chemBottleIDNUM %}" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" onclick="return confirm('Are you sure you want to delete this chemical?')" class="button-style">Delete</button>
                     </form>
@@ -105,9 +110,9 @@
                     case 'z-a':
                         return bValue.localeCompare(aValue);
                     case 'amount-asc':
-                        return parseFloat(a.cells[3].textContent) - parseFloat(b.cells[3].textContent); // Sort by amount ascending
+                        return parseFloat(a.cells[6].textContent) - parseFloat(b.cells[6].textContent); // Sort by amount ascending
                     case 'amount-desc':
-                        return parseFloat(b.cells[3].textContent) - parseFloat(a.cells[3].textContent); // Sort by amount descending
+                        return parseFloat(b.cells[6].textContent) - parseFloat(a.cells[6].textContent); // Sort by amount descending
                     case 'id-asc':
                         return parseInt(a.cells[0].textContent) - parseInt(b.cells[0].textContent); // Sort by ID ascending
                     case 'id-desc':
@@ -126,13 +131,13 @@
             switch (sortOption) {
                 case 'a-z':
                 case 'z-a':
-                    return row.cells[1].textContent; 
+                    return row.cells[2].textContent; // Sort by name
                 case 'amount-asc':
                 case 'amount-desc':
-                    return row.cells[3].textContent;
+                    return row.cells[6].textContent; // Sort by amount
                 case 'id-asc':
                 case 'id-desc':
-                    return row.cells[0].textContent;
+                    return row.cells[0].textContent; // Sort by ID
                 default:
                     return ''; 
             }
