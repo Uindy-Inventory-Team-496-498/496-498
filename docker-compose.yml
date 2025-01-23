@@ -18,7 +18,7 @@ services:
       - static_volume:/app/static_collected
       - ./Chemical Intentory Generalized.csv:/app/Chemical Intentory Generalized.csv
     command: >
-      sh -c "until nc -z mysql 3306; do echo 'Waiting for MySQL...'; sleep 2; done && python manage.py runserver 0.0.0.0:8000"
+      sh -c "until nc -z mysql 3306; do echo 'Waiting for MySQL...'; sleep 2; done && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
   mysql:
     image: mysql:8.0
