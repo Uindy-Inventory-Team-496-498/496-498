@@ -49,7 +49,7 @@ Log a Chemical
                     .then(response => {
                         if (response.status === 404) {
                             // If the chemical is not found, redirect to the add page directly
-                            window.location.href = `/add/?chem_id=${encodeURIComponent(qrCodeValue)}`;
+                            window.location.href = `/add/currentlyinstoragetable/?chem_id=${encodeURIComponent(qrCodeValue)}`;
                         } else if (!response.ok) {
                             throw new Error('Network response was not ok');
                         }
@@ -64,7 +64,7 @@ Log a Chemical
                         }
                     })
                     .catch(error => {
-                        window.location.href = `/add/?chem_id=${encodeURIComponent(qrCodeValue)}`;
+                        window.location.href = `/add/currentlyinstoragetable/?chem_id=${encodeURIComponent(qrCodeValue)}`;
                     })
                     .finally(() => {
                         setTimeout(() => {
