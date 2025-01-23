@@ -7,7 +7,7 @@ class currentlyInStorageTable(models.Model):
 	chemLocation = models.CharField(max_length=255)
 	chemAmountInBottle = models.FloatField()
 	chemStorageType = models.CharField(max_length=255)
-	 
+	
 class allChemicalsTable(models.Model):
 	chemName = models.CharField(max_length=255)
 	chemLocation = models.CharField(max_length=255)

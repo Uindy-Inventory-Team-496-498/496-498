@@ -28,4 +28,5 @@ urlpatterns = [
     path('add/', views.add_chemical, name='add_chemical'),
     path('delete/<int:id>/', views.delete_chemical, name='delete_chemical'),
     path('scanner_add/', views.scanner_add, name='scanner_add'),
+    path('checkinandout/', views.checkinandout, name='checkinandout'),
 ]

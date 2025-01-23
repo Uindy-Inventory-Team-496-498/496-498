@@ -132,3 +132,7 @@ def delete_chemical(request, id):
         return redirect("current_chemicals")  # Redirect to the list view
 
     return render(request, 'confirm_delete.html', {'chemical': chemical})
+
+@login_required
+def checkinandout(request):
+    return render(request, 'checkinandout.html')
