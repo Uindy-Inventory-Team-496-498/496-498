@@ -7,7 +7,7 @@ Note: MySQL needs to be installed manually before running the below configuratio
 to create the relevant docker image (This will need to be run anytime changes are made to the web app):
 ```docker-compose build```
 
-to start the docker container (including the MySQL database). use the flag -d to have no output:
+to start the docker container (including the MySQL database). use the flag -d to have no output, but be careful as the output is often helpful for debugging:
 ```docker-compose up```
 
 to stop the running container(s):
