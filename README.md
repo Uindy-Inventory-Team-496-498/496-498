@@ -32,7 +32,9 @@ See current volumes:
 On your host machine
 
 ```docker exec -it django_web bash```
-Inside the container
+
+Inside the container web container
+
 Make migrations:  
 
 ```cd /app```
