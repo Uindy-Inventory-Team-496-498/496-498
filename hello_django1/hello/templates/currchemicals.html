@@ -39,6 +39,9 @@
         <label for="{{ location|lower }}">{{ location }}</label>
     {% endfor %}
     <br>
+    <input type="checkbox" id="exclude-location" name="exclude-location" onchange="filterList('chemical-table-body')">
+    <label for="exclude-location">Exclude selected location</label>
+    <br>
 
     <p style="display: inline;"><strong>SDS:</strong></p>
     <input type="radio" id="any-sds" name="sds-choice" value="any" checked onchange="filterList('chemical-table-body')">
@@ -158,6 +161,7 @@
             const selectedType = document.querySelector(`input[name="type-choice${tableBodyId === 'chemical-table-body' ? '' : '-all'}"]:checked`).value;
             const selectedLocation = document.querySelector(`input[name="location${tableBodyId === 'chemical-table-body' ? '' : '-all'}"]:checked`).value;
             const selectedSDS = document.querySelector(`input[name="sds-choice${tableBodyId === 'chemical-table-body' ? '' : '-all'}"]:checked`).value;
+            const excludeLocation = document.getElementById('exclude-location').checked;
             const rows = document.querySelectorAll(`#${tableBodyId} .chemical-row`);
 
             rows.forEach(row => {
@@ -169,7 +173,7 @@
                 const typeMatches = (selectedType === 'any' || rowType === selectedType);
 
                 // Check if the row matches the selected location
-                const locationMatches = (selectedLocation === 'any' || rowLocation === selectedLocation || (selectedLocation === 'none' && !rowLocation));
+                const locationMatches = (selectedLocation === 'any' || (excludeLocation ? rowLocation !== selectedLocation : rowLocation === selectedLocation) || (selectedLocation === 'none' && !rowLocation));
 
                 // Check if the row matches the selected SDS
                 const sdsMatches = (selectedSDS === 'any' || rowSDS === selectedSDS || (selectedSDS === 'none' && !rowSDS));
