@@ -154,3 +154,7 @@ def list_chemicals(request, model_name):
     
     chemicals = model.objects.all()
     return render(request, 'list_chemicals.html', {'chemicals': chemicals, 'model_name': model_name})
+
+@login_required
+def checkinandout(request):
+    return render(request, 'checkinandout.html')    
