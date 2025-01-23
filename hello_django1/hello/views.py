@@ -56,14 +56,15 @@ def search_qr_code(request):
     try:
         chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)  # Assuming chemBottleIDNUM is used as ID
         response_data = {
+            'exists': True,
             'chemName': chemical.chemName,
             'chemLocation': chemical.chemLocation,
             'chemAmountInBottle': chemical.chemAmountInBottle,
             'chemStorageType': chemical.chemStorageType,
         }
-        return JsonResponse(response_data)
     except currentlyInStorageTable.DoesNotExist:
-        return JsonResponse({'error': 'Chemical not found'}, status=404)
+        return JsonResponse({'exists': False, 'error': 'Chemical not found'}, status=404) #  LINE CAUSING ISSUES
+    return JsonResponse(response_data)
 
 
 @login_required
@@ -103,6 +104,10 @@ def edit_chemical(request, id):
         # Create the form with the existing chemical data pre-filled
         form = EditChemicalForm(instance=chemical)
     return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
+
+@login_required
+def scanner_add(request):
+    return render(request, 'scanner_add.html')
 
 @login_required
 def add_chemical(request):
