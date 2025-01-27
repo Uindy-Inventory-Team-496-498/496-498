@@ -7,7 +7,7 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 
 curr_list_view = views.ChemListView.as_view(
-    queryset=currentlyInStorageTable.objects.order_by("-chemBottleIDNUM")[:5],
+    queryset=currentlyInStorageTable.objects.order_by("-chemBottleIDNUM"),
     context_object_name ="chemical_list_db",
     template_name = "currchemicals.html",
 )
@@ -23,8 +23,14 @@ urlpatterns = [
     path('scan/', views.qr_code_scan, name='scan'),
     path("search/", views.search_page, name="search"),
     path('search_by_qr/', views.search_qr_code, name='search_qr_code'),
-    path('currchemicals/', curr_list_view, name='current_chemicals'),
-	path('edit/<int:id>/', views.edit_chemical, name='edit_chemical'), 
-    path('add/', views.add_chemical, name='add_chemical'),
-    path('delete/<int:id>/', views.delete_chemical, name='delete_chemical'),
+
+    path('currchemicals/', curr_list_view, name='currchemicals'),
+    path('current_chemicals/', views.list_chemicals, {'model_name': 'currentlyinstoragetable'}, name='current_chemicals'),
+    #path('all_chemicals/', views.list_chemicals, {'model_name': 'allchemicalstable'}, name='all_chemicals'),
+    path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
+    path('edit_chemical/<str:model_name>/<int:pk>/', views.edit_chemical, name='edit_chemical'),
+    path('delete_chemical/<str:model_name>/<int:pk>/', views.delete_chemical, name='delete_chemical'),
+    path('scanner_add/', views.scanner_add, name='scanner_add'),
+    path('add/<str:model_name>/', views.add_chemical, name='add_chemical'),
+
 ]
