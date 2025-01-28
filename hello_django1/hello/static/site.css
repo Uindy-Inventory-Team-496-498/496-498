@@ -107,6 +107,9 @@ th {
     color: white;
     text-transform: uppercase;
     font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 tbody tr:nth-child(odd) {

@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load static %}
 
 {% block title %}
     Current Chemicals
@@ -12,62 +13,94 @@
     </form>
 
     {% if chemical_list_db %}
-    <label for="sort-actions">Sort list by:</label>
-    <select name="sort-actions" id="sort-actions" onchange="sortList('chemical-table-body')">
-        <option value="a-z">A-Z</option>
-        <option value="z-a">Z-A</option>
-        <option value="amount-asc">Amount (Low to High)</option>
-        <option value="amount-desc">Amount (High to Low)</option>
-        <option value="id-asc">ID# (Low to High)</option>
-        <option value="id-desc">ID# (High to Low)</option>
-    </select><br>
-
     <p style="display: inline;"><strong>Chemical Type:</strong></p>
-    <input type="radio" id="any-type" name="type-choice" value="any" checked onchange="filterList('chemical-table-body')">
-    <label for="any-type">Any</label>
     {% for chem_type in chemical_types %}
-        <input type="radio" id="{{ chem_type|lower }}" name="type-choice" value="{{ chem_type|lower }}" onchange="filterList('chemical-table-body')">
+        <input type="checkbox" class="type-choice" value="{{ chem_type|lower }}" onchange="toggleTriState(this); filterList()">
         <label for="{{ chem_type|lower }}">{{ chem_type }}</label>
     {% endfor %}
     <br>
 
     <p style="display: inline;"><strong>Location:</strong></p>
-    <input type="radio" id="any-location" name="location" value="any" checked onchange="filterList('chemical-table-body')">
-    <label for="any-location">Any</label>
     {% for location in chemical_locations %}
-        <input type="radio" id="{{ location|lower }}" name="location" value="{{ location|lower }}" onchange="filterList('chemical-table-body')">
+        <input type="checkbox" class="location-choice" value="{{ location|lower }}" onchange="toggleTriState(this); filterList()">
         <label for="{{ location|lower }}">{{ location }}</label>
     {% endfor %}
     <br>
-    <input type="checkbox" id="exclude-location" name="exclude-location" onchange="filterList('chemical-table-body')">
-    <label for="exclude-location">Exclude selected location</label>
-    <br>
 
     <p style="display: inline;"><strong>SDS:</strong></p>
-    <input type="radio" id="any-sds" name="sds-choice" value="any" checked onchange="filterList('chemical-table-body')">
-    <label for="any-sds">Any</label>
-    <input type="radio" id="sds-1" name="sds-choice" value="1" onchange="filterList('chemical-table-body')">
+    <input type="checkbox" class="sds-choice" value="1" onchange="toggleTriState(this); filterList()">
     <label for="sds-1">1</label>
-    <input type="radio" id="sds-0" name="sds-choice" value="0" onchange="filterList('chemical-table-body')">
+    <input type="checkbox" class="sds-choice" value="0" onchange="toggleTriState(this); filterList()">
     <label for="sds-0">0</label>
-    <input type="radio" id="sds-none" name="sds-choice" value="none" onchange="filterList('chemical-table-body')">
+    <input type="checkbox" class="sds-choice" value="none" onchange="toggleTriState(this); filterList()">
     <label for="sds-none">None</label><br>
+
+    <p style="display: inline;"><strong>Show/Hide Columns:</strong></p>
+    <input type="checkbox" class="column-toggle" value="id" checked onchange="toggleColumn(this)">
+    <label for="id">ID</label>
+    <input type="checkbox" class="column-toggle" value="material" checked onchange="toggleColumn(this)">
+    <label for="material">Material</label>
+    <input type="checkbox" class="column-toggle" value="name" checked onchange="toggleColumn(this)">
+    <label for="name">Name</label>
+    <input type="checkbox" class="column-toggle" value="room" checked onchange="toggleColumn(this)">
+    <label for="room">Room</label>
+    <input type="checkbox" class="column-toggle" value="cabinet" checked onchange="toggleColumn(this)">
+    <label for="cabinet">Cabinet</label>
+    <input type="checkbox" class="column-toggle" value="shelf" checked onchange="toggleColumn(this)">
+    <label for="shelf">Shelf</label>
+    <input type="checkbox" class="column-toggle" value="amount" checked onchange="toggleColumn(this)">
+    <label for="amount">Amount</label>
+    <input type="checkbox" class="column-toggle" value="unit" checked onchange="toggleColumn(this)">
+    <label for="unit">Unit</label>
+    <input type="checkbox" class="column-toggle" value="concentration" checked onchange="toggleColumn(this)">
+    <label for="concentration">Concentration</label>
+    <input type="checkbox" class="column-toggle" value="sds" checked onchange="toggleColumn(this)">
+    <label for="sds">SDS</label>
+    <input type="checkbox" class="column-toggle" value="notes" checked onchange="toggleColumn(this)">
+    <label for="notes">Notes</label>
+    <input type="checkbox" class="column-toggle" value="instrument" checked onchange="toggleColumn(this)">
+    <label for="instrument">Instrument</label>
+    <br>
 
     <table class="chemical_list_db">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Material</th>
-                <th>Name</th>
-                <th>Room</th>
-                <th>Cabinet</th>
-                <th>Shelf</th>
-                <th>Amount</th>
-                <th>Unit</th>
-                <th>Concentration</th>
-                <th>SDS</th>
-                <th>Notes</th>
-                <th>Instrument</th>
+                <th class="column-id" onclick="sortList('chemical-table-body', 'id')">
+                    <div class="header-container">ID <span id="sort-arrow-id"></span></div>
+                </th>
+                <th class="column-material" onclick="sortList('chemical-table-body', 'material')">
+                    <div class="header-container">Material <span id="sort-arrow-material"></span></div>
+                </th>
+                <th class="column-name" onclick="sortList('chemical-table-body', 'name')">
+                    <div class="header-container">Name <span id="sort-arrow-name"></span></div>
+                </th>
+                <th class="column-room" onclick="sortList('chemical-table-body', 'room')">
+                    <div class="header-container">Room <span id="sort-arrow-room"></span></div>
+                </th>
+                <th class="column-cabinet" onclick="sortList('chemical-table-body', 'cabinet')">
+                    <div class="header-container">Cabinet <span id="sort-arrow-cabinet"></span></div>
+                </th>
+                <th class="column-shelf" onclick="sortList('chemical-table-body', 'shelf')">
+                    <div class="header-container">Shelf <span id="sort-arrow-shelf"></span></div>
+                </th>
+                <th class="column-amount" onclick="sortList('chemical-table-body', 'amount')">
+                    <div class="header-container">Amount <span id="sort-arrow-amount"></span></div>
+                </th>
+                <th class="column-unit" onclick="sortList('chemical-table-body', 'unit')">
+                    <div class="header-container">Unit <span id="sort-arrow-unit"></span></div>
+                </th>
+                <th class="column-concentration" onclick="sortList('chemical-table-body', 'concentration')">
+                    <div class="header-container">Concentration <span id="sort-arrow-concentration"></span></div>
+                </th>
+                <th class="column-sds" onclick="sortList('chemical-table-body', 'sds')">
+                    <div class="header-container">SDS <span id="sort-arrow-sds"></span></div>
+                </th>
+                <th class="column-notes" onclick="sortList('chemical-table-body', 'notes')">
+                    <div class="header-container">Notes <span id="sort-arrow-notes"></span></div>
+                </th>
+                <th class="column-instrument" onclick="sortList('chemical-table-body', 'instrument')">
+                    <div class="header-container">Instrument <span id="sort-arrow-instrument"></span></div>
+                </th>
                 <th>Edit</th>
                 <th>Delete</th> 
             </tr>
@@ -75,18 +108,18 @@
         <tbody id="chemical-table-body">
             {% for chemical in chemical_list_db %}
             <tr class="chemical-row" data-type="{{ chemical.chemMaterial|lower }}" data-location="{{ chemical.chemLocationRoom|default_if_none:'none'|lower }}" data-sds="{{ chemical.chemSDS }}">
-                <td>{{ chemical.chemBottleIDNUM }}</td>
-                <td>{{ chemical.chemMaterial }}</td>
-                <td>{{ chemical.chemName }}</td>
-                <td>{{ chemical.chemLocationRoom|default_if_none:'None' }}</td>
-                <td>{{ chemical.chemLocationCabinet }}</td>
-                <td>{{ chemical.chemLocationShelf }}</td>
-                <td>{{ chemical.chemAmountInBottle }}</td>
-                <td>{{ chemical.chemAmountUnit }}</td>
-                <td>{{ chemical.chemConcentration }}</td>
-                <td>{{ chemical.chemSDS }}</td>
-                <td>{{ chemical.chemNotes }}</td>
-                <td>{{ chemical.chemInstrument }}</td>
+                <td class="column-id">{{ chemical.chemBottleIDNUM }}</td>
+                <td class="column-material">{{ chemical.chemMaterial }}</td>
+                <td class="column-name">{{ chemical.chemName }}</td>
+                <td class="column-room">{{ chemical.chemLocationRoom|default_if_none:'None' }}</td>
+                <td class="column-cabinet">{{ chemical.chemLocationCabinet }}</td>
+                <td class="column-shelf">{{ chemical.chemLocationShelf }}</td>
+                <td class="column-amount">{{ chemical.chemAmountInBottle }}</td>
+                <td class="column-unit">{{ chemical.chemAmountUnit }}</td>
+                <td class="column-concentration">{{ chemical.chemConcentration }}</td>
+                <td class="column-sds">{{ chemical.chemSDS }}</td>
+                <td class="column-notes">{{ chemical.chemNotes }}</td>
+                <td class="column-instrument">{{ chemical.chemInstrument }}</td>
                 <td>
                     <!-- Edit Chemical Button -->
                     <form action="{% url 'edit_chemical' 'currentlyinstoragetable' chemical.chemBottleIDNUM %}" method="get" style="display:inline;">
@@ -108,83 +141,17 @@
     <p>No chemicals have been logged.</p>
     {% endif %}
 
-    <script>
-        function sortList(tableBodyId) {
-            const sortOption = document.getElementById(tableBodyId === 'chemical-table-body' ? 'sort-actions' : 'sort-actions-all').value;
-            const tableBody = document.getElementById(tableBodyId);
-            const rows = Array.from(tableBody.rows);
+    <script src="{% static 'site.js' %}"></script>
 
-            rows.sort((a, b) => {
-                const aValue = getSortValue(a, sortOption);
-                const bValue = getSortValue(b, sortOption);
-
-                switch (sortOption) {
-                    case 'a-z':
-                        return aValue.localeCompare(bValue);
-                    case 'z-a':
-                        return bValue.localeCompare(aValue);
-                    case 'amount-asc':
-                        return parseFloat(a.cells[6].textContent) - parseFloat(b.cells[6].textContent); // Sort by amount ascending
-                    case 'amount-desc':
-                        return parseFloat(b.cells[6].textContent) - parseFloat(a.cells[6].textContent); // Sort by amount descending
-                    case 'id-asc':
-                        return parseInt(a.cells[0].textContent) - parseInt(b.cells[0].textContent); // Sort by ID ascending
-                    case 'id-desc':
-                        return parseInt(b.cells[0].textContent) - parseInt(a.cells[0].textContent); // Sort by ID descending
-                    default:
-                        return 0;
-                }
-            });
-
-            tableBody.innerHTML = '';
-
-            rows.forEach(row => tableBody.appendChild(row));
+    <style>
+        th {
+            padding-right: 20px; /* Adjust padding to accommodate the arrow */
         }
-
-        function getSortValue(row, sortOption) {
-            switch (sortOption) {
-                case 'a-z':
-                case 'z-a':
-                    return row.cells[2].textContent; // Sort by name
-                case 'amount-asc':
-                case 'amount-desc':
-                    return row.cells[6].textContent; // Sort by amount
-                case 'id-asc':
-                case 'id-desc':
-                    return row.cells[0].textContent; // Sort by ID
-                default:
-                    return ''; 
-            }
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
         }
-
-        function filterList(tableBodyId) {
-            const selectedType = document.querySelector(`input[name="type-choice${tableBodyId === 'chemical-table-body' ? '' : '-all'}"]:checked`).value;
-            const selectedLocation = document.querySelector(`input[name="location${tableBodyId === 'chemical-table-body' ? '' : '-all'}"]:checked`).value;
-            const selectedSDS = document.querySelector(`input[name="sds-choice${tableBodyId === 'chemical-table-body' ? '' : '-all'}"]:checked`).value;
-            const excludeLocation = document.getElementById('exclude-location').checked;
-            const rows = document.querySelectorAll(`#${tableBodyId} .chemical-row`);
-
-            rows.forEach(row => {
-                const rowType = row.getAttribute('data-type');
-                const rowLocation = row.getAttribute('data-location');
-                const rowSDS = row.getAttribute('data-sds');
-    
-                // Check if the row matches the selected type
-                const typeMatches = (selectedType === 'any' || rowType === selectedType);
-
-                // Check if the row matches the selected location
-                const locationMatches = (selectedLocation === 'any' || (excludeLocation ? rowLocation !== selectedLocation : rowLocation === selectedLocation) || (selectedLocation === 'none' && !rowLocation));
-
-                // Check if the row matches the selected SDS
-                const sdsMatches = (selectedSDS === 'any' || rowSDS === selectedSDS || (selectedSDS === 'none' && !rowSDS));
-
-                // Show or hide the row based on type, location, and SDS matching
-                if (typeMatches && locationMatches && sdsMatches) {
-                    row.style.display = ''; // Show row
-                } else {
-                    row.style.display = 'none'; // Hide row
-                }
-            });
-        }
-    </script>
+    </style>
 {% endblock %}
