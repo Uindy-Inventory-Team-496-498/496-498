@@ -25,55 +25,64 @@
             </form>
         </div>
     </div>
-    
+    <br>
     {% if chemical_list_db %}
-    <p style="display: inline;"><strong>Chemical Type:</strong></p>
-    {% for chem_type in chemical_types %}
-        <input type="checkbox" class="type-choice" value="{{ chem_type|lower }}" onchange="toggleTriState(this); filterList()">
-        <label for="{{ chem_type|lower }}">{{ chem_type }}</label>
-    {% endfor %}
+    <div class="filter-container">
+        <strong>Chemical Type:</strong>
+        {% for chem_type in chemical_types %}
+            <input type="checkbox" class="type-choice" value="{{ chem_type|lower }}" onchange="toggleTriState(this); filterList()">
+            <label for="{{ chem_type|lower }}">{{ chem_type }}</label>
+        {% endfor %}
+    </div>
     <br>
 
-    <p style="display: inline;"><strong>Location:</strong></p>
-    {% for location in chemical_locations %}
-        <input type="checkbox" class="location-choice" value="{{ location|lower }}" onchange="toggleTriState(this); filterList()">
-        <label for="{{ location|lower }}">{{ location }}</label>
-    {% endfor %}
+    <div class="filter-container">
+        <strong>Location:</strong>
+        {% for location in chemical_locations %}
+            <input type="checkbox" class="location-choice" value="{{ location|lower }}" onchange="toggleTriState(this); filterList()">
+            <label for="{{ location|lower }}">{{ location }}</label>
+        {% endfor %}
+    </div>
     <br>
 
-    <p style="display: inline;"><strong>SDS:</strong></p>
-    <input type="checkbox" class="sds-choice" value="1" onchange="toggleTriState(this); filterList()">
-    <label for="sds-1">1</label>
-    <input type="checkbox" class="sds-choice" value="0" onchange="toggleTriState(this); filterList()">
-    <label for="sds-0">0</label>
-    <input type="checkbox" class="sds-choice" value="none" onchange="toggleTriState(this); filterList()">
-    <label for="sds-none">None</label><br>
+    <div class="filter-container">
+        <strong>SDS:</strong>
+        <input type="checkbox" class="sds-choice" value="1" onchange="toggleTriState(this); filterList()">
+        <label for="sds-1">1</label>
+        <input type="checkbox" class="sds-choice" value="0" onchange="toggleTriState(this); filterList()">
+        <label for="sds-0">0</label>
+        <input type="checkbox" class="sds-choice" value="none" onchange="toggleTriState(this); filterList()">
+        <label for="sds-none">None</label>
+    </div>
+    <br>
 
-    <p style="display: inline;"><strong>Show/Hide Columns:</strong></p>
-    <input type="checkbox" class="column-toggle" value="id" checked onchange="toggleColumn(this)">
-    <label for="id">ID</label>
-    <input type="checkbox" class="column-toggle" value="material" checked onchange="toggleColumn(this)">
-    <label for="material">Material</label>
-    <input type="checkbox" class="column-toggle" value="name" checked onchange="toggleColumn(this)">
-    <label for="name">Name</label>
-    <input type="checkbox" class="column-toggle" value="room" checked onchange="toggleColumn(this)">
-    <label for="room">Room</label>
-    <input type="checkbox" class="column-toggle" value="cabinet" checked onchange="toggleColumn(this)">
-    <label for="cabinet">Cabinet</label>
-    <input type="checkbox" class="column-toggle" value="shelf" checked onchange="toggleColumn(this)">
-    <label for="shelf">Shelf</label>
-    <input type="checkbox" class="column-toggle" value="amount" checked onchange="toggleColumn(this)">
-    <label for="amount">Amount</label>
-    <input type="checkbox" class="column-toggle" value="unit" checked onchange="toggleColumn(this)">
-    <label for="unit">Unit</label>
-    <input type="checkbox" class="column-toggle" value="concentration" checked onchange="toggleColumn(this)">
-    <label for="concentration">Concentration</label>
-    <input type="checkbox" class="column-toggle" value="sds" checked onchange="toggleColumn(this)">
-    <label for="sds">SDS</label>
-    <input type="checkbox" class="column-toggle" value="notes" checked onchange="toggleColumn(this)">
-    <label for="notes">Notes</label>
-    <input type="checkbox" class="column-toggle" value="instrument" checked onchange="toggleColumn(this)">
-    <label for="instrument">Instrument</label>
+    <div class="filter-container">
+        <strong>Show/Hide Columns:</strong>
+        <input type="checkbox" class="column-toggle" value="id" checked onchange="toggleColumn(this)">
+        <label for="id">ID</label>
+        <input type="checkbox" class="column-toggle" value="material" checked onchange="toggleColumn(this)">
+        <label for="material">Material</label>
+        <input type="checkbox" class="column-toggle" value="name" checked onchange="toggleColumn(this)">
+        <label for="name">Name</label>
+        <input type="checkbox" class="column-toggle" value="room" checked onchange="toggleColumn(this)">
+        <label for="room">Room</label>
+        <input type="checkbox" class="column-toggle" value="cabinet" checked onchange="toggleColumn(this)">
+        <label for="cabinet">Cabinet</label>
+        <input type="checkbox" class="column-toggle" value="shelf" checked onchange="toggleColumn(this)">
+        <label for="shelf">Shelf</label>
+        <input type="checkbox" class="column-toggle" value="amount" checked onchange="toggleColumn(this)">
+        <label for="amount">Amount</label>
+        <input type="checkbox" class="column-toggle" value="unit" checked onchange="toggleColumn(this)">
+        <label for="unit">Unit</label>
+        <input type="checkbox" class="column-toggle" value="concentration" checked onchange="toggleColumn(this)">
+        <label for="concentration">Concentration</label>
+        <input type="checkbox" class="column-toggle" value="sds" checked onchange="toggleColumn(this)">
+        <label for="sds">SDS</label>
+        <input type="checkbox" class="column-toggle" value="notes" checked onchange="toggleColumn(this)">
+        <label for="notes">Notes</label>
+        <input type="checkbox" class="column-toggle" value="instrument" checked onchange="toggleColumn(this)">
+        <label for="instrument">Instrument</label>
+    </div>
     <br>
 
     <table class="chemical_list_db">
@@ -116,31 +125,31 @@
                     <div class="header-container">Instrument <span id="sort-arrow-instrument"></span></div>
                 </th>
                 <th>Edit</th>
-                <th>Delete</th> 
+                <th>Delete</th>
             </tr>
         </thead>
         <tbody id="chemical-table-body">
             {% for chemical in chemical_list_db %}
             <tr class="chemical-row" data-type="{{ chemical.chemMaterial|lower }}" data-location="{{ chemical.chemLocationRoom|default_if_none:'none'|lower }}" data-sds="{{ chemical.chemSDS }}">
-                <td class="column-id">{{ chemical.chemBottleIDNUM }}</td>
-                <td class="column-material">{{ chemical.chemMaterial }}</td>
-                <td class="column-name">{{ chemical.chemName }}</td>
-                <td class="column-room">{{ chemical.chemLocationRoom|default_if_none:'None' }}</td>
-                <td class="column-cabinet">{{ chemical.chemLocationCabinet }}</td>
-                <td class="column-shelf">{{ chemical.chemLocationShelf }}</td>
-                <td class="column-amount">{{ chemical.chemAmountInBottle }}</td>
-                <td class="column-unit">{{ chemical.chemAmountUnit }}</td>
-                <td class="column-concentration">{{ chemical.chemConcentration }}</td>
-                <td class="column-sds">{{ chemical.chemSDS }}</td>
-                <td class="column-notes">{{ chemical.chemNotes }}</td>
-                <td class="column-instrument">{{ chemical.chemInstrument }}</td>
-                <td>
+                <td class="column-id" data-label="ID">{{ chemical.chemBottleIDNUM }}</td>
+                <td class="column-material" data-label="Material">{{ chemical.chemMaterial }}</td>
+                <td class="column-name" data-label="Name">{{ chemical.chemName }}</td>
+                <td class="column-room" data-label="Room">{{ chemical.chemLocationRoom|default_if_none:'None' }}</td>
+                <td class="column-cabinet" data-label="Cabinet">{{ chemical.chemLocationCabinet }}</td>
+                <td class="column-shelf" data-label="Shelf">{{ chemical.chemLocationShelf }}</td>
+                <td class="column-amount" data-label="Amount">{{ chemical.chemAmountInBottle }}</td>
+                <td class="column-unit" data-label="Unit">{{ chemical.chemAmountUnit }}</td>
+                <td class="column-concentration" data-label="Concentration">{{ chemical.chemConcentration }}</td>
+                <td class="column-sds" data-label="SDS">{{ chemical.chemSDS }}</td>
+                <td class="column-notes" data-label="Notes">{{ chemical.chemNotes }}</td>
+                <td class="column-instrument" data-label="Instrument">{{ chemical.chemInstrument }}</td>
+                <td data-label="Edit">
                     <!-- Edit Chemical Button -->
                     <form action="{% url 'edit_chemical' 'currentlyinstoragetable' chemical.chemBottleIDNUM %}" method="get" style="display:inline;">
                         <button type="submit" class="button-style">Edit</button>
                     </form>
                 </td>
-                <td>
+                <td data-label="Delete">
                     <!-- Delete Chemical Button -->
                     <form method="POST" action="{% url 'delete_chemical' 'currentlyinstoragetable' chemical.chemBottleIDNUM %}" style="display:inline;">
                         {% csrf_token %}
@@ -156,22 +165,4 @@
     {% endif %}
 
     <script src="{% static 'site.js' %}"></script>
-
-    <style>
-        th {
-            padding-right: 20px; /* Adjust padding to accommodate the arrow */
-        }
-        .header-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-    </style>
 {% endblock %}
