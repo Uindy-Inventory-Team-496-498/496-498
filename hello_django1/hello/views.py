@@ -4,12 +4,14 @@ from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
-from .forms import CustomLoginForm, get_dynamic_form
+from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+import csv
+from django.views.decorators.http import require_POST
 
 class ChemListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
@@ -162,3 +164,62 @@ def list_chemicals(request, model_name):
     
     chemicals = model.objects.all()
     return render(request, 'list_chemicals.html', {'chemicals': chemicals, 'model_name': model_name})
+
+@login_required
+def export_chemicals_csv(request):
+    chemicals = currentlyInStorageTable.objects.all()
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="chemicals.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Material', 'Name', 'Room', 'Cabinet', 'Shelf', 'Amount', 'Unit', 'Concentration', 'SDS', 'Notes', 'Instrument'])
+
+    for chemical in chemicals:
+        writer.writerow([
+            chemical.chemBottleIDNUM,
+            chemical.chemMaterial,
+            chemical.chemName,
+            chemical.chemLocationRoom,
+            chemical.chemLocationCabinet,
+            chemical.chemLocationShelf,
+            chemical.chemAmountInBottle,
+            chemical.chemAmountUnit,
+            chemical.chemConcentration,
+            chemical.chemSDS,
+            chemical.chemNotes,
+            chemical.chemInstrument
+        ])
+
+    return response
+
+@login_required
+@require_POST
+def import_chemicals_csv(request):
+    form = CSVUploadForm(request.POST, request.FILES)
+    if form.is_valid():
+        csv_file = request.FILES['file']
+        reader = csv.reader(csv_file.read().decode('utf-8').splitlines())
+        next(reader)  # Skip the header row
+
+        for row in reader:
+            currentlyInStorageTable.objects.update_or_create(
+                chemBottleIDNUM=row[0],
+                defaults={
+                    'chemMaterial': row[1],
+                    'chemName': row[2],
+                    'chemLocationRoom': row[3],
+                    'chemLocationCabinet': row[4],
+                    'chemLocationShelf': row[5],
+                    'chemAmountInBottle': row[6],
+                    'chemAmountUnit': row[7],
+                    'chemConcentration': row[8],
+                    'chemSDS': row[9],
+                    'chemNotes': row[10],
+                    'chemInstrument': row[11]
+                }
+            )
+        messages.success(request, 'Chemicals imported successfully!')
+    else:
+        messages.error(request, 'Failed to import chemicals. Please check the file format.')
+
+    return redirect('currchemicals')

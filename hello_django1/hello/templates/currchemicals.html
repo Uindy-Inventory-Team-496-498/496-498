@@ -8,10 +8,24 @@
 {% block content %}
     <h2>Logged Chemicals</h2>
 
-    <form action="{% url 'add_chemical' 'currentlyinstoragetable' %}" method="get">
-        <button type="submit" class="button-style">Add New Chemical</button>
-    </form>
+    <div class="button-container">
+        <form action="{% url 'add_chemical' 'currentlyinstoragetable' %}" method="get" style="flex: 1;">
+            <button type="submit" class="button-style">Add New Chemical</button>
+        </form>
 
+        <div style="flex: 1; text-align: right;">
+            <form action="{% url 'export_chemicals_csv' %}" method="get" style="display:inline;">
+                <button type="submit" class="button-style">Export as CSV</button>
+            </form>
+
+            <form action="{% url 'import_chemicals_csv' %}" method="post" enctype="multipart/form-data" style="display:inline;">
+                {% csrf_token %}
+                <input type="file" name="file" required>
+                <button type="submit" class="button-style">Import CSV</button>
+            </form>
+        </div>
+    </div>
+    
     {% if chemical_list_db %}
     <p style="display: inline;"><strong>Chemical Type:</strong></p>
     {% for chem_type in chemical_types %}
@@ -152,6 +166,12 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
     </style>
 {% endblock %}

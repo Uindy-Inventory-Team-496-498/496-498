@@ -31,5 +31,7 @@ urlpatterns = [
     path('delete_chemical/<str:model_name>/<int:pk>/', views.delete_chemical, name='delete_chemical'),
     path('scanner_add/', views.scanner_add, name='scanner_add'),
     path('add/<str:model_name>/', views.add_chemical, name='add_chemical'),
+    path('export_chemicals_csv/', views.export_chemicals_csv, name='export_chemicals_csv'),
+    path('import_chemicals_csv/', views.import_chemicals_csv, name='import_chemicals_csv'),
 
 ]
