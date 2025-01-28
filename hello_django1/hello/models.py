@@ -16,7 +16,7 @@ class currentlyInStorageTable(models.Model):
 	chemLocationCabinet = models.CharField(max_length=255, default="None")
 	chemLocationShelf = models.CharField(max_length=255, default="None")
 	chemAmountInBottle = models.CharField(max_length=255, default="0")
-	chemCheckedOut = models.CharField(max_length=255, default=False)
+	chemCheckedOut = models.BooleanField(default=False)
 	chemAmountUnit = models.CharField(null = True, max_length=255)
 	chemConcentration = models.CharField(null = True, max_length=255)
 	chemSDS = models.CharField(null = True, max_length=1)

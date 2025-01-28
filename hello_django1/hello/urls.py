@@ -21,7 +21,7 @@ urlpatterns = [
     path("", views.home, name="home"),
     path('scan/', views.qr_code_scan, name='scan'),
     path("search/", views.search_page, name="search"),
-    path('search_by_qr/', views.search_qr_code, name='search_qr_code'),
+    path('search_by_qr/', views.search_by_qr, name='search_by_qr'),
     path('checkinandout/', views.checkinandout, name='checkinandout'),
     path('currchemicals/', curr_list_view, name='currchemicals'),
     path('current_chemicals/', views.list_chemicals, {'model_name': 'currentlyinstoragetable'}, name='current_chemicals'),
@@ -31,6 +31,6 @@ urlpatterns = [
     path('delete_chemical/<str:model_name>/<int:pk>/', views.delete_chemical, name='delete_chemical'),
     path('scanner_add/', views.scanner_add, name='scanner_add'),
     path('add/<str:model_name>/', views.add_chemical, name='add_chemical'),
-    
+    path('update-checkout-status/<str:model_name>/<str:qrcode_value>/', views.update_checkout_status, name='update_checkout_status'),
 
 ]

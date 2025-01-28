@@ -47,6 +47,7 @@ Log a Chemical
 
                 fetch(`/search_by_qr/?chem_id=${qrCodeValue}`)
                     .then(response => {
+                        console.log(response);
                         if (response.status === 404) {
                             // If the chemical is not found, redirect to the add page directly
                             window.location.href = `/add/currentlyinstoragetable/?chem_id=${encodeURIComponent(qrCodeValue)}`;
@@ -58,13 +59,10 @@ Log a Chemical
                     .then(data => {
                         if (data.error || !data.exists) {
                             console.log("Error: Chemical Not Found in Database")
-                        } else {
-                            // If the chemical exists, inform the user
-                            alert("This chemical already exists in the database.");
                         }
                     })
                     .catch(error => {
-                        window.location.href = `/add/currentlyinstoragetable/?chem_id=${encodeURIComponent(qrCodeValue)}`;
+                        alert("This chemical already exists in database");
                     })
                     .finally(() => {
                         setTimeout(() => {
