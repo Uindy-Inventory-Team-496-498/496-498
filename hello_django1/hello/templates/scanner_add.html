@@ -24,7 +24,7 @@ Log a Chemical
         </select>
     </div>
 
-    <b>What the QR code scanned: </b>
+    <b>QR Code Scanned Result: </b>
     <span id="cam-qr-result">None</span>
 
     <script type="module">
@@ -37,52 +37,45 @@ Log a Chemical
         let scanningEnabled = true;
         let lastQrCode = "";
 
-        function setResult(label, result) {
-            const qrCodeValue = result.data;
+        async function handleQrCodeResult(label, qrCodeValue) {
+            if (!scanningEnabled || qrCodeValue === lastQrCode) return;
 
-            if (scanningEnabled && qrCodeValue !== lastQrCode) {
-                lastQrCode = qrCodeValue;
-                label.textContent = qrCodeValue;
-                scanningEnabled = false;
+            lastQrCode = qrCodeValue;
+            label.textContent = qrCodeValue;
+            scanningEnabled = false;
 
-                fetch(`/search_by_qr/?chem_id=${qrCodeValue}`)
-                    .then(response => {
-                        console.log(response);
-                        if (response.status === 404) {
-                            // If the chemical is not found, redirect to the add page directly
-                            window.location.href = `/add/currentlyinstoragetable/?chem_id=${encodeURIComponent(qrCodeValue)}`;
-                        } else if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.error || !data.exists) {
-                            console.log("Error: Chemical Not Found in Database")
-                        }
-                    })
-                    .catch(error => {
-                        alert("This chemical already exists in database");
-                    })
-                    .finally(() => {
-                        setTimeout(() => {
-                            scanningEnabled = true;
-                        }, 1000);
-                    });
+            try {
+                const response = await fetch(`/search_by_qr/?chem_id=${encodeURIComponent(qrCodeValue)}`);
+                if (response.status === 404) {
+                    // Redirect to add page if no match is found
+                    window.location.href = `/add/currentlyinstoragetable/?chem_id=${encodeURIComponent(qrCodeValue)}`;
+                } else if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                if (data.chemName) {
+                    alert(`Chemical with Bottle ID: ${data.chemBottleIDNUM} already exists!`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            } finally {
+                setTimeout(() => {
+                    scanningEnabled = true;
+                }, 1000);
             }
         }
 
-        const scanner = new QrScanner(video, result => setResult(camQrResult, result), {
+        const scanner = new QrScanner(video, result => handleQrCodeResult(camQrResult, result.data), {
             onDecodeError: error => {
-                // camQrResult.textContent = error;
-                // camQrResult.style.color = 'inherit';
+                console.error("QR Code Decode Error:", error);
             },
             highlightScanRegion: true,
             highlightCodeOutline: true,
         });
 
         scanner.start().then(() => {
-            // List cameras after the scanner started
+            // List cameras after the scanner starts
             QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
                 const option = document.createElement('option');
                 option.value = camera.id;
@@ -93,40 +86,12 @@ Log a Chemical
 
         QrScanner.hasCamera().then(hasCamera => camHasCamera.textContent = hasCamera);
 
-        // for debugging
-        window.scanner = scanner;
-
-        document.addEventListener("DOMContentLoaded", () => {
-            // Optional: Handle additional settings only if the elements are present
-            const scanRegionSelect = document.getElementById('scan-region-highlight-style-select');
-            if (scanRegionSelect) {
-                scanRegionSelect.addEventListener('change', (e) => {
-                    videoContainer.className = e.target.value;
-                    scanner._updateOverlay(); // reposition the highlight because style 2 sets position: relative
-                });
-            }
-
-            const showScanRegionCheckbox = document.getElementById('show-scan-region');
-            if (showScanRegionCheckbox) {
-                showScanRegionCheckbox.addEventListener('change', (e) => {
-                    const input = e.target;
-                    const label = input.parentNode;
-                    label.parentNode.insertBefore(scanner.$canvas, label.nextSibling);
-                    scanner.$canvas.style.display = input.checked ? 'block' : 'none';
-                });
-            }
-
-            const inversionModeSelect = document.getElementById('inversion-mode-select');
-            if (inversionModeSelect) {
-                inversionModeSelect.addEventListener('change', event => {
-                    scanner.setInversionMode(event.target.value);
-                });
-            }
-
-            camList.addEventListener('change', event => {
-                scanner.setCamera(event.target.value);
-            });
+        camList.addEventListener('change', event => {
+            scanner.setCamera(event.target.value);
         });
+
+        // Optional debugging
+        window.scanner = scanner;
     </script>
 
     <style>
@@ -136,10 +101,6 @@ Log a Chemical
 
         #video-container {
             line-height: 0;
-        }
-
-        hr {
-            margin-top: 32px;
         }
 
         input[type="file"] {
