@@ -40,4 +40,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
 	path('edit/<int:id>/', views.edit_chemical, name='edit_chemical'), 
+    path('scanner_delete/', views.scanner_delete, name='scanner_delete'),
+    
 ]

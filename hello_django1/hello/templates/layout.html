@@ -15,6 +15,7 @@
     <a href="{% url 'log' %}" class="navbar-item">Log Chemical</a>
     <a href="{% url 'current_chemicals' %}" class="navbar-item">Chemicals DB</a>
     <a href="{% url 'scan' %}" class="navbar-item" target="_blank">Access Scanner Test</a>
+    <a href="{% url 'scanner_delete' %}" class="navbar-item" target="_blank">Scan Chemical For Deletion</a>
     <form method="post" action="{% url 'logout' %}" style="display: inline;">
         {% csrf_token %}
         <button type="submit" class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer; color: white">

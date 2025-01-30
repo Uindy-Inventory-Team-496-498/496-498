@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
+from django.template import loader
 
 class ChemListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
@@ -105,28 +106,21 @@ def search_qr_code(request, qr_code):
 def search_by_qr_code(request):
     chem_id = request.GET.get('chem_id')  # assuming the QR code scanner sends the ID as 'chem_id'
     try:
-<<<<<<< Updated upstream
-        chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)
-        data = {
-            "chemName": chemical.chemName,
-            "chemLocation": chemical.chemLocation,
-            "chemAmountInBottle": chemical.chemAmountInBottle,
-            "chemStorageType": chemical.chemStorageType,
-=======
         chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)  # Assuming chemBottleIDNUM is used as ID
         response_data = {
             'chem_id': chemical.chemBottleIDNUM,  # chem_id used for finding chemical for delete
             'chemName': chemical.chemName,
-            'chemLocation': chemical.chemLocation,
+            'chemLocationCabinet': chemical.chemLocationCabinet,
+            'chemLocationShelf': chemical.chemLocationShelf,
             'chemAmountInBottle': chemical.chemAmountInBottle,
             'chemStorageType': chemical.chemStorageType,
->>>>>>> Stashed changes
         }
-        return JsonResponse(data, status=200)
+        return JsonResponse(response_data, status=200)
     except currentlyInStorageTable.DoesNotExist:
         return JsonResponse({"error": "Chemical not found."}, status=404)
     else:
         return JsonResponse({"error": "Invalid search input."}, status=400) 
+    
 
 @login_required
 def searching(request):
@@ -188,3 +182,9 @@ def edit_chemical(request, id):
         # Create the form with the existing chemical data pre-filled
         form = EditChemicalForm(instance=chemical)
     return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical})
+
+@login_required
+def scanner_delete(request):
+    return render(request, 'scanner_delete.html')
+
+

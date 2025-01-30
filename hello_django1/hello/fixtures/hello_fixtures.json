@@ -5,7 +5,7 @@
         "fields": {
             "chemBottleIDNUM": 1,
             "chemName": "Sodium Chloride",
-            "chemLocation": "Shelf A",
+            "chemLocationShelf": "Shelf A",
             "chemAmountInBottle": 50.0,
             "chemStorageType": "Solid"
         }
@@ -16,7 +16,7 @@
         "fields": {
             "chemBottleIDNUM": 2,
             "chemName": "Hydrochloric Acid",
-            "chemLocation": "Cabinet B",
+            "chemLocationCabinet": "Cabinet B",
             "chemAmountInBottle": 20.5,
             "chemStorageType": "Liquid"
         }
@@ -27,7 +27,7 @@
         "fields": {
             "chemBottleIDNUM": 3,
             "chemName": "Ethanol",
-            "chemLocation": "Shelf C",
+            "chemLocationShelf": "Shelf C",
             "chemAmountInBottle": 75.0,
             "chemStorageType": "Liquid"
         }
