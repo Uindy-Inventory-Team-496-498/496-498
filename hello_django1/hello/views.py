@@ -10,6 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import Paginator
 
 class ChemListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
@@ -68,26 +69,33 @@ def search_qr_code(request):
 
 
 @login_required
+
+@login_required
 def search_page(request):
     query = request.GET.get('query', '').strip()
-    results = []
+    results = currentlyInStorageTable.objects.none()  # Default empty queryset
     message = None
 
     if query:
         results = currentlyInStorageTable.objects.filter(
-            chemName__icontains=query
-        ) | currentlyInStorageTable.objects.filter(
-            chemBottleIDNUM__icontains=query
+            Q(chemName__icontains=query) | Q(chemBottleIDNUM__icontains=query)
         )
-        if not results:
-            message = "No results found."
+        if results.exists():
+            message = f"{results.count()} result{'s' if results.count() > 1 else ''} found."
+        else:
+            message = f"No results found for '{query}'."
     elif request.GET:
         message = "Please enter a search term."
 
+    # Pagination logic
+    paginator = Paginator(results, 10)  # Show 10 results per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'search.html', {
-        'results': results,
+        'results': page_obj,
         'query': query,
-        'message': message
+        'message': message,
     })
 
 @login_required
