@@ -1,7 +1,7 @@
 from django.urls import path
-from hello import views
+from chem import views
 from .views import login_view
-from hello.models import currentlyInStorageTable
+from chem.models import currentlyInStorageTable
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views

@@ -44,7 +44,7 @@ Apply migrations:
 ```python manage.py migrate```
 
 For removeing current migrations, sometimes necesarry if there are issues. Will need to remake and apply migrations afterwards. This needs to be done inside the django container. May also need to drop migrations from mysql manually:
-```rm /app/hello/migrations/00*.py```
+```rm /app/chem/migrations/00*.py```
 
 On your host machine, not inside the container (if necessary)
 Restart the container:
@@ -53,7 +53,7 @@ Restart the container:
 ## Misc Django commands
 
 For loading from a fixture:
-```python manage.py loaddata hello/fixtures/hello_fixtures.json```
+```python manage.py loaddata chem/fixtures/chem_fixtures.json```
 
 For loading from a csv:
 ```python manage.py load_csv '/app/Chemical Intentory Generalized.csv'```
@@ -84,17 +84,17 @@ See current tables:
 ```SHOW TABLES;```
 
 See structure of specific table:
-```DESCRIBE hello_currentlyinstoragetable;```
+```DESCRIBE chem_currentlyinstoragetable;```
 
 Delete previous migration:
-```DELETE FROM django_migrations WHERE app = 'hello';```
+```DELETE FROM django_migrations WHERE app = 'chem';```
 
 Drop Tables:
 
 ```USE your_db_name;```
 
-```DROP TABLE IF EXISTS hello_allchemicalstable;```
+```DROP TABLE IF EXISTS chem_allchemicalstable;```
 
-```DROP TABLE IF EXISTS hello_currentlyinstoragetable;```
+```DROP TABLE IF EXISTS chem_currentlyinstoragetable;```
 
-```DROP TABLE IF EXISTS hello_qrcodedata;```
+```DROP TABLE IF EXISTS chem_qrcodedata;```

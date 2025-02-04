@@ -1,5 +1,5 @@
 import re
-from hello.models import QRCodeData, currentlyInStorageTable, allChemicalsTable, get_model_by_name
+from chem.models import QRCodeData, currentlyInStorageTable, allChemicalsTable, get_model_by_name
 from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
