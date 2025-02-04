@@ -198,24 +198,24 @@ def import_chemicals_csv(request):
     form = CSVUploadForm(request.POST, request.FILES)
     if form.is_valid():
         csv_file = request.FILES['file']
-        reader = csv.reader(csv_file.read().decode('utf-8').splitlines())
-        next(reader)  # Skip the header row
+        reader = csv.DictReader(csv_file.read().decode('utf-8').splitlines())
 
         for row in reader:
             currentlyInStorageTable.objects.update_or_create(
-                chemBottleIDNUM=row[0],
+                chemBottleIDNUM=row['chemBottleIDNUM'],
                 defaults={
-                    'chemMaterial': row[1],
-                    'chemName': row[2],
-                    'chemLocationRoom': row[3],
-                    'chemLocationCabinet': row[4],
-                    'chemLocationShelf': row[5],
-                    'chemAmountInBottle': row[6],
-                    'chemAmountUnit': row[7],
-                    'chemConcentration': row[8],
-                    'chemSDS': row[9],
-                    'chemNotes': row[10],
-                    'chemInstrument': row[11]
+                    'chemMaterial': row['chemMaterial'],
+                    'chemName': row['chemName'],
+                    'chemConcentration': row['chemConcentration'],
+                    'chemAmountInBottle': row['chemAmountInBottle'],
+                    'chemAmountUnit': row['chemAmountUnit'],
+                    'chemLocationRoom': row['chemLocationRoom'],
+                    'chemLocationCabinet': row['chemLocationCabinet'],
+                    'chemLocationShelf': row['chemLocationShelf'],
+                    'chemStorageType': row['chemStorageType'],
+                    'chemSDS': row['chemSDS'],
+                    'chemNotes': row['chemNotes'],
+                    'chemInstrument': row['chemInstrument']
                 }
             )
         messages.success(request, 'Chemicals imported successfully!')

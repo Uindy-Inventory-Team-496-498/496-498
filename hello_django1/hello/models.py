@@ -18,11 +18,10 @@ class currentlyInStorageTable(models.Model):
 	chemAmountInBottle = models.CharField(max_length=255, default="0")
 	chemAmountUnit = models.CharField(null = True, max_length=255)
 	chemConcentration = models.CharField(null = True, max_length=255)
-	chemSDS = models.CharField(null = True, max_length=1)
+	chemSDS = models.CharField(null = True, max_length=20)
 	chemStorageType = models.CharField(null = True, max_length=255)
 	chemNotes = models.CharField(null = True, max_length=255)
 	chemInstrument = models.CharField(null = True, max_length=255)
-	chemTest = models.CharField(null = True, max_length=255)
 	# def save(self, *args, **kwargs):
 	# 	if self.chemBottleIDNUM is None:  # Check if chemBottleIDNUM is not set
 	# 		max_id = currentlyInStorageTable.objects.aggregate(models.Max('chemBottleIDNUM'))['chemBottleIDNUM__max']
