@@ -23,6 +23,7 @@
                 <input type="file" name="file" required>
                 <button type="submit" class="button-style">Import CSV</button>
             </form>
+
         </div>
     </div>
     <br>
@@ -32,15 +33,19 @@
         {% for chem_type in chemical_types %}
             <input type="checkbox" class="type-choice" value="{{ chem_type|lower }}" onchange="toggleTriState(this); filterList()">
             <label for="{{ chem_type|lower }}">{{ chem_type }}</label>
+        {% empty %}
+            <p>No chemical types available.</p>
         {% endfor %}
     </div>
     <br>
-
+    
     <div class="filter-container">
         <strong>Location:</strong>
         {% for location in chemical_locations %}
             <input type="checkbox" class="location-choice" value="{{ location|lower }}" onchange="toggleTriState(this); filterList()">
             <label for="{{ location|lower }}">{{ location }}</label>
+        {% empty %}
+            <p>No locations available.</p>
         {% endfor %}
     </div>
     <br>
@@ -83,9 +88,9 @@
         <input type="checkbox" class="column-toggle" value="instrument" checked onchange="toggleColumn(this)">
         <label for="instrument">Instrument</label>
         <input type="checkbox" class="column-toggle" value="checked-out-by" checked onchange="toggleColumn(this)">
-        <label for="notes">Checked-out-by</label>
+        <label for="checked-out-by">Checked Out By</label>
         <input type="checkbox" class="column-toggle" value="checked-out-date" checked onchange="toggleColumn(this)">
-        <label for="instrument">Checked-out-date</label>
+        <label for="checked-out-date">Checked Out Date</label>
     </div>
     <br>
 
@@ -128,12 +133,11 @@
                 <th class="column-instrument" onclick="sortList('chemical-table-body', 'instrument')">
                     <div class="header-container">Instrument <span id="sort-arrow-instrument"></span></div>
                 </th>
-                </th>
                 <th class="column-checked-out-by" onclick="sortList('chemical-table-body', 'checked-out-by')">
-                    <div class="header-container">Notes <span id="sort-arrow-notes"></span></div>
+                    <div class="header-container">Checked Out By <span id="sort-arrow-checked-out-by"></span></div>
                 </th>
                 <th class="column-checked-out-date" onclick="sortList('chemical-table-body', 'checked-out-date')">
-                    <div class="header-container">Instrument <span id="sort-arrow-instrument"></span></div>
+                    <div class="header-container">Checked Out Date <span id="sort-arrow-checked-out-date"></span></div>
                 </th>
                 <th>Edit</th>
                 <th>Delete</th>
@@ -154,8 +158,20 @@
                 <td class="column-sds" data-label="SDS">{{ chemical.chemSDS }}</td>
                 <td class="column-notes" data-label="Notes">{{ chemical.chemNotes }}</td>
                 <td class="column-instrument" data-label="Instrument">{{ chemical.chemInstrument }}</td>
-                <td class="column-checked-out-by" data-label="Notes">{{ chemical.chemCheckedOutBy }}</td>
-                <td class="column-checked-out-date" data-label="Instrument">{{ chemical.chemCheckedOutDate }}</td>
+                <td class="column-checked-out-by" data-label="Checked Out By">
+                    {% if chemical.chemCheckedOutBy %}
+                        {{ chemical.chemCheckedOutBy.username }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td class="column-checked-out-date" data-label="Checked Out Date">
+                    {% if chemical.chemCheckedOutDate %}
+                        {{ chemical.chemCheckedOutDate|date:"Y-m-d H:i" }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
                 <td data-label="Edit">
                     <!-- Edit Chemical Button -->
                     <form action="{% url 'edit_chemical' 'currentlyinstoragetable' chemical.chemBottleIDNUM %}" method="get" style="display:inline;">

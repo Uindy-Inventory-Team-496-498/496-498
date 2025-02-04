@@ -19,11 +19,13 @@ urlpatterns = [
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path("", views.home, name="home"),
+
     path('scan/', views.qr_code_scan, name='scan'),
     path("search/", views.search_page, name="search"),
     path('search_by_qr/', views.search_by_qr, name='search_by_qr'),
     path('checkinandout/', views.checkinandout, name='checkinandout'),
-    path('currchemicals/', curr_list_view, name='currchemicals'),
+    path('currchemicals/', views.currchemicals, name='currchemicals'),
+    
     path('current_chemicals/', views.list_chemicals, {'model_name': 'currentlyinstoragetable'}, name='current_chemicals'),
     path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
     path('edit_chemical/<str:model_name>/<int:pk>/', views.edit_chemical, name='edit_chemical'),

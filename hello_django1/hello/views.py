@@ -22,15 +22,17 @@ class ChemListView(LoginRequiredMixin,ListView):
         context = super(ChemListView, self).get_context_data(**kwargs)
         return context
 
+@login_required
 def currchemicals(request):
     chemical_list_db = currentlyInStorageTable.objects.all()
     chemical_types = currentlyInStorageTable.objects.values_list('chemMaterial', flat=True).distinct()
     chemical_locations = currentlyInStorageTable.objects.values_list('chemLocationRoom', flat=True).distinct()
-    chemical_locations = ['None' if location == '' else location for location in chemical_locations]
+    #chemical_locations = ['None' if location == '' else location for location in chemical_locations]
+
     return render(request, 'currchemicals.html', {
         'chemical_list_db': chemical_list_db,
         'chemical_types': chemical_types,
-        'chemical_locations': chemical_locations,
+        'chemical_locations': chemical_locations
     })
 
 def login_view(request):

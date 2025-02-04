@@ -66,13 +66,17 @@ function getSortValue(row, column) {
             return row.cells[10].textContent;
         case 'instrument':
             return row.cells[11].textContent;
+        case 'checked-out-by':
+            return row.cells[12].textContent;
+        case 'checked-out-date':
+            return row.cells[13].textContent;
         default:
             return '';
     }
 }
 
 function updateSortArrows(column, order) {
-    const columns = ['id', 'material', 'name', 'room', 'cabinet', 'shelf', 'amount', 'unit', 'concentration', 'sds', 'notes', 'instrument'];
+    const columns = ['id', 'material', 'name', 'room', 'cabinet', 'shelf', 'amount', 'unit', 'concentration', 'sds', 'notes', 'instrument', 'checked-out-by', 'checked-out-date'];
     columns.forEach(col => {
         const arrow = document.getElementById(`sort-arrow-${col}`);
         if (col === column) {
@@ -90,9 +94,14 @@ function updateSortArrows(column, order) {
 }
 
 function toggleTriState(checkbox) {
-    if (checkbox.readOnly) checkbox.checked = checkbox.readOnly = false;
-    else if (!checkbox.checked) checkbox.readOnly = checkbox.indeterminate = true;
-    else checkbox.indeterminate = false;
+    if (checkbox.readOnly) {
+        checkbox.checked = checkbox.readOnly = false;
+    } else if (!checkbox.checked) {
+        checkbox.readOnly = checkbox.indeterminate = true;
+    } else if (checkbox.checked) {
+        checkbox.readOnly = checkbox.indeterminate = false;
+    }
+    filterList();
 }
 
 function filterList() {
