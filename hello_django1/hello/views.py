@@ -10,6 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.utils.timezone import now
 
 class ChemListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
@@ -62,13 +63,19 @@ def update_checkout_status(request, model_name, qrcode_value):
     # Toggle the checkout status
     if chemical_instance.chemCheckedOut:
         chemical_instance.chemCheckedOut = False
+        chemical_instance.chemCheckedOutBy = None
+        chemical_instance.chemCheckedOutDate = None
+        message = f"Chemical successfully checked in by {request.user.username} at {now().strftime('%Y-%m-%d %H:%M:%S')}."
     else:
         chemical_instance.chemCheckedOut = True
+        chemical_instance.chemCheckedOutBy = request.user
+        chemical_instance.chemCheckedOutDate = now()
+        message = f"Chemical successfully checked out by {request.user.username} at {chemical_instance.chemCheckedOutDate.strftime('%Y-%m-%d %H:%M:%S')}."
     
     # Save the updated chemical instance
     chemical_instance.save()
     
-    return JsonResponse({"message": "Checkout status updated successfully."})
+    return JsonResponse({"message": message})
 
 
 @login_required
