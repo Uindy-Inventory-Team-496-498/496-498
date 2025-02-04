@@ -82,6 +82,10 @@
         <label for="notes">Notes</label>
         <input type="checkbox" class="column-toggle" value="instrument" checked onchange="toggleColumn(this)">
         <label for="instrument">Instrument</label>
+        <input type="checkbox" class="column-toggle" value="checked-out-by" checked onchange="toggleColumn(this)">
+        <label for="notes">Checked-out-by</label>
+        <input type="checkbox" class="column-toggle" value="checked-out-date" checked onchange="toggleColumn(this)">
+        <label for="instrument">Checked-out-date</label>
     </div>
     <br>
 
@@ -124,6 +128,13 @@
                 <th class="column-instrument" onclick="sortList('chemical-table-body', 'instrument')">
                     <div class="header-container">Instrument <span id="sort-arrow-instrument"></span></div>
                 </th>
+                </th>
+                <th class="column-checked-out-by" onclick="sortList('chemical-table-body', 'checked-out-by')">
+                    <div class="header-container">Notes <span id="sort-arrow-notes"></span></div>
+                </th>
+                <th class="column-checked-out-date" onclick="sortList('chemical-table-body', 'checked-out-date')">
+                    <div class="header-container">Instrument <span id="sort-arrow-instrument"></span></div>
+                </th>
                 <th>Edit</th>
                 <th>Delete</th>
             </tr>
@@ -143,6 +154,8 @@
                 <td class="column-sds" data-label="SDS">{{ chemical.chemSDS }}</td>
                 <td class="column-notes" data-label="Notes">{{ chemical.chemNotes }}</td>
                 <td class="column-instrument" data-label="Instrument">{{ chemical.chemInstrument }}</td>
+                <td class="column-checked-out-by" data-label="Notes">{{ chemical.chemCheckedOutBy }}</td>
+                <td class="column-checked-out-date" data-label="Instrument">{{ chemical.chemCheckedOutDate }}</td>
                 <td data-label="Edit">
                     <!-- Edit Chemical Button -->
                     <form action="{% url 'edit_chemical' 'currentlyinstoragetable' chemical.chemBottleIDNUM %}" method="get" style="display:inline;">

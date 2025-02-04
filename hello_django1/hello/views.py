@@ -12,6 +12,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 import csv
 from django.views.decorators.http import require_POST
+from django.utils.timezone import now
 
 class ChemListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
@@ -54,27 +55,68 @@ def home(request):
 
 @login_required
 def qr_code_scan(request):
-    return render(request, 'scan.html')
+    return render(request, 'scan.html') # Only if you need to disable CSRF for testing
 
 @login_required
-def search_qr_code(request):
-    chem_id = request.GET.get('chem_id')  # Get chem_id from query parameters
-    if not chem_id:
-        return JsonResponse({'error': 'No chemical ID provided'}, status=400)
-
-    # Try to get the chemical data from the database
+def update_checkout_status(request, model_name, qrcode_value):
     try:
-        chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)  # Assuming chemBottleIDNUM is used as ID
+        model_class, _ = get_model_by_name(model_name)
+        if model_class is None:
+            raise ValueError("Model not found for the given model name.")
+        
+        # Query the chemical in the storage table based on qrcodeValue
+        chemical_instance = model_class.objects.get(chemBottleIDNUM=qrcode_value)
+    
+    except model_class.DoesNotExist:
+        return JsonResponse({"message": f"Chemical with QR code {qrcode_value} not found."}, status=404)
+    
+    # Toggle the checkout status
+    if chemical_instance.chemCheckedOut:
+        chemical_instance.chemCheckedOut = False
+        chemical_instance.chemCheckedOutBy = None
+        chemical_instance.chemCheckedOutDate = None
+        message = f"Chemical successfully checked in by {request.user.username} at {now().strftime('%Y-%m-%d %H:%M:%S')}."
+    else:
+        chemical_instance.chemCheckedOut = True
+        chemical_instance.chemCheckedOutBy = request.user
+        chemical_instance.chemCheckedOutDate = now()
+        message = f"Chemical successfully checked out by {request.user.username} at {chemical_instance.chemCheckedOutDate.strftime('%Y-%m-%d %H:%M:%S')}."
+    
+    # Save the updated chemical instance
+    chemical_instance.save()
+    
+    return JsonResponse({"message": message})
+
+
+@login_required
+def search_by_qr(request):
+    qr_code_value = request.GET.get('chem_id')
+
+    if not qr_code_value:
+        return JsonResponse({'error': 'chem_id is required'}, status=400)
+
+    # Perform the search based on chemBottleIDNUM
+    try:
+        results = currentlyInStorageTable.objects.filter(
+            chemBottleIDNUM__icontains=qr_code_value
+        )
+
+        if not results.exists():
+            return JsonResponse({'message': 'No results found'}, status=404)
+
+        # Assuming you want to return the first matching record, adjust this as needed
+        result = results.first()
+
+        # Prepare data to return
         response_data = {
-            'exists': True,
-            'chemName': chemical.chemName,
-            'chemLocation': chemical.chemLocation,
-            'chemAmountInBottle': chemical.chemAmountInBottle,
-            'chemStorageType': chemical.chemStorageType,
+            'chemName': result.chemName,
+            'chemBottleIDNUM': result.chemBottleIDNUM,
+            "chemCheckedOut": result.chemCheckedOut,
         }
-    except currentlyInStorageTable.DoesNotExist:
-        return JsonResponse({'exists': False, 'error': 'Chemical not found'}, status=404) #  LINE CAUSING ISSUES
-    return JsonResponse(response_data)
+        return JsonResponse(response_data, status=200)
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @login_required
@@ -223,3 +265,7 @@ def import_chemicals_csv(request):
         messages.error(request, 'Failed to import chemicals. Please check the file format.')
 
     return redirect('currchemicals')
+
+@login_required
+def checkinandout(request):
+    return render(request, 'checkinandout.html')    
