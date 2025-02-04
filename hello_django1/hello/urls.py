@@ -35,5 +35,5 @@ urlpatterns = [
     path('export_chemicals_csv/', views.export_chemicals_csv, name='export_chemicals_csv'),
     path('import_chemicals_csv/', views.import_chemicals_csv, name='import_chemicals_csv'),
     path('update-checkout-status/<str:model_name>/<str:qrcode_value>/', views.update_checkout_status, name='update_checkout_status'),
-
+    path('delete_all_chemicals/', views.delete_all_chemicals, name='delete_all_chemicals'),
 ]

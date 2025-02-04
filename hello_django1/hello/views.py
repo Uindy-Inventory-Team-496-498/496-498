@@ -200,6 +200,14 @@ def delete_chemical(request, model_name, pk):
     return render(request, 'confirm_delete.html', {'chemical': chemical})
 
 @login_required
+def delete_all_chemicals(request):
+    if request.method == 'POST':
+        currentlyInStorageTable.objects.all().delete()
+        messages.success(request, 'All chemicals have been deleted successfully!')
+        return redirect('currchemicals')
+    return render(request, 'confirm_delete_all.html')
+
+@login_required
 def list_chemicals(request, model_name):
     model_class = get_model_by_name(model_name)
     model = model_class[0]
