@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Confirm Delete All
+{% endblock %}
+
+{% block content %}
+    <h2>Confirm Delete All Chemicals</h2>
+    <p>Are you sure you want to delete all chemicals? This action cannot be undone.</p>
+    <form method="POST" action="{% url 'delete_all_chemicals' %}">
+        {% csrf_token %}
+        <button type="submit" class="button-style">Delete All</button>
+        <a href="{% url 'currchemicals' %}" class="button-style">Cancel</a>
+    </form>
+{% endblock %}

@@ -29,8 +29,8 @@ def currchemicals(request):
     chemical_locations = ['None' if location == '' else location for location in chemical_locations]
     return render(request, 'currchemicals.html', {
         'chemical_list_db': chemical_list_db,
-        'chemical_types': chemical_types,
-        'chemical_locations': chemical_locations,
+        'chemical_types': list(chemical_types),
+        'chemical_locations': list(chemical_locations),
     })
 
 def login_view(request):
@@ -61,7 +61,7 @@ def qr_code_scan(request):
 def update_checkout_status(request, model_name, qrcode_value):
     try:
         model_class, _ = get_model_by_name(model_name)
-        if model_class is None:
+        if (model_class is None):
             raise ValueError("Model not found for the given model name.")
         
         # Query the chemical in the storage table based on qrcodeValue
@@ -240,24 +240,25 @@ def import_chemicals_csv(request):
     form = CSVUploadForm(request.POST, request.FILES)
     if form.is_valid():
         csv_file = request.FILES['file']
-        reader = csv.reader(csv_file.read().decode('utf-8').splitlines())
-        next(reader)  # Skip the header row
+        reader = csv.DictReader(csv_file.read().decode('utf-8').splitlines())
 
         for row in reader:
             currentlyInStorageTable.objects.update_or_create(
-                chemBottleIDNUM=row[0],
+                chemBottleIDNUM=row['chemBottleIDNUM'],
                 defaults={
-                    'chemMaterial': row[1],
-                    'chemName': row[2],
-                    'chemLocationRoom': row[3],
-                    'chemLocationCabinet': row[4],
-                    'chemLocationShelf': row[5],
-                    'chemAmountInBottle': row[6],
-                    'chemAmountUnit': row[7],
-                    'chemConcentration': row[8],
-                    'chemSDS': row[9],
-                    'chemNotes': row[10],
-                    'chemInstrument': row[11]
+                    'chemMaterial': row.get('chemMaterial'),
+                    'chemName': row.get('chemName'),
+                    'chemLocationRoom': row.get('chemLocationRoom'),
+                    'chemLocationCabinet': row.get('chemLocationCabinet'),
+                    'chemLocationShelf': row.get('chemLocationShelf'),
+                    'chemAmountInBottle': row.get('chemAmountInBottle'),
+                    'chemAmountUnit': row.get('chemAmountUnit'),
+                    'chemConcentration': row.get('chemConcentration'),
+                    'chemSDS': row.get('chemSDS'),
+                    'chemNotes': row.get('chemNotes'),
+                    'chemInstrument': row.get('chemInstrument'),
+                    'chemCheckedOutBy': row.get('chemCheckedOutBy'),
+                    'chemCheckedOutDate': row.get('chemCheckedOutDate')
                 }
             )
         messages.success(request, 'Chemicals imported successfully!')
@@ -265,5 +266,14 @@ def import_chemicals_csv(request):
         messages.error(request, 'Failed to import chemicals. Please check the file format.')
 
     return redirect('currchemicals')
+
+@login_required
+def delete_all_chemicals(request):
+    if request.method == 'POST':
+        currentlyInStorageTable.objects.all().delete()
+        messages.success(request, 'All chemicals have been deleted successfully!')
+        return redirect('currchemicals')
+    return render(request, 'confirm_delete_all.html')
+
 def checkinandout(request):
-    return render(request, 'checkinandout.html')    
+    return render(request, 'checkinandout.html')
