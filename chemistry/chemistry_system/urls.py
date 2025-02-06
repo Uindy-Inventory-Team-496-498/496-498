@@ -25,7 +25,8 @@ urlpatterns = [
     path('search_by_qr/', views.search_by_qr, name='search_by_qr'),
     path('checkinandout/', views.checkinandout, name='checkinandout'),
     path('currchemicals/', views.currchemicals, name='currchemicals'),
-    
+    path('live-search-api/', views.live_search_api, name='live_search_api'),
+
     path('current_chemicals/', views.list_chemicals, {'model_name': 'currentlyinstoragetable'}, name='current_chemicals'),
     path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
     path('edit_chemical/<str:model_name>/<int:pk>/', views.edit_chemical, name='edit_chemical'),
