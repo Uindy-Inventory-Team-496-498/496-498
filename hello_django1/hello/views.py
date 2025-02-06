@@ -4,12 +4,14 @@ from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
-from .forms import CustomLoginForm, get_dynamic_form
+from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+import csv
+from django.views.decorators.http import require_POST
 from django.utils.timezone import now
 
 class ChemListView(LoginRequiredMixin,ListView):
@@ -20,8 +22,18 @@ class ChemListView(LoginRequiredMixin,ListView):
         context = super(ChemListView, self).get_context_data(**kwargs)
         return context
 
-def current_chemicals(request):
-    return render(request, "currchemicals.html")
+@login_required
+def currchemicals(request):
+    chemical_list_db = currentlyInStorageTable.objects.all()
+    chemical_types = currentlyInStorageTable.objects.values_list('chemMaterial', flat=True).distinct()
+    chemical_locations = currentlyInStorageTable.objects.values_list('chemLocationRoom', flat=True).distinct()
+    #chemical_locations = ['None' if location == '' else location for location in chemical_locations]
+
+    return render(request, 'currchemicals.html', {
+        'chemical_list_db': chemical_list_db,
+        'chemical_types': chemical_types,
+        'chemical_locations': chemical_locations
+    })
 
 def login_view(request):
     if request.method == 'POST':
@@ -188,6 +200,14 @@ def delete_chemical(request, model_name, pk):
     return render(request, 'confirm_delete.html', {'chemical': chemical})
 
 @login_required
+def delete_all_chemicals(request):
+    if request.method == 'POST':
+        currentlyInStorageTable.objects.all().delete()
+        messages.success(request, 'All chemicals have been deleted successfully!')
+        return redirect('currchemicals')
+    return render(request, 'confirm_delete_all.html')
+
+@login_required
 def list_chemicals(request, model_name):
     model_class = get_model_by_name(model_name)
     model = model_class[0]
@@ -196,6 +216,65 @@ def list_chemicals(request, model_name):
     
     chemicals = model.objects.all()
     return render(request, 'list_chemicals.html', {'chemicals': chemicals, 'model_name': model_name})
+
+@login_required
+def export_chemicals_csv(request):
+    chemicals = currentlyInStorageTable.objects.all()
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="chemicals.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Material', 'Name', 'Room', 'Cabinet', 'Shelf', 'Amount', 'Unit', 'Concentration', 'SDS', 'Notes', 'Instrument'])
+
+    for chemical in chemicals:
+        writer.writerow([
+            chemical.chemBottleIDNUM,
+            chemical.chemMaterial,
+            chemical.chemName,
+            chemical.chemLocationRoom,
+            chemical.chemLocationCabinet,
+            chemical.chemLocationShelf,
+            chemical.chemAmountInBottle,
+            chemical.chemAmountUnit,
+            chemical.chemConcentration,
+            chemical.chemSDS,
+            chemical.chemNotes,
+            chemical.chemInstrument
+        ])
+
+    return response
+
+@login_required
+@require_POST
+def import_chemicals_csv(request):
+    form = CSVUploadForm(request.POST, request.FILES)
+    if form.is_valid():
+        csv_file = request.FILES['file']
+        reader = csv.DictReader(csv_file.read().decode('utf-8').splitlines())
+
+        for row in reader:
+            currentlyInStorageTable.objects.update_or_create(
+                chemBottleIDNUM=row['chemBottleIDNUM'],
+                defaults={
+                    'chemMaterial': row['chemMaterial'],
+                    'chemName': row['chemName'],
+                    'chemConcentration': row['chemConcentration'],
+                    'chemAmountInBottle': row['chemAmountInBottle'],
+                    'chemAmountUnit': row['chemAmountUnit'],
+                    'chemLocationRoom': row['chemLocationRoom'],
+                    'chemLocationCabinet': row['chemLocationCabinet'],
+                    'chemLocationShelf': row['chemLocationShelf'],
+                    'chemStorageType': row['chemStorageType'],
+                    'chemSDS': row['chemSDS'],
+                    'chemNotes': row['chemNotes'],
+                    'chemInstrument': row['chemInstrument']
+                }
+            )
+        messages.success(request, 'Chemicals imported successfully!')
+    else:
+        messages.error(request, 'Failed to import chemicals. Please check the file format.')
+
+    return redirect('currchemicals')
 
 @login_required
 def checkinandout(request):

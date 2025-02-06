@@ -62,3 +62,6 @@ class CurrChemicalForm(forms.ModelForm):
         fields = '__all__'  # Include all fields from the model
         # We can customize fields if needed:
         # fields = ['chemBottleIDNUM', 'chemName', 'chemLocation', 'chemAmountInBottle', 'chemStorageType']
+
+class CSVUploadForm(forms.Form):
+    file = forms.FileField()
