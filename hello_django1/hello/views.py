@@ -77,12 +77,23 @@ def log_chemical(request):
         return render(request, "log_message.html", {"form": form})
 
 @login_required
-def delete_chemical(request, id):
-    chemical = get_object_or_404(LogChemical, id=id)
+def delete_chemical(request, chemBottleIDNUM):
+    chemical = get_object_or_404(currentlyInStorageTable, chemBottleIDNUM=chemBottleIDNUM)
 
     if request.method == "POST":
-        chemical.delete()
-        return redirect("home")
+        try:
+            # Delete the chemical record
+            chemical.delete()
+            # Redirect to a page, e.g., chemical list or a success message
+            return render(request, 'currchemicals.html')
+        except Exception as e:
+            # Log detailed error information
+            print(f"Error deleting chemical with ID {chemBottleIDNUM}: {e}")
+            # You can also log this to a file or database if needed
+            return JsonResponse({'error': f'Failed to delete the chemical. Error: {str(e)}'}, status=500)
+    else:
+        return render(request, "scanner_delete")
+        
 
 @login_required  
 def qr_code_scanner(request):
@@ -92,34 +103,28 @@ def qr_code_scanner(request):
 def qr_code_scan(request):
     return render(request, 'scan.html')
 
-@login_required
-def search_qr_code(request, qr_code):
-    record = get_object_or_404(QRCodeData, qr_code=qr_code)  # Query using the QR code data
-    response_data = {
-        'id': record.id,
-        'name': record.name,
-        'description': record.description,
-    }
-    return JsonResponse(response_data)
 
 @login_required
 def search_by_qr_code(request):
-    chem_id = request.GET.get('chem_id')  # assuming the QR code scanner sends the ID as 'chem_id'
+    qr_code_value = request.GET.get('chem_id')
     try:
-        chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=chem_id)  # Assuming chemBottleIDNUM is used as ID
+        results = currentlyInStorageTable.objects.filter(
+            chemBottleIDNUM__icontains=qr_code_value
+        )
+        result = results.first()
+       # chemical = currentlyInStorageTable.objects.get(chemBottleIDNUM=qr_code_value)  # Assuming chemBottleIDNUM is used as ID
         response_data = {
-            'chem_id': chemical.chemBottleIDNUM,  # chem_id used for finding chemical for delete
-            'chemName': chemical.chemName,
-            'chemLocationCabinet': chemical.chemLocationCabinet,
-            'chemLocationShelf': chemical.chemLocationShelf,
-            'chemAmountInBottle': chemical.chemAmountInBottle,
-            'chemStorageType': chemical.chemStorageType,
+            'chemBottleIDNUM': result.chemBottleIDNUM,  
+            'chemName': result.chemName,
+            'chemLocationCabinet': result.chemLocationCabinet,
+            'chemLocationShelf': result.chemLocationShelf,
+            'chemAmountInBottle': result.chemAmountInBottle,
+            'chemStorageType': result.chemStorageType,
         }
         return JsonResponse(response_data, status=200)
-    except currentlyInStorageTable.DoesNotExist:
-        return JsonResponse({"error": "Chemical not found."}, status=404)
-    else:
-        return JsonResponse({"error": "Invalid search input."}, status=400) 
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
     
 
 @login_required

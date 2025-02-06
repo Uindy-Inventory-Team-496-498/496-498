@@ -26,7 +26,7 @@ urlpatterns = [
     path("about/", views.about, name="about"),
     path("contact/", views.contact, name="contact"),
     path("log/", views.log_chemical, name="log"),
-    path("delete/<int:id>/", views.delete_chemical, name='delete_message'),
+    path("delete/<int:chemBottleIDNUM>/", views.delete_chemical, name='delete_chemical'),
     path('scan/', views.qr_code_scan, name='scan'),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),  

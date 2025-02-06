@@ -30,6 +30,7 @@ Log a chemical
 
 <div id="qr-result">
     <b>Chemical Name:</b> <span id="result-chemName">N/A</span><br>
+    <b>Chemical BottleID:</b> <span id="result-chemBottleIDNUM">N/A</span><br>
     <b>Cabinet Location:</b> <span id="result-chemLocationCabinet">N/A</span><br>
     <b>Shelf Location:</b> <span id="result-chemLocationShelf">N/A</span><br>
     <b>Amount in Bottle:</b> <span id="result-chemAmountInBottle">N/A</span><br>
@@ -79,7 +80,7 @@ Log a chemical
             scanningEnabled = false; // Disable scanning temporarily
 
             // Fetch the data based on the scanned QR code
-            fetch(`/search_by_qr/?chem_id=${qrCodeValue}`)
+            fetch(`/search_by_qr_code/?chem_id=${qrCodeValue}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -94,6 +95,7 @@ Log a chemical
                             alert(data.error);
                         } else {
                             document.getElementById('result-chemName').textContent = data.chemName || 'N/A';
+                            document.getElementById('result-chemBottleIDNUM').textContent = data.chemBottleIDNUM || 'N/A';
                             document.getElementById('result-chemLocationCabinet').textContent = data.chemLocationCabinet || 'N/A';
                             document.getElementById('result-chemLocationShelf').textContent = data.chemLocationShelf || 'N/A';
                             document.getElementById('result-chemAmountInBottle').textContent = data.chemAmountInBottle || 'N/A';
@@ -101,7 +103,7 @@ Log a chemical
                             
                             
                             const deleteForm = document.getElementById('delete-chemical-form');
-                            deleteForm.action = `/delete/${data.chem_id}/`;
+                            deleteForm.action = `/delete/${data.chemBottleIDNUM}/`;
                              
                             
                             // Show the delete button
