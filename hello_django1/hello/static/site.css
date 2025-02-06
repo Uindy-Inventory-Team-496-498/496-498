@@ -268,3 +268,43 @@ tbody tr:hover {
         width: 100%;
     }
 }
+
+.search-box-container {
+    position: relative; /* Ensure this is the reference for positioning */
+}
+
+.dropdown-menu {
+    position: absolute; /* Relative to .search-box-container */
+    top: calc(100% + 5px); /* Places the dropdown just below the input */
+    left: 0; /* Aligns to the left edge of the input */
+    width: 100%; /* Matches the input width */
+    max-height: 200px; /* Scrollable if content exceeds height */
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Ensures it appears above other elements */
+    display: none; /* Initially hidden */
+}
+
+.suggestion-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.suggestion-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+.suggestion-item mark {
+    background-color: yellow;
+    font-weight: bold;
+}
