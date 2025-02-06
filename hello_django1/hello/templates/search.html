@@ -1,102 +1,106 @@
 {% extends "layout.html" %}
+{% load static %}
 
 {% block title %}
     Search Inventory
 {% endblock %}
 
 {% block content %}
-    <div class="search-container">
-        <!-- Search Form -->
-        <form action="{% url 'search' %}" method="get" class="search-form">
-            <div class="search-box-container">
-                <input 
-                    type="text" 
-                    name="query" 
-                    id="query" 
-                    placeholder="Enter chemical name or ID" 
-                    class="search-input"
-                    value="{{ query|default_if_none:'' }}"
-                >
-                <button type="submit" class="search-button">Search</button>
-            </div>
-        </form>
-    </div>
+<div class="search-container">
+    <!-- Search Form -->
+    <form action="{% url 'search' %}" method="get" class="search-form">
+        <div class="search-box-container">
+            <input 
+                type="text" 
+                name="query" 
+                id="search-input" 
+                placeholder="Enter chemical name or ID" 
+                class="search-input"
+                value="{{ query|default_if_none:'' }}"
+                autocomplete="off"
+            >
+            <div id="live-results" class="dropdown-menu"></div> <!-- Live search results container -->
+            <button type="submit" class="search-button">Search</button>
+        </div>
+    </form>
+</div>
 
-    <div class="results-container">
-        <!-- Dynamic Title -->
-        <h2 class="results-title">
-            {% if query %}
-                Chemical Search Results
-            {% else %}
-                Search Chemical
-            {% endif %}
-        </h2>
+<div class="results-container">
+    <!-- Dynamic Title and Message -->
+    {% if query and not results %}
+        <h2 class="results-title">No Results Found</h2>
+        <p class="no-results">No results found for '{{ query }}'.</p>
+    {% elif query %}
+        <h2 class="results-title">Chemical Search Results</h2>
+    {% else %}
+        <h2 class="results-title">Search Chemical</h2>
+        <p class="no-results">Enter a search query to find chemicals.</p>
+    {% endif %}
 
-        <!-- Dynamic Messages -->
-        {% if message %}
-            <p class="alert-message">{{ message }}</p>
-        {% endif %}
+    <!-- Results Table -->
+    {% if results and results|length > 0 %}
+        <p class="results-summary">
+            Found {{ results|length }} result{{ results|pluralize }} for "{{ query }}"
+        </p>
 
-        {% if results %}
-            <!-- Results Table -->
-            <div class="table-container">
-                <table class="results-table">
-                    <thead>
+        <div class="table-container">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Chemical Name</th>
+                        <th>Bottle ID</th>
+                        <th>Cabinet</th>
+                        <th>Shelf</th>
+                        <th>Amount</th>
+                        <th>Unit</th>
+                        <th>Concentration</th>
+                        <th>SDS</th>
+                        <th>Storage Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in results %}
                         <tr>
-                            <th>Chemical Name</th>
-                            <th>Bottle ID</th>
-                            <th>Cabinet</th>
-                            <th>Shelf</th>
-                            <th>Amount</th>
-                            <th>Unit</th>
-                            <th>Concentration</th>
-                            <th>SDS</th>
-                            <th>Storage Type</th>
+                            <td>{{ item.chemName }}</td>
+                            <td>{{ item.chemBottleIDNUM }}</td>
+                            <td>{{ item.chemLocationCabinet }}</td>
+                            <td>{{ item.chemLocationShelf }}</td>
+                            <td>{{ item.chemAmountInBottle }}</td>
+                            <td>{{ item.chemAmountUnit }}</td>
+                            <td>{{ item.chemConcentration }}</td>
+                            <td>{{ item.chemSDS }}</td>
+                            <td>{{ item.chemStorageType }}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in results %}
-                            <tr>
-                                <td>{{ item.chemName }}</td>
-                                <td>{{ item.chemBottleIDNUM }}</td>
-                                <td>{{ item.chemLocationCabinet }}</td>
-                                <td>{{ item.chemLocationShelf }}</td>
-                                <td>{{ item.chemAmountInBottle }}</td>
-                                <td>{{ item.chemAmountUnit }}</td>
-                                <td>{{ item.chemConcentration }}</td>
-                                <td>{{ item.chemSDS }}</td>
-                                <td>{{ item.chemStorageType }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="pagination">
-                {% if results.has_previous %}
-                    <a href="?query={{ query }}&page={{ results.previous_page_number }}" class="pagination-link">Previous</a>
-                {% endif %}
-
-                {% with surrounding_links=5 %}
-                    {% for page_num in results.paginator.page_range %}
-                        {% if page_num >= results.number|add:"-5" and page_num <= results.number|add:"5" %}
-                            {% if page_num == results.number %}
-                                <span class="pagination-link active">{{ page_num }}</span>
-                            {% else %}
-                                <a href="?query={{ query }}&page={{ page_num }}" class="pagination-link">{{ page_num }}</a>
-                            {% endif %}
-                        {% endif %}
                     {% endfor %}
-                {% endwith %}
+                </tbody>
+            </table>
+        </div>
 
-                {% if results.has_next %}
-                    <a href="?query={{ query }}&page={{ results.next_page_number }}" class="pagination-link">Next</a>
-                {% endif %}
-            </div>
-        {% else %}
-            <!-- No Results Message -->
-            <p class="no-results">No results found for your search.</p>
-        {% endif %}
-    </div>
+        <!-- Pagination -->
+        <div class="pagination">
+            {% if results.has_previous %}
+                <a href="?query={{ query }}&page={{ results.previous_page_number }}" class="pagination-link">Previous</a>
+            {% endif %}
+
+            {% with surrounding_links=5 %}
+                {% for page_num in results.paginator.page_range %}
+                    {% if page_num >= results.number|add:"-5" and page_num <= results.number|add:"5" %}
+                        {% if page_num == results.number %}
+                            <span class="pagination-link active">{{ page_num }}</span>
+                        {% else %}
+                            <a href="?query={{ query }}&page={{ page_num }}" class="pagination-link">{{ page_num }}</a>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% endwith %}
+
+            {% if results.has_next %}
+                <a href="?query={{ query }}&page={{ results.next_page_number }}" class="pagination-link">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Include the live-search.js file -->
+<script src="{% static 'js/ive-search.js' %}"></script>
 {% endblock %}

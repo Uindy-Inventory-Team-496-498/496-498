@@ -162,3 +162,23 @@ def list_chemicals(request, model_name):
     
     chemicals = model.objects.all()
     return render(request, 'list_chemicals.html', {'chemicals': chemicals, 'model_name': model_name})
+
+@login_required
+def live_search_api(request):
+    query = request.GET.get('q', '').strip()
+    if not query:
+        return JsonResponse([], safe=False)
+
+    matches = currentlyInStorageTable.objects.filter(
+        Q(chemName__icontains=query) | Q(chemBottleIDNUM__icontains=query)
+    )
+
+    data = [
+        {
+            'chemName': item.chemName,
+            'chemBottleIDNUM': item.chemBottleIDNUM
+        }
+        for item in matches
+    ]
+
+    return JsonResponse(data, safe=False)
