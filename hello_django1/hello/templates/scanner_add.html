@@ -8,6 +8,10 @@ Log a Chemical
 {% load static %}
 
 <body>
+    <form action="{% url 'currchemicals' %}" method="get" style="flex: 1;">
+        <button type="submit" class="button-style">Return to Database</button>
+    </form>
+
     <h1>Scan from WebCam:</h1>
     <div id="video-container">
         <video id="qr-video" width="240" height="240"></video>
