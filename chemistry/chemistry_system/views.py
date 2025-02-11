@@ -224,7 +224,8 @@ def export_chemicals_csv(request):
     response['Content-Disposition'] = 'attachment; filename="chemicals.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['ID', 'Material', 'Name', 'Room', 'Cabinet', 'Shelf', 'Amount', 'Unit', 'Concentration', 'SDS', 'Notes', 'Instrument'])
+    writer.writerow(['chemBottleIDNUM', 'chemMaterial', 'chemName', 'chemLocationRoom', 'chemLocationCabinet', 'chemLocationShelf', 
+        'chemAmountInBottle', 'chemAmountUnit', 'chemConcentration', 'chemSDS', 'chemNotes', 'chemInstrument'])
 
     for chemical in chemicals:
         writer.writerow([
@@ -251,7 +252,7 @@ def import_chemicals_csv(request):
     if form.is_valid():
         csv_file = request.FILES['file']
         reader = csv.DictReader(csv_file.read().decode('utf-8').splitlines())
-
+        
         for row in reader:
             currentlyInStorageTable.objects.update_or_create(
                 chemBottleIDNUM=row['chemBottleIDNUM'],
@@ -264,7 +265,6 @@ def import_chemicals_csv(request):
                     'chemLocationRoom': row['chemLocationRoom'],
                     'chemLocationCabinet': row['chemLocationCabinet'],
                     'chemLocationShelf': row['chemLocationShelf'],
-                    'chemStorageType': row['chemStorageType'],
                     'chemSDS': row['chemSDS'],
                     'chemNotes': row['chemNotes'],
                     'chemInstrument': row['chemInstrument']
