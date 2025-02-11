@@ -32,24 +32,24 @@ def get_dynamic_form(model_name):
 
     return DynamicChemicalForm
 
-# class DynamicChemicalForm(forms.ModelForm):
-#     def __init__(self, *args, **kwargs):
-#         model_name = kwargs.pop('model_name')
-#         model = self.get_model_by_name(model_name)
-#         self._meta.model = model
-#         super(DynamicChemicalForm, self).__init__(*args, **kwargs)
+    class DynamicChemicalForm(forms.ModelForm):
+         def __init__(self, *args, **kwargs):
+             model_name = kwargs.pop('model_name')
+             model = self.get_model_by_name(model_name)
+             self._meta.model = model
+             super(DynamicChemicalForm, self).__init__(*args, **kwargs)
 
-#     @staticmethod
-#     def get_model_by_name(model_name):
-#         model_mapping = {
-#             'currentlyinstoragetable': currentlyInStorageTable,
-#             'allchemicalstable': allChemicalsTable,
-#         }
-#         return model_mapping.get(model_name.lower())
+         @staticmethod
+         def get_model_by_name(model_name):
+             model_mapping = {
+             'currentlyinstoragetable': currentlyInStorageTable,
+             'allchemicalstable': allChemicalsTable,
+            }
+             return model_mapping.get(model_name.lower())
     
-#     class Meta:
-#         model = None
-#         fields = '__all__'  # Include all fields from the model
+         class Meta:
+          model = None
+          fields = '__all__'  # Include all fields from the model
 
 class AllChemicalForm(forms.ModelForm):
     class Meta:
