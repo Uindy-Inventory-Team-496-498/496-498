@@ -1,17 +1,10 @@
 from django.urls import path
 from hello import views
 from .views import login_view
-from hello.models import LogChemical, currentlyInStorageTable
+from hello.models import currentlyInStorageTable
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
-
-
-home_list_view = views.HomeListView.as_view(
-    queryset=LogChemical.objects.order_by("-log_date")[:5],
-    context_object_name="chemical_list",
-    template_name="home.html",
-)
 
 curr_list_view = views.ChemListView.as_view(
 	#removed the [:5] at the end of the following line to display entire database
@@ -20,9 +13,8 @@ curr_list_view = views.ChemListView.as_view(
     template_name = "currchemicals.html",
 )
 
-
 urlpatterns = [
-    path("", home_list_view, name="home"),
+    path("home/", views.home, name="home"),
     path("about/", views.about, name="about"),
     path("contact/", views.contact, name="contact"),
     path("log/", views.log_chemical, name="log"),
@@ -33,13 +25,29 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path("", views.home, name="home"),
     path('scan/', views.qr_code_scan, name='scan'),
     path("search/", views.search_page, name="search"),
-    path("search_by_qr_code/", views.search_by_qr_code, name="search_by_qr_code"),
-    path('currchemicals/', curr_list_view, name='current_chemicals'),
+
+
+    path("search_by_qr/", views.search_by_qr, name="search_by_qr"),
+    
     path("admin/", admin.site.urls),
-    path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
-	path('edit/<int:id>/', views.edit_chemical, name='edit_chemical'), 
     path('scanner_delete/', views.scanner_delete, name='scanner_delete'),
     
+    #Main's Version of search by qr, update mine to use this one
+    #path('search_by_qr/', views.search_by_qr, name='search_by_qr'),
+    
+    path('checkinandout/', views.checkinandout, name='checkinandout'),
+    path('currchemicals/', curr_list_view, name='currchemicals'),
+    path('current_chemicals/', views.list_chemicals, {'model_name': 'currentlyinstoragetable'}, name='current_chemicals'),
+    #path('all_chemicals/', views.list_chemicals, {'model_name': 'allchemicalstable'}, name='all_chemicals'),
+    path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
+    path('edit_chemical/<str:model_name>/<int:pk>/', views.edit_chemical, name='edit_chemical'),
+    #main's version of delete_chemical, change to use mine?
+    path('delete_chemical/<str:model_name>/<int:pk>/', views.delete_chemical, name='delete_chemical'),
+    path('scanner_add/', views.scanner_add, name='scanner_add'),
+    path('add/<str:model_name>/', views.add_chemical, name='add_chemical'),
+    path('update-checkout-status/<str:model_name>/<str:qrcode_value>/', views.update_checkout_status, name='update_checkout_status'),
+
 ]

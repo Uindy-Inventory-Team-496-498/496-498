@@ -10,21 +10,20 @@
 <body>
 <div class="navbar">
     <a href="{% url 'home' %}" class="navbar-brand">Home</a>
-    <a href="{% url 'about' %}" class="navbar-item">About</a>
-    <a href="{% url 'contact' %}" class="navbar-item">Contact</a>
-    <a href="{% url 'log' %}" class="navbar-item">Log Chemical</a>
-    <a href="{% url 'current_chemicals' %}" class="navbar-item">Chemicals DB</a>
+    <a href="{% url 'currchemicals' %}" class="navbar-item">Chemicals DB</a>
+    <a href="{% url 'current_chemicals' %}" class="navbar-item">Chemicals DB TESTING</a>
+    <a href="{% url 'search' %}" class="navbar-item">Search</a>
     <a href="{% url 'scan' %}" class="navbar-item" target="_blank">Access Scanner Test</a>
     <a href="{% url 'scanner_delete' %}" class="navbar-item" target="_blank">Scan Chemical For Deletion</a>
+    <a href="{% url 'scanner_add' %}" class="navbar-item">Add By Scanner</a>
+    <a href="{% url 'checkinandout' %}" class="navbar-item">Check chemical In or Out</a>
     <form method="post" action="{% url 'logout' %}" style="display: inline;">
         {% csrf_token %}
         <button type="submit" class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer; color: white">
             Logout
         </button>
     </form>
-
     
-    <a href="{% url 'search' %}" class="navbar-item">Search</a>
 </div>
 
 <div class="body-content">
