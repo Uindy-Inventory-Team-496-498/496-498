@@ -22,17 +22,14 @@ urlpatterns = [
 
     path('scan/', views.qr_code_scan, name='scan'),
     path("search/", views.search_page, name="search"),
-<<<<<<< HEAD:hello_django1/hello/urls.py
     path('live-search-api/', views.live_search_api, name='live_search_api'),
     path('search_by_qr/', views.search_qr_code, name='search_qr_code'),
 
     path('currchemicals/', curr_list_view, name='currchemicals'),
-=======
     path('search_by_qr/', views.search_by_qr, name='search_by_qr'),
     path('checkinandout/', views.checkinandout, name='checkinandout'),
     path('currchemicals/', views.currchemicals, name='currchemicals'),
     
->>>>>>> main:chemistry/chemistry_system/urls.py
     path('current_chemicals/', views.list_chemicals, {'model_name': 'currentlyinstoragetable'}, name='current_chemicals'),
     path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
     path('edit_chemical/<str:model_name>/<int:pk>/', views.edit_chemical, name='edit_chemical'),
