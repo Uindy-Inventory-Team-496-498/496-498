@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dropdownMenu.style.display = "block";
             return;
         }
-    
+
         dropdownMenu.innerHTML = `
             <ul class='suggestion-list'>
                 ${data
@@ -41,20 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
             </ul>
         `;
         dropdownMenu.style.display = "block";
-    
-        // Ensure dropdown width matches input width
-        dropdownMenu.style.width = inputField.offsetWidth + "px";
+        dropdownMenu.style.width = inputField.offsetWidth + "px"; // Match width
     }
-    
+
     function highlightQuery(text, query) {
-        if (!text.toLowerCase().startsWith(query.toLowerCase())) {
-            return text; // If the word doesn't start with the query, return unchanged
-        }
-
-        const boldPart = text.substring(0, query.length);  // Extract the matched part
-        const normalPart = text.substring(query.length);   // Extract the rest
-
-        return `<strong style="color: black;">${boldPart}</strong>${normalPart}`; // Bold only the start
+        const regex = new RegExp(`^(${query})`, "i"); // Match only the beginning of the word
+        return text.replace(regex, `<strong style="color: black;">$1</strong>`);
     }
-    
 });
