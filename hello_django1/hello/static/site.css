@@ -269,42 +269,70 @@ tbody tr:hover {
     }
 }
 
+/* Ensure the search container is the reference for absolute positioning */
 .search-box-container {
-    position: relative; /* Ensure this is the reference for positioning */
+    position: relative;
+    display: inline-block; /* Makes it fit around the input */
+    width: max-content;
 }
 
+/* Styling for dropdown menu */
 .dropdown-menu {
-    position: absolute; /* Relative to .search-box-container */
-    top: calc(100% + 5px); /* Places the dropdown just below the input */
-    left: 0; /* Aligns to the left edge of the input */
-    width: 100%; /* Matches the input width */
-    max-height: 200px; /* Scrollable if content exceeds height */
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 100%;
+    max-height: 200px;
     overflow-y: auto;
     background-color: white;
     border: 1px solid #ddd;
     border-radius: 4px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 1000; /* Ensures it appears above other elements */
-    display: none; /* Initially hidden */
+    z-index: 1000;
+    display: none;
 }
 
+/* Remove underlines from results */
+.dropdown-link {
+    text-decoration: none;
+    color: #333; /* Default text color */
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between; /* Ensures even spacing between name and ID */
+    padding: 10px;
+}
+
+/* Style for each dropdown item */
 .suggestion-list {
-    list-style: none;
+    list-style: none; /* Removes bullet points */
     padding: 0;
     margin: 0;
 }
 
 .suggestion-item {
-    padding: 10px 15px;
+    padding: 10px;
     cursor: pointer;
     font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    transition: background-color 0.2s;
 }
 
+/* Highlight when hovering */
 .suggestion-item:hover {
     background-color: #f0f0f0;
 }
 
-.suggestion-item mark {
-    background-color: yellow;
+/* Ensuring spacing between chemical name and ID */
+.chem-name {
+    flex: 1; /* Makes the name take most of the space */
     font-weight: bold;
+    color: black;
+}
+
+.chem-id {
+    color: #666;
+    font-size: 13px;
+    padding-left: 15px; /* Adds spacing */
+    white-space: nowrap;
 }

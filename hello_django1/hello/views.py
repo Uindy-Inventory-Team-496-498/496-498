@@ -69,17 +69,19 @@ def search_qr_code(request):
 
 
 @login_required
-
-@login_required
 def search_page(request):
     query = request.GET.get('query', '').strip()
     results = currentlyInStorageTable.objects.none()  # Default empty queryset
     message = None
 
     if query:
-        results = currentlyInStorageTable.objects.filter(
-            Q(chemName__icontains=query) | Q(chemBottleIDNUM__icontains=query)
-        )
+        if query.isdigit():
+            # Exact match for numerical Bottle ID
+            results = currentlyInStorageTable.objects.filter(chemBottleIDNUM__exact=query)
+        else:
+            # Search for chemicals where the name starts with the entered letters
+            results = currentlyInStorageTable.objects.filter(chemName__istartswith=query)
+
         if results.exists():
             message = f"{results.count()} result{'s' if results.count() > 1 else ''} found."
         else:
@@ -169,9 +171,12 @@ def live_search_api(request):
     if not query:
         return JsonResponse([], safe=False)
 
-    matches = currentlyInStorageTable.objects.filter(
-        Q(chemName__icontains=query) | Q(chemBottleIDNUM__icontains=query)
-    )
+    if query.isdigit():
+        # Exact match for numerical IDs
+        matches = currentlyInStorageTable.objects.filter(chemBottleIDNUM=query)
+    else:
+        # Search for chemicals where the name starts with the entered letters
+        matches = currentlyInStorageTable.objects.filter(chemName__istartswith=query)
 
     data = [
         {

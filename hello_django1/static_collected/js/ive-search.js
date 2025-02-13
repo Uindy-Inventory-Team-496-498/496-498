@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dropdownMenu.style.display = "block";
             return;
         }
-    
+
         dropdownMenu.innerHTML = `
             <ul class='suggestion-list'>
                 ${data
@@ -32,8 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         (item) =>
                             `<li class="suggestion-item">
                                 <a href="/search/?query=${item.chemName}" class="dropdown-link">
-                                    <span class="chem-name">${highlightQuery(item.chemName, query)}</span>
-                                    <span class="chem-id">(ID: ${item.chemBottleIDNUM})</span>
+                                    ${highlightQuery(item.chemName, query)} (ID: ${item.chemBottleIDNUM})
                                 </a>
                             </li>`
                     )
@@ -41,20 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </ul>
         `;
         dropdownMenu.style.display = "block";
-    
-        // Ensure dropdown width matches input width
-        dropdownMenu.style.width = inputField.offsetWidth + "px";
     }
-    
+
     function highlightQuery(text, query) {
-        if (!text.toLowerCase().startsWith(query.toLowerCase())) {
-            return text; // If the word doesn't start with the query, return unchanged
-        }
-
-        const boldPart = text.substring(0, query.length);  // Extract the matched part
-        const normalPart = text.substring(query.length);   // Extract the rest
-
-        return `<strong style="color: black;">${boldPart}</strong>${normalPart}`; // Bold only the start
+        const regex = new RegExp(query, "gi");
+        return text.replace(regex, (match) => `<mark>${match}</mark>`);
     }
-    
 });

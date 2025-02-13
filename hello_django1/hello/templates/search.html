@@ -6,22 +6,19 @@
 {% endblock %}
 
 {% block content %}
-<div class="search-container">
-    <!-- Search Form -->
+<div class="search-box-container">
     <form action="{% url 'search' %}" method="get" class="search-form">
-        <div class="search-box-container">
-            <input 
-                type="text" 
-                name="query" 
-                id="search-input" 
-                placeholder="Enter chemical name or ID" 
-                class="search-input"
-                value="{{ query|default_if_none:'' }}"
-                autocomplete="off"
-            >
-            <div id="live-results" class="dropdown-menu"></div> <!-- Live search results container -->
-            <button type="submit" class="search-button">Search</button>
-        </div>
+        <input 
+            type="text" 
+            name="query" 
+            id="search-input" 
+            placeholder="Enter chemical name or ID" 
+            class="search-input"
+            value="{{ query|default_if_none:'' }}"
+            autocomplete="off"
+        >
+        <button type="submit" class="search-button">Search</button>
+        <div id="live-results" class="dropdown-menu"></div> <!-- Dropdown results container -->
     </form>
 </div>
 
@@ -34,13 +31,13 @@
         <h2 class="results-title">Chemical Search Results</h2>
     {% else %}
         <h2 class="results-title">Search Chemical</h2>
-        <p class="no-results">Enter a search query to find chemicals.</p>
+        <p class="no-results">Enter a chemical name to look for chemicals.</p>
     {% endif %}
 
     <!-- Results Table -->
     {% if results and results|length > 0 %}
         <p class="results-summary">
-            Found {{ results|length }} result{{ results|pluralize }} for "{{ query }}"
+            Found {{ results|length }} result{{ results|pluralize }} for ({{ query }})
         </p>
 
         <div class="table-container">
