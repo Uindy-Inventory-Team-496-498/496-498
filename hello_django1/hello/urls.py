@@ -41,10 +41,9 @@ urlpatterns = [
     path('checkinandout/', views.checkinandout, name='checkinandout'),
     path('currchemicals/', curr_list_view, name='currchemicals'),
     path('current_chemicals/', views.list_chemicals, {'model_name': 'currentlyinstoragetable'}, name='current_chemicals'),
-    #path('all_chemicals/', views.list_chemicals, {'model_name': 'allchemicalstable'}, name='all_chemicals'),
+    path('all_chemicals/', views.list_chemicals, {'model_name': 'allchemicalstable'}, name='all_chemicals'),
     path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
     path('edit_chemical/<str:model_name>/<int:pk>/', views.edit_chemical, name='edit_chemical'),
-    #main's version of delete_chemical, change to use mine?
     path('delete_chemical/<str:model_name>/<int:pk>/', views.delete_chemical, name='delete_chemical'),
     path('scanner_add/', views.scanner_add, name='scanner_add'),
     path('add/<str:model_name>/', views.add_chemical, name='add_chemical'),
