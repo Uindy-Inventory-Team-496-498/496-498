@@ -68,7 +68,7 @@ Delete a Chemical
             scanningEnabled = false; // Disable scanning temporarily
 
             // Fetch the data based on the scanned QR code
-            fetch(`/search_by_qr_code/?chem_id=${qrCodeValue}`)
+            fetch(`/search_by_qr/?chem_id=${qrCodeValue}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
