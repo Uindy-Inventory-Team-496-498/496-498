@@ -1,6 +1,6 @@
 import csv
 from django.core.management.base import BaseCommand
-from hello.models import currentlyInStorageTable
+from chemistry_system.models import currentlyInStorageTable
 
 class Command(BaseCommand):
     help = 'Load data from CSV file into the database'

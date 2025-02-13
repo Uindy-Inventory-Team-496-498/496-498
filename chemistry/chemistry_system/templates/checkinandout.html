@@ -6,6 +6,7 @@ Log a Chemical
 
 {% block content %}
 {% load static %}
+<meta name="csrf-token" content="{{ csrf_token }}">
 
 <body>
     <h1>Scan from WebCam:</h1>
@@ -27,6 +28,10 @@ Log a Chemical
     <b>What the QR code scanned: </b>
     <span id="cam-qr-result">None</span>
 
+    <br>
+    <b>Result:</b>
+    <span id="check-in-out-result"></span>
+
     <script type="module">
         import QrScanner from "{% static 'js/qr-scanner.min.js' %}";
 
@@ -37,6 +42,10 @@ Log a Chemical
         let scanningEnabled = true;
         let lastQrCode = "";
 
+        function getCSRFToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        }
+
         function setResult(label, result) {
             const qrCodeValue = result.data;
 
@@ -45,46 +54,52 @@ Log a Chemical
                 label.textContent = qrCodeValue;
                 scanningEnabled = false;
 
-                fetch(`/search_by_qr/?chem_id=${qrCodeValue}`)
-                    .then(response => {
-                        if (response.status === 404) {
-                            // If the chemical is not found, redirect to the add page directly
-                            window.location.href = `/add/currentlyinstoragetable/?chem_id=${encodeURIComponent(qrCodeValue)}`;
-                        } else if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
+                // Fetch the chemical by its QR code (chem_id)
+                fetch(`/update-checkout-status/currentlyinstoragetable/${qrCodeValue}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken(),
+                    },
+                    body: JSON.stringify({
+                        chem_id: qrCodeValue,
+                    }),
+                })
+                    .then(response => response.json())
                     .then(data => {
-                        if (data.error || !data.exists) {
-                            console.log("Error: Chemical Not Found in Database")
+                        const resultSpan = document.getElementById('check-in-out-result');
+                        if (data.success) {
+                            resultSpan.textContent = data.message;
+                            resultSpan.style.color = "green";
                         } else {
-                            // If the chemical exists, inform the user
-                            alert("This chemical already exists in the database.");
+                            // Check for specific backend error message and display "Chemical not found"
+                            if (data.message.includes("not found")) {
+                                resultSpan.textContent = "Chemical not found in database";
+                            } else {
+                                resultSpan.textContent = data.message;
+                            }
+                            resultSpan.style.color = "red";
                         }
                     })
                     .catch(error => {
-                        window.location.href = `/add/currentlyinstoragetable/?chem_id=${encodeURIComponent(qrCodeValue)}`;
-                    })
-                    .finally(() => {
-                        setTimeout(() => {
-                            scanningEnabled = true;
-                        }, 1000);
+                        console.error('Error updating checkout status:', error);
+                        const resultSpan = document.getElementById('check-in-out-result');
+                        resultSpan.textContent = 'Failed to update checkout status';
+                        resultSpan.style.color = "red";
                     });
             }
         }
 
         const scanner = new QrScanner(video, result => setResult(camQrResult, result), {
             onDecodeError: error => {
-                // camQrResult.textContent = error;
-                // camQrResult.style.color = 'inherit';
+                // Handle errors if any
             },
             highlightScanRegion: true,
             highlightCodeOutline: true,
         });
 
         scanner.start().then(() => {
-            // List cameras after the scanner started
+            // List cameras after the scanner has started
             QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
                 const option = document.createElement('option');
                 option.value = camera.id;
@@ -99,7 +114,7 @@ Log a Chemical
         window.scanner = scanner;
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Optional: Handle additional settings only if the elements are present
+            // Optional: Handle additional settings for scan region if needed
             const scanRegionSelect = document.getElementById('scan-region-highlight-style-select');
             if (scanRegionSelect) {
                 scanRegionSelect.addEventListener('change', (e) => {

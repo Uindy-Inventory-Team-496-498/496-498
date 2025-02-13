@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from hello.models import currentlyInStorageTable, allChemicalsTable, get_model_by_name
+from chemistry_system.models import currentlyInStorageTable, allChemicalsTable, get_model_by_name
 
 class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(label='Username', max_length=150)
@@ -62,3 +62,6 @@ class CurrChemicalForm(forms.ModelForm):
         fields = '__all__'  # Include all fields from the model
         # We can customize fields if needed:
         # fields = ['chemBottleIDNUM', 'chemName', 'chemLocation', 'chemAmountInBottle', 'chemStorageType']
+
+class CSVUploadForm(forms.Form):
+    file = forms.FileField()

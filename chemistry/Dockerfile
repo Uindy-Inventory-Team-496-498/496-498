@@ -33,4 +33,4 @@ RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /
 USER appuser
 
 # Entrypoint to run migrations and load fixture data
-CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python manage.py migrate && python manage.py loaddata hello/fixtures/hello_fixtures.json && gunicorn --bind 0.0.0.0:8000 web_project.wsgi"]
+CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python manage.py migrate && python manage.py loaddata chemistry_system/fixtures/chemistry_system_fixtures.json && gunicorn --bind 0.0.0.0:8000 web_project.wsgi"]

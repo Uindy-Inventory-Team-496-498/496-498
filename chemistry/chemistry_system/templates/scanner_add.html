@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Log a Chemical
+{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<body>
+    <h1>Scan from WebCam:</h1>
+    <div id="video-container">
+        <video id="qr-video" width="240" height="240"></video>
+    </div>
+
+    <b>Device has camera: </b>
+    <span id="cam-has-camera"></span>
+    <br>
+    <div>
+        <b>Preferred camera:</b>
+        <select id="cam-list">
+            <option value="environment" selected>Environment Facing (default)</option>
+            <option value="user">User Facing</option>
+        </select>
+    </div>
+
+    <b>QR Code Scanned Result: </b>
+    <span id="cam-qr-result">None</span>
+
+    <script type="module">
+        import QrScanner from "{% static 'js/qr-scanner.min.js' %}";
+
+        const video = document.getElementById('qr-video');
+        const camHasCamera = document.getElementById('cam-has-camera');
+        const camList = document.getElementById('cam-list');
+        const camQrResult = document.getElementById('cam-qr-result');
+        let scanningEnabled = true;
+        let lastQrCode = "";
+
+        async function handleQrCodeResult(label, qrCodeValue) {
+            if (!scanningEnabled || qrCodeValue === lastQrCode) return;
+
+            lastQrCode = qrCodeValue;
+            label.textContent = qrCodeValue;
+            scanningEnabled = false;
+
+            try {
+                const response = await fetch(`/search_by_qr/?chem_id=${encodeURIComponent(qrCodeValue)}`);
+                if (response.status === 404) {
+                    // Redirect to add page if no match is found
+                    window.location.href = `/add/currentlyinstoragetable/?chem_id=${encodeURIComponent(qrCodeValue)}`;
+                } else if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                if (data.chemName) {
+                    alert(`Chemical with Bottle ID: ${data.chemBottleIDNUM} already exists!`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            } finally {
+                setTimeout(() => {
+                    scanningEnabled = true;
+                }, 1000);
+            }
+        }
+
+        const scanner = new QrScanner(video, result => handleQrCodeResult(camQrResult, result.data), {
+            onDecodeError: error => {
+                console.error("QR Code Decode Error:", error);
+            },
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+        });
+
+        scanner.start().then(() => {
+            // List cameras after the scanner starts
+            QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
+                const option = document.createElement('option');
+                option.value = camera.id;
+                option.text = camera.label;
+                camList.add(option);
+            }));
+        });
+
+        QrScanner.hasCamera().then(hasCamera => camHasCamera.textContent = hasCamera);
+
+        camList.addEventListener('change', event => {
+            scanner.setCamera(event.target.value);
+        });
+
+        // Optional debugging
+        window.scanner = scanner;
+    </script>
+
+    <style>
+        div {
+            margin-bottom: 16px;
+        }
+
+        #video-container {
+            line-height: 0;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin-bottom: 16px;
+        }
+    </style>
+</body>
+{% endblock %}

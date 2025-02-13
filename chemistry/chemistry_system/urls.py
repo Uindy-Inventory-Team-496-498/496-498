@@ -1,7 +1,7 @@
 from django.urls import path
-from hello import views
+from chemistry_system import views
 from .views import login_view
-from hello.models import currentlyInStorageTable
+from chemistry_system.models import currentlyInStorageTable
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
@@ -18,20 +18,29 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
-
     path("", views.home, name="home"),
+
     path('scan/', views.qr_code_scan, name='scan'),
     path("search/", views.search_page, name="search"),
+<<<<<<< HEAD:hello_django1/hello/urls.py
     path('live-search-api/', views.live_search_api, name='live_search_api'),
     path('search_by_qr/', views.search_qr_code, name='search_qr_code'),
 
     path('currchemicals/', curr_list_view, name='currchemicals'),
+=======
+    path('search_by_qr/', views.search_by_qr, name='search_by_qr'),
+    path('checkinandout/', views.checkinandout, name='checkinandout'),
+    path('currchemicals/', views.currchemicals, name='currchemicals'),
+    
+>>>>>>> main:chemistry/chemistry_system/urls.py
     path('current_chemicals/', views.list_chemicals, {'model_name': 'currentlyinstoragetable'}, name='current_chemicals'),
-    #path('all_chemicals/', views.list_chemicals, {'model_name': 'allchemicalstable'}, name='all_chemicals'),
     path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
     path('edit_chemical/<str:model_name>/<int:pk>/', views.edit_chemical, name='edit_chemical'),
     path('delete_chemical/<str:model_name>/<int:pk>/', views.delete_chemical, name='delete_chemical'),
     path('scanner_add/', views.scanner_add, name='scanner_add'),
     path('add/<str:model_name>/', views.add_chemical, name='add_chemical'),
-
+    path('export_chemicals_csv/', views.export_chemicals_csv, name='export_chemicals_csv'),
+    path('import_chemicals_csv/', views.import_chemicals_csv, name='import_chemicals_csv'),
+    path('update-checkout-status/<str:model_name>/<str:qrcode_value>/', views.update_checkout_status, name='update_checkout_status'),
+    path('delete_all_chemicals/', views.delete_all_chemicals, name='delete_all_chemicals'),
 ]

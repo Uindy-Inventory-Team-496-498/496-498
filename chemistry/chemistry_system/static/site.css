@@ -107,6 +107,10 @@ th {
     color: white;
     text-transform: uppercase;
     font-size: 0.9rem;
+    display: table-cell; /* Ensure headers are displayed as table cells */
+    align-items: center;
+    justify-content: space-between;
+    white-space: nowrap; /* Prevent text wrapping */
 }
 
 tbody tr:nth-child(odd) {
@@ -137,6 +141,7 @@ tbody tr:hover {
 @media (max-width: 768px) {
     table {
         width: 100%;
+        overflow-x: auto; /* Add horizontal scroll for tables */
     }
 
     h2 {
@@ -154,7 +159,38 @@ tbody tr:hover {
         width: 100%;
         margin: 10px 0;
     }
+
+    .button-container {
+        flex-direction: column; /* Stack buttons vertically */
+        align-items: stretch; /* Stretch buttons to full width */
+    }
+
+    .button-container form {
+        width: 100%; /* Ensure forms take full width */
+        margin-bottom: 10px; /* Add margin to the bottom */
+    }
+
+    .filter-container {
+        display: flex;
+        flex-wrap: wrap; /* Allow filter options to wrap */
+        gap: 10px; /* Add space between filter options */
+    }
+
+    .filter-container label,
+    .filter-container input {
+        flex: 0 1 auto; /* Allow filter options to grow and shrink */
+        min-width: auto; /* Remove minimum width for filter options */
+        max-width: 100%; /* Ensure filter options do not exceed 100% width */
+    }
 }
+
+.filter-container label,
+.filter-container input {
+    flex: 0 1 auto; /* Allow filter options to grow and shrink */
+    min-width: auto; /* Remove minimum width for filter options */
+    max-width: 100%; /* Ensure filter options do not exceed 100% width */
+}
+
 .button-style {
     display: inline-block;
     padding: 5px 10px;
