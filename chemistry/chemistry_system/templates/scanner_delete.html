@@ -1,0 +1,187 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Delete a Chemical
+{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<body>
+    <h1>Scan QR Code to Delete a Chemical:</h1>
+    <div id="video-container">
+        <video id="qr-video" width="240" height="240"></video>
+    </div>
+
+    <b>Device has camera: </b>
+    <span id="cam-has-camera"></span>
+    <br>
+    <div>
+        <b>Preferred camera:</b>
+        <select id="cam-list">
+            <option value="environment" selected>Environment Facing (default)</option>
+            <option value="user">User Facing</option>
+        </select>
+    </div>
+    <br>
+    <b>Last Detected QR code: </b>
+    <span id="cam-qr-result">None</span>
+    <br>
+
+    <div id="qr-result">
+        <b>Chemical Name:</b> <span id="result-chemName">N/A</span><br>
+        <b>Chemical BottleID:</b> <span id="result-chemBottleIDNUM">N/A</span><br>
+        <b>Cabinet Location:</b> <span id="result-chemLocationCabinet">N/A</span><br>
+        <b>Shelf Location:</b> <span id="result-chemLocationShelf">N/A</span><br>
+        <b>Amount in Bottle:</b> <span id="result-chemAmountInBottle">N/A</span><br>
+        <b>Storage Type:</b> <span id="result-chemStorageType">N/A</span><br>
+        <button id="delete-chemical" style="display:none;">Delete Chemical</button>
+    </div>
+
+    <div>
+        <!-- Delete Chemical Button -->
+        <form id="delete-chemical-form" method="POST" action="#">
+            {% csrf_token %}
+            <button type="submit" class="button-style" id="delete-button" style="display:none;">Delete Chemical</button>
+        </form>
+    </div>
+
+    <script src="{% static 'js/qr-scanner.umd.min.js' %}"></script>
+
+    <script type="module">
+        import QrScanner from "{% static 'js/qr-scanner.min.js' %}";
+
+        const video = document.getElementById('qr-video');
+        const camHasCamera = document.getElementById('cam-has-camera');
+        const camList = document.getElementById('cam-list');
+        const camQrResult = document.getElementById('cam-qr-result');
+        let scanningEnabled = true; // Flag to control scanning
+        let lastQrCode = ""; // Store the last scanned QR code
+
+        function setResult(label, result) {
+        const qrCodeValue = result.data;
+
+        // Only proceed if scanning is enabled and if the new QR code is different
+        if (scanningEnabled && qrCodeValue !== lastQrCode) {
+            lastQrCode = qrCodeValue; // Update the last scanned QR code
+            label.textContent = qrCodeValue; // Display the new QR code
+            scanningEnabled = false; // Disable scanning temporarily
+
+            // Fetch the data based on the scanned QR code
+            fetch(`/search_by_qr/?chem_id=${qrCodeValue}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();  // Use .json() to parse the response
+                })
+                .then(data => {
+                    console.log(data);  // Log the response to check if it's valid JSON
+                    
+                        //const data = JSON.parse(text); // Parse the JSON data
+                        if (data.error) {
+                            alert(data.error);
+                        } else {
+                            // Populate the result fields with the chemical data
+                            document.getElementById('result-chemName').textContent = data.chemName || 'N/A';
+                            document.getElementById('result-chemBottleIDNUM').textContent = data.chemBottleIDNUM || 'N/A';
+                            document.getElementById('result-chemLocationCabinet').textContent = data.chemLocationCabinet || 'N/A';
+                            document.getElementById('result-chemLocationShelf').textContent = data.chemLocationShelf || 'N/A';
+                            document.getElementById('result-chemAmountInBottle').textContent = data.chemAmountInBottle || 'N/A';
+                            document.getElementById('result-chemStorageType').textContent = data.chemStorageType || 'N/A';
+                            
+                            const deleteForm = document.getElementById('delete-chemical-form');
+                            console.log(`chemBottleIDNUM from data: ${data.chemBottleIDNUM}`); // Log the chemBottleIDNUM value
+                            console.log(`Setting delete form action to /delete/${data.chemBottleIDNUM}/`); // Log the action URL
+                            deleteForm.action = `/delete/${data.chemBottleIDNUM}/`; // Set the delete form's action URL
+                            
+                            // Show the delete button
+                            document.getElementById('delete-button').style.display = 'inline';
+                        }
+                     
+                })
+                .catch(error => console.error('Error fetching data:', error))
+                .finally(() => {
+                    // Pause for 1 seconds before re-enabling scanning
+                    setTimeout(() => {
+                        scanningEnabled = true; // Re-enable scanning
+                    }, 1000); // 5000 milliseconds = 5 seconds
+                });
+               
+        }
+    }
+
+        const scanner = new QrScanner(video, result => setResult(camQrResult, result), {
+            onDecodeError: error => {
+                // Handle decoding error (optional)
+            },
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+        });
+
+        scanner.start().then(() => {
+            // List cameras after the scanner started
+            QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
+                const option = document.createElement('option');
+                option.value = camera.id;
+                option.text = camera.label;
+                camList.add(option);
+            }));
+        });
+
+        QrScanner.hasCamera().then(hasCamera => camHasCamera.textContent = hasCamera);
+
+        // Add event listener to delete form submission
+        document.getElementById('delete-chemical-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            if (confirm('Are you sure you want to delete this chemical?')) {
+                const deleteUrl = this.action;
+                console.log(`Submitting delete form to URL: ${deleteUrl}`); // Log the delete URL
+                fetch(deleteUrl, {
+                    method: 'POST', // Change this to the correct HTTP method for deletion
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Chemical successfully deleted.");
+                    } else {
+                        alert("Failed to delete the chemical.Status: " + response.status);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting chemical:', error);
+                    alert('An error occurred while deleting the chemical.');
+                });
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            camList.addEventListener('change', event => {
+                scanner.setCamera(event.target.value);
+            });
+        });
+    </script>
+
+    <style>
+        div {
+            margin-bottom: 16px;
+        }
+
+        #video-container {
+            line-height: 0;
+        }
+
+        hr {
+            margin-top: 32px;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin-bottom: 16px;
+        }
+    </style>
+</body>
+{% endblock %}

@@ -184,6 +184,24 @@ def edit_chemical(request, model_name, pk):
     return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical, 'model_name': model_name})
 
 @login_required
+def delete_chemical_qr(request, chemBottleIDNUM):
+    chemical = get_object_or_404(currentlyInStorageTable, chemBottleIDNUM=chemBottleIDNUM)
+
+    if request.method == "POST":
+        try:
+            # Delete the chemical record
+            chemical.delete()
+            # Redirect to a page, e.g., chemical list or a success message
+            return render(request, 'currchemicals.html')
+        except Exception as e:
+            # Log detailed error information
+            print(f"Error deleting chemical with ID {chemBottleIDNUM}: {e}")
+            # You can also log this to a file or database if needed
+            return JsonResponse({'error': f'Failed to delete the chemical. Error: {str(e)}'}, status=500)
+    else:
+        return render(request, "scanner_delete")
+
+@login_required
 def delete_chemical(request, model_name, pk):
     model_class = get_model_by_name(model_name)
     model = model_class[0]
@@ -278,4 +296,8 @@ def import_chemicals_csv(request):
 
 @login_required
 def checkinandout(request):
-    return render(request, 'checkinandout.html')    
+    return render(request, 'checkinandout.html')   
+
+@login_required
+def scanner_delete(request):
+    return render(request, 'scanner_delete.html') 
