@@ -13,7 +13,6 @@ from django.contrib.contenttypes.models import ContentType
 import csv
 from django.views.decorators.http import require_POST
 from django.utils.timezone import now
-css-searchFfunctionality
 from django.core.paginator import Paginator
 
 
@@ -21,7 +20,6 @@ from PIL import Image, ImageDraw
 import qrcode
 import io
 import random
-main
 
 class ChemListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
