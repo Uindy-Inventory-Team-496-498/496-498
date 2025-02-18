@@ -1,5 +1,5 @@
 import re
-from chemistry_system.models import QRCodeData, currentlyInStorageTable, allChemicalsTable, get_model_by_name
+from chemistry_system.models import QRCodeData, currentlyInStorageTable, allChemicalsTable, get_model_by_name,  Log
 from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -82,11 +82,13 @@ def update_checkout_status(request, model_name, qrcode_value):
         chemical_instance.chemCheckedOutBy = None
         chemical_instance.chemCheckedOutDate = None
         message = f"Chemical successfully checked in by {request.user.username} at {now().strftime('%Y-%m-%d %H:%M:%S')}."
+        logCall(request.user.username, f"Checked in chemical with QR code {qrcode_value}")
     else:
         chemical_instance.chemCheckedOut = True
         chemical_instance.chemCheckedOutBy = request.user
         chemical_instance.chemCheckedOutDate = now()
         message = f"Chemical successfully checked out by {request.user.username} at {chemical_instance.chemCheckedOutDate.strftime('%Y-%m-%d %H:%M:%S')}."
+        logCall(request.user.username, f"Checked out chemical with QR code {qrcode_value}")
     
     # Save the updated chemical instance
     chemical_instance.save()
@@ -150,11 +152,14 @@ def search_page(request):
 
 @login_required
 def add_chemical(request, model_name):
+
     DynamicChemicalForm = get_dynamic_form(model_name)
     if request.method == 'POST':
         form = DynamicChemicalForm(request.POST)
         if form.is_valid():
+            chem_bottle_id = form.cleaned_data.get('chemBottleIDNUM')
             form.save()
+            logCall(request.user.username, f"Added chemical to {model_name} with ID: {chem_bottle_id}")
             messages.success(request, 'Chemical added successfully!')
             return redirect('currchemicals')
     else:
@@ -179,6 +184,7 @@ def edit_chemical(request, model_name, pk):
     if request.method == 'POST':
         form = DynamicChemicalForm(request.POST, instance=chemical)
         if form.is_valid():
+            logCall(request.user.username, f"Updated chemical with ID {pk}")
             form.save()
             messages.success(request, 'Chemical updated successfully!')
             return redirect('currchemicals')
@@ -198,6 +204,7 @@ def delete_chemical(request, model_name, pk):
     
     if request.method == 'POST':
         chemical.delete()
+        logCall(request.user.username, f"Deleted chemical with ID {pk}")
         messages.success(request, 'Chemical deleted successfully!')
         return redirect('currchemicals')
     
@@ -291,6 +298,7 @@ def print_page(request):
 
 @login_required
 def generate_qr_pdf(request):
+    logCall(request.user.username, "Generated QR PDF")
     num_qr = 24  # Number of QR codes
     cols = 4  
     rows = 6  
@@ -339,3 +347,17 @@ def generate_qr_pdf(request):
     response = HttpResponse(pdf_buffer, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="qr_codes.pdf"'
     return response
+
+@login_required
+def log(request):
+    Log_entries = Log.objects.all()
+    return render(request, 'log.html', {'log': Log_entries})
+
+def logCall(user: str, action: str):
+    try:
+        date = now()
+        log_add = Log(user=user, action=action, date=date)
+        log_add.save()
+        print(f"Log entry saved: {user} - {action}")  # Debugging print statement
+    except Exception as e:
+        print(f"Logging error: {e}")  # Print errors for debugging
