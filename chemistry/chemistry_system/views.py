@@ -298,7 +298,6 @@ def print_page(request):
 
 @login_required
 def generate_qr_pdf(request):
-    logCall(request.user.username, "Generated QR PDF")
     num_qr = 24  # Number of QR codes
     cols = 4  
     rows = 6  
