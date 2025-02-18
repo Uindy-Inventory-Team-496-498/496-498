@@ -93,59 +93,21 @@ function updateSortArrows(column, order) {
     });
 }
 
-function toggleTriState(checkbox) {
-    if (checkbox.readOnly) {
-        checkbox.checked = checkbox.readOnly = false;
-    } else if (!checkbox.checked) {
-        checkbox.readOnly = checkbox.indeterminate = true;
-    } else if (checkbox.checked) {
-        checkbox.readOnly = checkbox.indeterminate = false;
-    }
-    filterList();
-}
-
 function filterList() {
-    const selectedTypes = Array.from(document.querySelectorAll('.type-choice')).map(cb => ({
-        value: cb.value,
-        state: cb.indeterminate ? 'exclude' : (cb.checked ? 'include' : 'none')
-    }));
-    const selectedLocations = Array.from(document.querySelectorAll('.location-choice')).map(cb => ({
-        value: cb.value,
-        state: cb.indeterminate ? 'exclude' : (cb.checked ? 'include' : 'none')
-    }));
-    const selectedSDS = Array.from(document.querySelectorAll('.sds-choice')).map(cb => ({
-        value: cb.value,
-        state: cb.indeterminate ? 'exclude' : (cb.checked ? 'include' : 'none')
-    }));
+    const selectedTypes = Array.from(document.querySelectorAll('.type-choice:checked')).map(cb => cb.value);
+    const selectedLocations = Array.from(document.querySelectorAll('.location-choice:checked')).map(cb => cb.value);
+    const selectedSDS = Array.from(document.querySelectorAll('.sds-choice:checked')).map(cb => cb.value);
     const rows = document.querySelectorAll('.chemical-row');
 
     rows.forEach(row => {
         const rowType = row.getAttribute('data-type');
         const rowLocation = row.getAttribute('data-location');
-        const rowSDS = row.getAttribute('data-sds');
+        let rowSDS = row.getAttribute('data-sds');
+        if (rowSDS === '') rowSDS = 'none';
 
-        // if (rowLocation === 'none') {
-        //     row.style.display = 'none';
-        //     return;
-        // }
-
-        const typeMatches = selectedTypes.every(type => {
-            if (type.state === 'none') return true;
-            if (type.state === 'include') return rowType === type.value;
-            if (type.state === 'exclude') return rowType !== type.value;
-        });
-
-        const locationMatches = selectedLocations.every(location => {
-            if (location.state === 'none') return true;
-            if (location.state === 'include') return rowLocation === location.value;
-            if (location.state === 'exclude') return rowLocation !== location.value;
-        });
-
-        const sdsMatches = selectedSDS.every(sds => {
-            if (sds.state === 'none') return true;
-            if (sds.state === 'include') return rowSDS === sds.value;
-            if (sds.state === 'exclude') return rowSDS !== sds.value;
-        });
+        const typeMatches = selectedTypes.length === 0 || selectedTypes.includes(rowType);
+        const locationMatches = selectedLocations.length === 0 || selectedLocations.includes(rowLocation);
+        const sdsMatches = selectedSDS.length === 0 || selectedSDS.includes(rowSDS);
 
         if (typeMatches && locationMatches && sdsMatches) {
             row.style.display = '';
@@ -153,6 +115,10 @@ function filterList() {
             row.style.display = 'none';
         }
     });
+
+    updateSelectAllCheckbox('type');
+    updateSelectAllCheckbox('location');
+    updateSelectAllCheckbox('sds');
 }
 
 function toggleColumn(checkbox) {
@@ -162,3 +128,31 @@ function toggleColumn(checkbox) {
         cell.style.display = checkbox.checked ? '' : 'none';
     });
 }
+
+function selectAll(category) {
+    const selectAllCheckbox = document.getElementById(`select-all-${category}`);
+    const checkboxes = document.querySelectorAll(`.${category}-choice`);
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+    filterList();
+}
+
+function updateSelectAllCheckbox(category) {
+    const checkboxes = document.querySelectorAll(`.${category}-choice`);
+    const selectAllCheckbox = document.getElementById(`select-all-${category}`);
+    const allUnchecked = Array.from(checkboxes).every(checkbox => !checkbox.checked);
+    selectAllCheckbox.checked = allUnchecked;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.type-choice, .location-choice, .sds-choice').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            filterList();
+            updateSelectAllCheckbox(checkbox.classList[0].split('-')[0]);
+        });
+    });
+    document.querySelectorAll('.select-all').forEach(checkbox => {
+        checkbox.addEventListener('change', () => selectAll(checkbox.getAttribute('data-category')));
+    });
+});
