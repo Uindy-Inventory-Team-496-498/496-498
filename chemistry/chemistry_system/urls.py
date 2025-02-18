@@ -36,4 +36,6 @@ urlpatterns = [
     path('import_chemicals_csv/', views.import_chemicals_csv, name='import_chemicals_csv'),
     path('update-checkout-status/<str:model_name>/<str:qrcode_value>/', views.update_checkout_status, name='update_checkout_status'),
     path('delete_all_chemicals/', views.delete_all_chemicals, name='delete_all_chemicals'),
+    path('print/', views.print_page, name='print_page'),
+    path('download-qr-pdf/', views.generate_qr_pdf, name='download_qr_pdf'),
 ]
