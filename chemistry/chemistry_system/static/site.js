@@ -124,6 +124,11 @@ function filterList() {
         const rowLocation = row.getAttribute('data-location');
         const rowSDS = row.getAttribute('data-sds');
 
+        // if (rowLocation === 'none') {
+        //     row.style.display = 'none';
+        //     return;
+        // }
+
         const typeMatches = selectedTypes.every(type => {
             if (type.state === 'none') return true;
             if (type.state === 'include') return rowType === type.value;
@@ -132,14 +137,14 @@ function filterList() {
 
         const locationMatches = selectedLocations.every(location => {
             if (location.state === 'none') return true;
-            if (location.state === 'include') return rowLocation === location.value || rowLocation === '' || rowLocation === 'none';
-            if (location.state === 'exclude') return rowLocation !== location.value && rowLocation !== '' && rowLocation !== 'none';
+            if (location.state === 'include') return rowLocation === location.value;
+            if (location.state === 'exclude') return rowLocation !== location.value;
         });
 
         const sdsMatches = selectedSDS.every(sds => {
             if (sds.state === 'none') return true;
-            if (sds.state === 'include') return rowSDS === sds.value || rowSDS === '' || rowSDS === 'none';
-            if (sds.state === 'exclude') return rowSDS !== sds.value && rowSDS !== '' && rowSDS !== 'none';
+            if (sds.state === 'include') return rowSDS === sds.value;
+            if (sds.state === 'exclude') return rowSDS !== sds.value;
         });
 
         if (typeMatches && locationMatches && sdsMatches) {
