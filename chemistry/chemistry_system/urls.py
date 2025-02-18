@@ -39,4 +39,5 @@ urlpatterns = [
     path('delete_all_chemicals/', views.delete_all_chemicals, name='delete_all_chemicals'),
     path('print/', views.print_page, name='print_page'),
     path('download-qr-pdf/', views.generate_qr_pdf, name='download_qr_pdf'),
+    path('log/', views.log, name='log'),
 ]
