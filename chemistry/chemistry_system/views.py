@@ -13,8 +13,15 @@ from django.contrib.contenttypes.models import ContentType
 import csv
 from django.views.decorators.http import require_POST
 from django.utils.timezone import now
+css-searchFfunctionality
 from django.core.paginator import Paginator
 
+
+from PIL import Image, ImageDraw
+import qrcode
+import io
+import random
+main
 
 class ChemListView(LoginRequiredMixin,ListView):
     """Renders the home page, with a list of all messages."""
@@ -319,3 +326,59 @@ def import_chemicals_csv(request):
 @login_required
 def checkinandout(request):
     return render(request, 'checkinandout.html')    
+
+@login_required
+def print_page(request):
+    """Render the page with the download button."""
+    return render(request, 'print.html')
+
+@login_required
+def generate_qr_pdf(request):
+    num_qr = 24  # Number of QR codes
+    cols = 4  
+    rows = 6  
+    qr_size = 300  
+
+    dpi = 300  
+    canvas_width = 8.5 * dpi  
+    canvas_height = 11 * dpi  
+
+    canvas = Image.new("RGB", (int(canvas_width), int(canvas_height)), "white")
+    draw = ImageDraw.Draw(canvas)
+
+    first_x = 384 + 46
+    first_y = 337 + 46
+    between_x = 534 + 4
+    between_y = 515 + 20
+
+    num_so_far = 0
+    current_x = first_x
+    current_y = first_y
+
+    for i in range(num_qr):
+        if num_so_far % cols == 0 and num_so_far != 0:
+            current_x = first_x
+            current_y += between_y
+
+        num_so_far += 1
+        data = random.randint(0, 2147483640)
+        qr = qrcode.QRCode(box_size=5, border=0)  
+        qr.add_data(data)
+        qr.make(fit=True)
+        qr_img = qr.make_image(fill="black", back_color="white").resize((qr_size, qr_size))
+
+        canvas.paste(qr_img, (current_x - 150, current_y - 150))
+        current_x += between_x
+
+
+    canvas = canvas.crop((0, 0, canvas_width, canvas_height))
+    canvas = canvas.resize((int(9 * 300), int(11 * 300)))
+
+    pdf_buffer = io.BytesIO()
+    canvas.save(pdf_buffer, format="PDF")
+    pdf_buffer.seek(0)
+
+    # Return as a response
+    response = HttpResponse(pdf_buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="qr_codes.pdf"'
+    return response
