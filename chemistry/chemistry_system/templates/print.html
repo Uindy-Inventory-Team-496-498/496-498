@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block title %}
+    Home
+{% endblock %}
+{% block content %}
+    <h2>PRINT PAGE</h2>
+    <form action="{% url 'download_qr_pdf' %}" method="get">
+        <button type="submit" class="btn btn-primary">Download QR Codes PDF</button>
+    </form>
+    
+
+    
+{% endblock %}
