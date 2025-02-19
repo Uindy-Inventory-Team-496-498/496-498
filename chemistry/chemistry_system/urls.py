@@ -22,6 +22,7 @@ urlpatterns = [
 
     path('scan/', views.qr_code_scan, name='scan'),
     path("search/", views.search_page, name="search"),
+    path('live-search-api/', views.live_search_api, name='live_search_api'),
     path('search_by_qr/', views.search_by_qr, name='search_by_qr'),
     path('checkinandout/', views.checkinandout, name='checkinandout'),
     path('currchemicals/', views.currchemicals, name='currchemicals'),
