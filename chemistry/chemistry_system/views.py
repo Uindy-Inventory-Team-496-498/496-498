@@ -1,5 +1,5 @@
 import re
-from chemistry_system.models import QRCodeData, currentlyInStorageTable, allChemicalsTable, get_model_by_name,  Log
+from chemistry_system.models import QRCodeData, allChemicalsTable, currentlyInStorageTable, get_model_by_name, Log
 from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -18,7 +18,7 @@ import qrcode
 import io
 import random
 
-class ChemListView(LoginRequiredMixin,ListView):
+class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
     model = currentlyInStorageTable
 
@@ -31,9 +31,20 @@ def currchemicals(request):
     chemical_list_db = currentlyInStorageTable.objects.all()
     chemical_types = currentlyInStorageTable.objects.values_list('chemMaterial', flat=True).distinct()
     chemical_locations = currentlyInStorageTable.objects.values_list('chemLocationRoom', flat=True).distinct()
-    #chemical_locations = ['None' if location == '' else location for location in chemical_locations]
 
     return render(request, 'currchemicals.html', {
+        'chemical_list_db': chemical_list_db,
+        'chemical_types': chemical_types,
+        'chemical_locations': chemical_locations
+    })
+
+@login_required
+def allchemicals(request):
+    chemical_list_db = allChemicalsTable.objects.all()
+    chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
+    chemical_locations = allChemicalsTable.objects.values_list('chemLocationRoom', flat=True).distinct()
+
+    return render(request, 'all_chemicals.html', {
         'chemical_list_db': chemical_list_db,
         'chemical_types': chemical_types,
         'chemical_locations': chemical_locations
@@ -67,7 +78,7 @@ def qr_code_scan(request):
 def update_checkout_status(request, model_name, qrcode_value):
     try:
         model_class, _ = get_model_by_name(model_name)
-        if model_class is None:
+        if (model_class is None):
             raise ValueError("Model not found for the given model name.")
         
         # Query the chemical in the storage table based on qrcodeValue
