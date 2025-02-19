@@ -271,32 +271,26 @@ def export_chemicals_csv(request):
 @require_POST
 def import_chemicals_csv(request):
     form = CSVUploadForm(request.POST, request.FILES)
-    if form.is_valid():
+    model_name = request.POST.get('model_name', 'currentlyinstoragetable')
+    model_class, required_fields = get_model_by_name(model_name)
+    
+    if form.is_valid() and model_class:
         csv_file = request.FILES['file']
         reader = csv.DictReader(csv_file.read().decode('utf-8').splitlines())
         
+        id_field = required_fields[0]  # Use the first required field as the ID field
+        
         for row in reader:
-            currentlyInStorageTable.objects.update_or_create(
-                chemBottleIDNUM=row['chemBottleIDNUM'],
-                defaults={
-                    'chemMaterial': row['chemMaterial'],
-                    'chemName': row['chemName'],
-                    'chemConcentration': row['chemConcentration'],
-                    'chemAmountInBottle': row['chemAmountInBottle'],
-                    'chemAmountUnit': row['chemAmountUnit'],
-                    'chemLocationRoom': row['chemLocationRoom'],
-                    'chemLocationCabinet': row['chemLocationCabinet'],
-                    'chemLocationShelf': row['chemLocationShelf'],
-                    'chemSDS': row['chemSDS'],
-                    'chemNotes': row['chemNotes'],
-                    'chemInstrument': row['chemInstrument']
-                }
+            defaults = {field: row[field] for field in row if field in required_fields}
+            model_class.objects.update_or_create(
+                **{id_field: row[id_field]},
+                defaults=defaults
             )
         messages.success(request, 'Chemicals imported successfully!')
     else:
         messages.error(request, 'Failed to import chemicals. Please check the file format.')
 
-    return redirect('currchemicals')
+    return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
 
 @login_required
 def checkinandout(request):

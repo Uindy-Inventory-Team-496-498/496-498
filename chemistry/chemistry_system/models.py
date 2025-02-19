@@ -4,8 +4,18 @@ from django.contrib.auth.models import User
 
 def get_model_by_name(model_name):
 	model_mapping = {
-		'currentlyinstoragetable': (currentlyInStorageTable, ['chemBottleIDNUM', 'chemName', 'chemLocationCabinet', 'chemAmountInBottle']),
-		'allchemicalstable': (allChemicalsTable, ['chemID', 'chemName']),
+		'currentlyinstoragetable': (currentlyInStorageTable, [
+			'chemBottleIDNUM', 'chemMaterial', 'chemName', 'chemConcentration', 
+			'chemAmountInBottle', 'chemAmountUnit', 'chemLocationRoom', 
+			'chemLocationCabinet', 'chemLocationShelf', 'chemSDS', 'chemNotes', 
+			'chemInstrument'
+		]),
+		'allchemicalstable': (allChemicalsTable, [
+			'chemID', 'chemMaterial', 'chemName', 'chemConcentration', 
+			'chemAmountInBottle', 'chemAmountUnit', 'chemLocationRoom', 
+			'chemLocationCabinet', 'chemLocationShelf', 'chemSDS', 'chemNotes', 
+			'chemInstrument'
+		]),
 	}
 	return model_mapping.get(model_name.lower())
 

@@ -20,6 +20,7 @@
 
             <form action="{% url 'import_chemicals_csv' %}" method="post" enctype="multipart/form-data" style="display:inline;">
                 {% csrf_token %}
+                <input type="hidden" name="model_name" value="allchemicalstable">
                 <input type="file" name="file" required>
                 <button type="submit" class="button-style">Import CSV</button>
             </form>
