@@ -28,7 +28,6 @@
                 {% csrf_token %}
                 <button type="submit" class="button-style" onclick="return confirm('Are you sure you want to delete all chemicals? This action cannot be undone.')">Delete All</button>
             </form>
-
         </div>
     </div>
     <br>
@@ -156,19 +155,19 @@
         </thead>
         <tbody id="chemical-table-body">
             {% for chemical in chemical_list_db %}
-            <tr class="chemical-row" data-type="{{ chemical.chemMaterial|lower }}" data-location="{{ chemical.chemLocationRoom|default_if_none:'none'|lower }}" data-sds="{{ chemical.chemSDS }}">
+            <tr class="chemical-row" data-type="{{ chemical.chemAssociated.chemMaterial|lower }}" data-location="{{ chemical.chemAssociated.chemLocationRoom|default_if_none:'none'|lower }}" data-sds="{{ chemical.chemAssociated.chemSDS }}">
                 <td class="column-id" data-label="ID">{{ chemical.chemBottleIDNUM }}</td>
-                <td class="column-material" data-label="Material">{{ chemical.chemMaterial }}</td>
-                <td class="column-name" data-label="Name">{{ chemical.chemName }}</td>
-                <td class="column-room" data-label="Room">{{ chemical.chemLocationRoom|default_if_none:'None' }}</td>
-                <td class="column-cabinet" data-label="Cabinet">{{ chemical.chemLocationCabinet }}</td>
-                <td class="column-shelf" data-label="Shelf">{{ chemical.chemLocationShelf }}</td>
+                <td class="column-material" data-label="Material">{{ chemical.chemAssociated.chemMaterial }}</td>
+                <td class="column-name" data-label="Name">{{ chemical.chemAssociated.chemName }}</td>
+                <td class="column-room" data-label="Room">{{ chemical.chemAssociated.chemLocationRoom }}</td>
+                <td class="column-cabinet" data-label="Cabinet">{{ chemical.chemAssociated.chemLocationCabinet }}</td>
+                <td class="column-shelf" data-label="Shelf">{{ chemical.chemAssociated.chemLocationShelf }}</td>
                 <td class="column-amount" data-label="Amount">{{ chemical.chemAmountInBottle }}</td>
-                <td class="column-unit" data-label="Unit">{{ chemical.chemAmountUnit }}</td>
-                <td class="column-concentration" data-label="Concentration">{{ chemical.chemConcentration }}</td>
-                <td class="column-sds" data-label="SDS">{{ chemical.chemSDS }}</td>
-                <td class="column-notes" data-label="Notes">{{ chemical.chemNotes }}</td>
-                <td class="column-instrument" data-label="Instrument">{{ chemical.chemInstrument }}</td>
+                <td class="column-unit" data-label="Unit">{{ chemical.chemAssociated.chemAmountUnit }}</td>
+                <td class="column-concentration" data-label="Concentration">{{ chemical.chemAssociated.chemConcentration }}</td>
+                <td class="column-sds" data-label="SDS">{{ chemical.chemAssociated.chemSDS }}</td>
+                <td class="column-notes" data-label="Notes">{{ chemical.chemAssociated.chemNotes }}</td>
+                <td class="column-instrument" data-label="Instrument">{{ chemical.chemAssociated.chemInstrument }}</td>
                 <td class="column-checked-out-by" data-label="Checked Out By">
                     {% if chemical.chemCheckedOutBy %}
                         {{ chemical.chemCheckedOutBy.username }}

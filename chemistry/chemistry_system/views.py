@@ -4,7 +4,7 @@ from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
-from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm
+from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -28,9 +28,9 @@ class ChemListView(LoginRequiredMixin, ListView):
 
 @login_required
 def currchemicals(request):
-    chemical_list_db = currentlyInStorageTable.objects.all()
-    chemical_types = currentlyInStorageTable.objects.values_list('chemMaterial', flat=True).distinct()
-    chemical_locations = currentlyInStorageTable.objects.values_list('chemLocationRoom', flat=True).distinct()
+    chemical_list_db = currentlyInStorageTable.objects.select_related('chemAssociated').all()
+    chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
+    chemical_locations = currentlyInStorageTable.objects.values_list('chemAssociated__chemLocationRoom', flat=True).distinct()
 
     return render(request, 'currchemicals.html', {
         'chemical_list_db': chemical_list_db,
@@ -163,10 +163,13 @@ def search_page(request):
 
 @login_required
 def add_chemical(request, model_name):
+    if model_name.lower() == 'currentlyinstoragetable':
+        form_class = CurrChemicalForm
+    else:
+        form_class = get_dynamic_form(model_name)
 
-    DynamicChemicalForm = get_dynamic_form(model_name)
     if request.method == 'POST':
-        form = DynamicChemicalForm(request.POST)
+        form = form_class(request.POST)
         if form.is_valid():
             chem_bottle_id = form.cleaned_data.get('chemBottleIDNUM')
             form.save()
@@ -174,7 +177,7 @@ def add_chemical(request, model_name):
             messages.success(request, 'Chemical added successfully!')
             return redirect('currchemicals')
     else:
-        form = DynamicChemicalForm()
+        form = form_class()
 
     return render(request, 'add_chemical.html', {'form': form, 'model_name': model_name})
 

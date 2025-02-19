@@ -38,11 +38,21 @@ class AllChemicalForm(forms.ModelForm):
         fields = '__all__'  # Include all fields from the model
 
 class CurrChemicalForm(forms.ModelForm):
+    chemAssociated = forms.ModelChoiceField(
+        queryset=allChemicalsTable.objects.all(),
+        label="Associated Chemical",
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        to_field_name='chemID'
+    )
+
     class Meta:
         model = currentlyInStorageTable
         fields = '__all__'  # Include all fields from the model
-        # We can customize fields if needed:
-        # fields = ['chemBottleIDNUM', 'chemName', 'chemLocation', 'chemAmountInBottle', 'chemStorageType']
+
+    def __init__(self, *args, **kwargs):
+        super(CurrChemicalForm, self).__init__(*args, **kwargs)
+        self.fields['chemAssociated'].queryset = allChemicalsTable.objects.all()
+        self.fields['chemAssociated'].label_from_instance = lambda obj: f"{obj.chemMaterial} - {obj.chemName} - {obj.chemConcentration}"
 
 class CSVUploadForm(forms.Form):
     file = forms.FileField()
