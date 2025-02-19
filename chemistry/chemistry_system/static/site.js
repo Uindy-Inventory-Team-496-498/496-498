@@ -136,17 +136,21 @@ function selectAll(category) {
         checkbox.checked = selectAllCheckbox.checked;
     });
     filterList();
+    updateSelectAllCheckbox(category);
 }
 
 function updateSelectAllCheckbox(category) {
     const checkboxes = document.querySelectorAll(`.${category}-choice`);
     const selectAllCheckbox = document.getElementById(`select-all-${category}`);
+    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
     const allUnchecked = Array.from(checkboxes).every(checkbox => !checkbox.checked);
-    selectAllCheckbox.checked = allUnchecked;
+    selectAllCheckbox.checked = allChecked;
+    selectAllCheckbox.indeterminate = !allChecked && !allUnchecked;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.type-choice, .location-choice, .sds-choice').forEach(checkbox => {
+        checkbox.checked = true;
         checkbox.addEventListener('change', () => {
             filterList();
             updateSelectAllCheckbox(checkbox.classList[0].split('-')[0]);
@@ -155,4 +159,5 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.select-all').forEach(checkbox => {
         checkbox.addEventListener('change', () => selectAll(checkbox.getAttribute('data-category')));
     });
+    filterList();
 });
