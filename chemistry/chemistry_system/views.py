@@ -14,8 +14,6 @@ import csv
 from django.views.decorators.http import require_POST
 from django.utils.timezone import now
 from django.core.paginator import Paginator
-
-
 from PIL import Image, ImageDraw
 import qrcode
 import io
