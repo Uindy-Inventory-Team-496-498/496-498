@@ -12,24 +12,19 @@ class Command(BaseCommand):
 
         # Get all chemical records
         all_chemicals = list(allChemicalsTable.objects.all())
-        users = list(User.objects.all())
 
         # Generate dummy data
         bottle_id = 1
         for chem in all_chemicals:
-            for _ in range(3):  # Create 3 bottles for each chemical
-                user = random.choice(users) if users else None
+            for _ in range(1):  # Create x bottles for each chemical
 
                 currentlyInStorageTable.objects.create(
                     chemBottleIDNUM=bottle_id,
                     chemAssociated=chem,
-                    chemLocationRoom=random.choice(['327', 'Prep Room', '310', '325']),
+                    chemLocationRoom=chem.chemLocationRoom,
                     chemLocationCabinet=random.choice(['Cabinet A', 'Cabinet B', 'Cabinet C']),
                     chemLocationShelf=random.choice(['Shelf 1', 'Shelf 2', 'Shelf 3']),
                     chemAmountInBottle=f"{random.randint(1, 1000)} mL",
-                    chemCheckedOut=random.choice([True, False]),
-                    chemCheckedOutBy=user,
-                    chemCheckedOutDate=timezone.now() if user else None
                 )
                 bottle_id += 1
 
