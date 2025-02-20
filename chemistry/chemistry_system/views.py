@@ -18,7 +18,7 @@ from PIL import Image, ImageDraw
 import qrcode
 import io
 import random
-import os
+from datetime import datetime
 
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
@@ -305,7 +305,8 @@ def export_chemicals_csv(request):
 
     chemicals = model_class.objects.all()
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="{model_name}.csv"'
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    response['Content-Disposition'] = f'attachment; filename="{model_name}_{timestamp}.csv"'
 
     writer = csv.writer(response)
     writer.writerow(required_fields)
