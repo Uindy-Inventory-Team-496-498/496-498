@@ -1,44 +1,67 @@
 {% extends "layout.html" %}
+{% load static %}
+
 {% block title %}
     Search Inventory
 {% endblock %}
+
 {% block content %}
-    <div class="search-container">
-        <!-- search.html -->
-        <form action="{% url 'search' %}" method="get" class="search-form">
-            <input 
-                type="text" 
-                name="query" 
-                id="query" 
-                placeholder="Enter chemical name or ID..." 
+<div class="search-container">
+    <!-- Search Form -->
+    <form action="{% url 'search' %}" method="get" class="search-form">
+        <div class="search-box-container">
+            <input
+                type="text"
+                name="query"
+                id="search-input"
+                placeholder="Enter chemical name or ID..."
                 class="search-input"
-                value="{{ query }}"
+                value="{{ query|default_if_none:'' }}"
+                autocomplete="off"
             >
-            <button type="submit" class="search-button">
-                Search
-            </button>
-        </form>
-    </div>
+            <!-- Live search results container -->
+            <div id="live-results" class="dropdown-menu"></div>
 
-    <div class="results-container">
-        <h2>Search Results for "{{ query }}"</h2>
+            <button type="submit" class="search-button">Search</button>
+        </div>
+    </form>
+</div>
 
-        {% if message %}
-            <p class="alert-message">{{ message }}</p>
-        {% elif results %}
-            <p class="results-count">{{ results|length }} result(s) found</p>
+<div class="results-container">
+    <!-- Optional message from the view -->
+    {% if message %}
+        <p class="alert-message">{{ message }}</p>
+    {% endif %}
 
+    <!-- Dynamic Title and Messages -->
+    {% if query and not results %}
+        <h2 class="results-title">No Results Found</h2>
+        <p class="no-results">No results found for '{{ query }}'.</p>
+    {% elif query %}
+        <h2 class="results-title">Chemical Search Results</h2>
+    {% else %}
+        <h2 class="results-title">Search Chemical</h2>
+        <p class="no-results">Enter a search query to find chemicals.</p>
+    {% endif %}
+
+    <!-- If there are results, show the table -->
+    {% if results and results|length > 0 %}
+        <p class="results-summary">
+            Found {{ results|length }} result{{ results|pluralize }} for ({{ query }})
+        </p>
+
+        <div class="table-container">
             <table class="results-table">
                 <thead>
                     <tr>
                         <th>Chemical Name</th>
                         <th>Bottle ID</th>
                         <th>Cabinet</th>
-						    <th>Shelf</th>
+                        <th>Shelf</th>
                         <th>Amount</th>
-                            <th>Unit</th>
-                            <th>Concentration</th>
-                            <th>SDS</th>
+                        <th>Unit</th>
+                        <th>Concentration</th>
+                        <th>SDS</th>
                         <th>Storage Type</th>
                     </tr>
                 </thead>
@@ -48,18 +71,47 @@
                             <td>{{ item.chemName }}</td>
                             <td>{{ item.chemBottleIDNUM }}</td>
                             <td>{{ item.chemLocationCabinet }}</td>
-							    <td>{{ item.chemLocationShelf }}</td>
+                            <td>{{ item.chemLocationShelf }}</td>
                             <td>{{ item.chemAmountInBottle }}</td>
-                                <td>{{ item.chemAmountUnit }}</td>
-                                <td>{{ item.chemConcentration }}</td>
-                                <td>{{ item.chemSDS }}</td>
+                            <td>{{ item.chemAmountUnit }}</td>
+                            <td>{{ item.chemConcentration }}</td>
+                            <td>{{ item.chemSDS }}</td>
                             <td>{{ item.chemStorageType }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        {% else %}
-            <p class="alert-message">No results found for "{{ query }}"</p>
-        {% endif %}
-    </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            {% if results.has_previous %}
+                <a href="?query={{ query }}&page={{ results.previous_page_number }}" 
+                   class="pagination-link">Previous</a>
+            {% endif %}
+
+            {% with surrounding_links=5 %}
+                {% for page_num in results.paginator.page_range %}
+                    {% if page_num >= results.number|add:"-5" and page_num <= results.number|add:"5" %}
+                        {% if page_num == results.number %}
+                            <span class="pagination-link active">{{ page_num }}</span>
+                        {% else %}
+                            <a href="?query={{ query }}&page={{ page_num }}" 
+                               class="pagination-link">{{ page_num }}</a>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% endwith %}
+
+            {% if results.has_next %}
+                <a href="?query={{ query }}&page={{ results.next_page_number }}" 
+                   class="pagination-link">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Live Search JS -->
+<script src="{% static 'js/live-search.js' %}"></script>
+
 {% endblock %}

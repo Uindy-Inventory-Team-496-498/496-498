@@ -1,3 +1,5 @@
+
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -107,10 +109,6 @@ th {
     color: white;
     text-transform: uppercase;
     font-size: 0.9rem;
-    display: table-cell; /* Ensure headers are displayed as table cells */
-    align-items: center;
-    justify-content: space-between;
-    white-space: nowrap; /* Prevent text wrapping */
 }
 
 tbody tr:nth-child(odd) {
@@ -141,7 +139,6 @@ tbody tr:hover {
 @media (max-width: 768px) {
     table {
         width: 100%;
-        overflow-x: auto; /* Add horizontal scroll for tables */
     }
 
     h2 {
@@ -159,38 +156,7 @@ tbody tr:hover {
         width: 100%;
         margin: 10px 0;
     }
-
-    .button-container {
-        flex-direction: column; /* Stack buttons vertically */
-        align-items: stretch; /* Stretch buttons to full width */
-    }
-
-    .button-container form {
-        width: 100%; /* Ensure forms take full width */
-        margin-bottom: 10px; /* Add margin to the bottom */
-    }
-
-    .filter-container {
-        display: flex;
-        flex-wrap: wrap; /* Allow filter options to wrap */
-        gap: 10px; /* Add space between filter options */
-    }
-
-    .filter-container label,
-    .filter-container input {
-        flex: 0 1 auto; /* Allow filter options to grow and shrink */
-        min-width: auto; /* Remove minimum width for filter options */
-        max-width: 100%; /* Ensure filter options do not exceed 100% width */
-    }
 }
-
-.filter-container label,
-.filter-container input {
-    flex: 0 1 auto; /* Allow filter options to grow and shrink */
-    min-width: auto; /* Remove minimum width for filter options */
-    max-width: 100%; /* Ensure filter options do not exceed 100% width */
-}
-
 .button-style {
     display: inline-block;
     padding: 5px 10px;
@@ -212,4 +178,200 @@ tbody tr:hover {
 .button-style:active {
     background-color: #004085;
     border-color: #004085;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin: 20px 0;
+}
+
+.pagination-link {
+    padding: 8px 12px;
+    background-color: #882727;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.pagination-link:hover {
+    background-color: #a03a3a;
+}
+
+.pagination-link.active {
+    background-color: #444;
+    cursor: default;
+}
+
+.pagination-link:disabled,
+.pagination-link[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Search Input Field */
+.search-input {
+    flex: 1;
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 400px; /* Adjusted to fit the placeholder text */
+    max-width: 100%; /* Ensures it doesn't overflow on smaller screens */
+}
+
+.search-input:focus {
+    border-color: rgb(136, 39, 39);
+    box-shadow: 0 0 8px rgba(136, 39, 39, 0.5);
+}
+
+/* Search Button */
+.search-button {
+    padding: 12px 25px;
+    background-color: rgb(136, 39, 39);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-button:hover {
+    background-color: rgb(189, 54, 54);
+    transform: translateY(-2px);
+}
+
+.search-button:active {
+    background-color: rgb(100, 30, 30);
+    transform: translateY(1px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .search-box-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .search-input {
+        width: 100%; /* Expand to full width on smaller screens */
+    }
+
+    .search-button {
+        width: 100%;
+    }
+}
+
+.search-box-container {
+    position: relative;
+    display: flex;         /* Switch to flex layout */
+    align-items: center;   /* Vertically center items in the container */
+    gap: 10px;             /* Space between input & button */
+    width: 400px;          /* Or use any fixed/percentage width you like */
+}
+
+/* The dropdown menu itself */
+/* 2) The search input fills the container's width */
+.search-input {
+    width: 100%;           /* Fills the .search-box-container’s width */
+    border-radius: 30px;   /* Rounded corners */
+ 
+}
+
+/* 3) The dropdown menu is absolutely positioned & matches container width */
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 100%;           /* Exactly as wide as the container */
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    z-index: 9999;
+    display: none;         /* JavaScript will set to "block" */
+}
+
+  
+/* If you prefer it to fade in only when displayed, 
+   add a class to show/hide and trigger the animation that way. 
+   But as a quick fix, you can place the animation above. */
+
+/* Custom scrollbar styling (works in WebKit-based browsers) */
+.dropdown-menu::-webkit-scrollbar {
+    width: 8px;
+}
+.dropdown-menu::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 4px;
+}
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Suggestion list items */
+.suggestion-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.suggestion-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+/* Light hover state */
+.suggestion-item:hover {
+    background-color: #fafafa;
+}
+
+/* The clickable link inside each item */
+.dropdown-link {
+    text-decoration: none;
+    color: #333; /* or your preferred color */
+    display: block; /* So the entire item is clickable */
+}
+
+/* If no suggestions come back */
+.no-suggestions {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Highlighted portion of the text */
+.suggestion-item mark {
+    background-color: yellow;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Optional label for ID, if you want smaller text or a different style */
+.id-label {
+    font-size: 0.85em;
+    color: #999;
+    margin-left: 5px;
 }
