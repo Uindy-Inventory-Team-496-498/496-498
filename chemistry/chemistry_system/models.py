@@ -4,13 +4,23 @@ from django.contrib.auth.models import User
 
 def get_model_by_name(model_name):
 	model_mapping = {
-		'currentlyinstoragetable': (currentlyInStorageTable, ['chemBottleIDNUM', 'chemName', 'chemLocationCabinet', 'chemAmountInBottle']),
-		'allchemicalstable': (allChemicalsTable, ['id', 'name']),
+		'currentlyinstoragetable': (currentlyInStorageTable, [
+			'chemBottleIDNUM', 'chemMaterial', 'chemName', 'chemConcentration', 
+			'chemAmountInBottle', 'chemAmountUnit', 'chemLocationRoom', 
+			'chemLocationCabinet', 'chemLocationShelf', 'chemSDS', 'chemNotes', 
+			'chemInstrument'
+		]),
+		'allchemicalstable': (allChemicalsTable, [
+			'chemID', 'chemMaterial', 'chemName', 'chemConcentration', 
+			'chemAmountInBottle', 'chemAmountUnit', 'chemLocationRoom', 
+			'chemLocationCabinet', 'chemLocationShelf', 'chemSDS', 'chemNotes', 
+			'chemInstrument'
+		]),
 	}
 	return model_mapping.get(model_name.lower())
 
-class currentlyInStorageTable(models.Model):
-	chemBottleIDNUM = models.IntegerField(primary_key=True)
+class allChemicalsTable(models.Model):
+	chemID = models.IntegerField(primary_key=True)
 	chemMaterial = models.CharField(max_length=255) 
 	chemName = models.CharField(max_length=255)
 	chemLocationRoom = models.CharField(max_length=255, default="None")
@@ -22,24 +32,21 @@ class currentlyInStorageTable(models.Model):
 	chemSDS = models.CharField(null = True, max_length=20)
 	chemNotes = models.CharField(null = True, max_length=255)
 	chemInstrument = models.CharField(null = True, max_length=255)
+
+	def __str__(self):
+		return self.chemName
+		
+class currentlyInStorageTable(models.Model):
+	chemBottleIDNUM = models.IntegerField(primary_key=True)
+	chemAssociated = models.ForeignKey(allChemicalsTable, on_delete=models.CASCADE, default=1)
+	chemLocationRoom = models.CharField(max_length=255, default="None")
+	chemLocationCabinet = models.CharField(max_length=255, default="None")
+	chemLocationShelf = models.CharField(max_length=255, default="None")
+	chemAmountInBottle = models.CharField(max_length=255, default="0")
 	chemCheckedOut = models.BooleanField(default=False)
 	chemCheckedOutBy = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 	chemCheckedOutDate = models.DateTimeField(null=True, blank=True)
 
-class allChemicalsTable(models.Model):
-	id = models.IntegerField(primary_key=True)
-	material_type = models.CharField(max_length=50, null=True)
-	name = models.CharField(max_length=255, null=True)
-	concentration = models.CharField(max_length=50, blank=True, null=True)
-	amount = models.CharField(max_length=50, blank=True, null=True)
-	location = models.CharField(max_length=255, blank=True, null=True)
-	sds = models.IntegerField(blank=True, null=True)
-	notes = models.TextField(blank=True, null=True)
-	instrument = models.CharField(max_length=255, blank=True, null=True)
-
-	def __str__(self):
-		return self.name
-		
 class QRCodeData(models.Model):
 	qr_code = models.CharField(max_length=255, unique=True)  # Field to store the QR code data
 	name = models.CharField(max_length=255)  # Example additional field

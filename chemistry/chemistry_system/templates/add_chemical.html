@@ -6,10 +6,10 @@
 
 {% block content %}
     <h2>Add a New Chemical</h2>
-    <form method="POST">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Add Chemical</button>
+        <button type="submit" class="button-style">Add Chemical</button>
     </form>
     <script>
         document.addEventListener('DOMContentLoaded', () => {

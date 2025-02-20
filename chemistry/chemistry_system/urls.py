@@ -26,6 +26,7 @@ urlpatterns = [
     path('search_by_qr/', views.search_by_qr, name='search_by_qr'),
     path('checkinandout/', views.checkinandout, name='checkinandout'),
     path('currchemicals/', views.currchemicals, name='currchemicals'),
+    path('allchemicals/', views.allchemicals, name='allchemicals'),
     
     path('current_chemicals/', views.list_chemicals, {'model_name': 'currentlyinstoragetable'}, name='current_chemicals'),
     path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
