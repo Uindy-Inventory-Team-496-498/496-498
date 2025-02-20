@@ -70,6 +70,9 @@ If you accidentally modify the database directly and migrations are out of sync,
 
 ```python manage.py migrate --fake```
 
+While in the docker container, you can run this to populate the Individual Bottles table with some dummy data
+```python manage.py populate_storage```
+
 ## mySQL Commands
 
 Access the mysql database (from the django container):
