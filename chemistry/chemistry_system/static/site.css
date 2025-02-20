@@ -1,11 +1,15 @@
 
+/* ======================================
+   GLOBAL RESETS & COMMON STYLES
+   ====================================== */
 
 body {
+
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f9;
-    color: #333;
+    background-color: #f4f4f9; /* Light grey background */
+    color: #333;              /* Dark text for contrast */
 }
 
 h2 {
@@ -32,7 +36,12 @@ select {
     background-color: #fff;
     font-family: inherit;
     font-size: 1rem;
+    box-sizing: border-box;
 }
+
+/* ======================================
+   NAVBAR STYLING (Only shown if logged in)
+   ====================================== */
 
 .navbar {
     background-color: rgb(136, 39, 39);
@@ -76,17 +85,17 @@ button:hover,
     background-color: rgb(189, 54, 54);
 }
 
+/* Special coloring for .search-button, if used */
 .search-button {
     background-color: #8b0000;
 }
-
 .search-button:hover {
     background-color: #a52a2a;
 }
 
-input[name="message"] {
-    width: 80%;
-}
+/* ======================================
+   TABLES & RESPONSIVE
+   ====================================== */
 
 table {
     width: 90%;
@@ -109,6 +118,10 @@ th {
     color: white;
     text-transform: uppercase;
     font-size: 0.9rem;
+    display: table-cell;
+    align-items: center;
+    justify-content: space-between;
+    white-space: nowrap;
 }
 
 tbody tr:nth-child(odd) {
@@ -120,43 +133,67 @@ tbody tr:hover {
     cursor: pointer;
 }
 
+/* ======================================
+   COMMON PAGE CONTENT AREA
+   ====================================== */
+
 .body-content {
     padding: 5px;
     font-family: 'Segoe UI', Tahoma, Geneva, sans-serif;
 }
 
+hr {
+    margin-top: 40px;
+    opacity: 0.3;
+}
+
+/* Buttons often used to delete, etc. */
 .button-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
 }
-
 .btn-delete {
     padding: 5px 10px;
 }
 
+/* Media Query for narrower screens */
 @media (max-width: 768px) {
     table {
         width: 100%;
+        overflow-x: auto;
     }
-
     h2 {
         font-size: 1.5rem;
     }
-
     label,
     input,
     select {
         display: block;
         margin: 5px 0;
     }
-
     button {
         width: 100%;
         margin: 10px 0;
     }
 }
+
+/* ======================================
+   GENERIC FILTER CONTAINER (if used)
+   ====================================== */
+
+.filter-container label,
+.filter-container input {
+    flex: 0 1 auto;
+    min-width: auto;
+    max-width: 100%;
+}
+
+/* ======================================
+   STYLED BUTTON
+   ====================================== */
+
 .button-style {
     display: inline-block;
     padding: 5px 10px;
@@ -168,18 +205,167 @@ tbody tr:hover {
     text-align: center;
     text-decoration: none; 
     cursor: pointer;
+    transition: all 0.3s ease;
 }
-
 .button-style:hover {
     background-color: #0056b3;
     border-color: #0056b3;
 }
-
 .button-style:active {
     background-color: #004085;
     border-color: #004085;
 }
 
+/* ======================================
+   AUTH / LOGIN / SIGNUP PAGE STYLES
+   ====================================== */
+
+/* Center container (shared by login & signup) */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+}
+
+/* The actual box for the forms */
+.auth-box {
+    width: 420px;
+    padding: 35px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* The big UIndy logo on top */
+.logo {
+    width: 130px;
+    margin-bottom: 15px;
+}
+
+/* The form title: "SIGN IN" or "SIGN UP" */
+.login-title {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 1.75rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #444;
+}
+
+/* The input fields inside auth forms */
+.auth-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+.auth-box input:focus {
+    border-color: #981e32;
+    box-shadow: 0 0 5px rgba(152, 30, 50, 0.3);
+    outline: none;
+}
+
+/* Buttons inside the form */
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+.back-button,
+.next-button {
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 48%;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.back-button {
+    background: #8a8a8a;
+    color: white;
+}
+.back-button:hover {
+    background: #6c757d;
+}
+.next-button {
+    background: #981e32;
+    color: white;
+}
+.next-button:hover {
+    background: #b5293a;
+}
+
+/* Additional text or links below form */
+.login-links {
+    margin-top: 12px;
+}
+.login-links a {
+    display: block;
+    margin-top: 6px;
+    color: #981e32;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.login-links a:hover {
+    text-decoration: underline;
+    color: #b5293a;
+}
+
+/* 
+   For the extended sign-up form, we might have 
+   .form-group for label+input and .form-text for small help text or bullet rules 
+*/
+.form-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+.form-group label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+}
+.form-text {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 3px 0 0 2px;
+    line-height: 1.3em;
+}
+.form-text li {
+    margin-left: 20px;
+    list-style-type: disc;
+}
+
+/* Make single big sign-up button stand out */
+.auth-box .next-button {
+    width: 100%;
+    margin-top: 15px;
+}
+
+/* For smaller screens */
+@media (max-width: 500px) {
+    .auth-box {
+        width: 90%;
+        padding: 30px;
+    }
+    .button-group {
+        flex-direction: column;
+    }
+    .back-button,
+    .next-button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
 .pagination {
     display: flex;
     justify-content: center;
