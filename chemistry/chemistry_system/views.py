@@ -283,29 +283,28 @@ def list_chemicals(request, model_name):
 
 @login_required
 def export_chemicals_csv(request):
-    chemicals = currentlyInStorageTable.objects.all()
+    model_name = request.GET.get('model_name', 'currentlyinstoragetable')
+    model_class, required_fields = get_model_by_name(model_name)
+    
+    if not model_class:
+        messages.error(request, 'Invalid model name.')
+        return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
+
+    chemicals = model_class.objects.all()
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="chemicals.csv"'
+    response['Content-Disposition'] = f'attachment; filename="{model_name}.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['chemBottleIDNUM', 'chemMaterial', 'chemName', 'chemLocationRoom', 'chemLocationCabinet', 'chemLocationShelf', 
-        'chemAmountInBottle', 'chemAmountUnit', 'chemConcentration', 'chemSDS', 'chemNotes', 'chemInstrument'])
+    writer.writerow(required_fields)
 
     for chemical in chemicals:
-        writer.writerow([
-            chemical.chemBottleIDNUM,
-            chemical.chemMaterial,
-            chemical.chemName,
-            chemical.chemLocationRoom,
-            chemical.chemLocationCabinet,
-            chemical.chemLocationShelf,
-            chemical.chemAmountInBottle,
-            chemical.chemAmountUnit,
-            chemical.chemConcentration,
-            chemical.chemSDS,
-            chemical.chemNotes,
-            chemical.chemInstrument
-        ])
+        row = []
+        for field in required_fields:
+            if field == 'chemAssociated':
+                row.append(getattr(chemical, 'chemAssociated_id'))
+            else:
+                row.append(getattr(chemical, field))
+        writer.writerow(row)
 
     return response
 
@@ -323,11 +322,27 @@ def import_chemicals_csv(request):
         id_field = required_fields[0]  # Use the first required field as the ID field
         
         for row in reader:
-            defaults = {field: row[field] for field in row if field in required_fields}
-            model_class.objects.update_or_create(
-                **{id_field: row[id_field]},
-                defaults=defaults
-            )
+            try:
+                defaults = {field: row[field] for field in row if field in required_fields}
+                
+                if 'chemAssociated' in defaults:
+                    try:
+                        defaults['chemAssociated'] = allChemicalsTable.objects.get(pk=defaults['chemAssociated'])
+                    except allChemicalsTable.DoesNotExist:
+                        messages.error(request, f"Chemical with ID {defaults['chemAssociated']} does not exist in allChemicalsTable.")
+                        continue
+                
+                model_class.objects.update_or_create(
+                    **{id_field: row[id_field]},
+                    defaults=defaults
+                )
+            except KeyError as e:
+                messages.error(request, f"Missing field in CSV: {e}")
+                return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
+            except Exception as e:
+                messages.error(request, f"Error importing row: {e}")
+                return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
+        
         messages.success(request, 'Chemicals imported successfully!')
     else:
         messages.error(request, 'Failed to import chemicals. Please check the file format.')
