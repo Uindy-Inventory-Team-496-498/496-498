@@ -15,6 +15,7 @@
 
         <div style="flex: 1; text-align: right;">
             <form action="{% url 'export_chemicals_csv' %}" method="get" style="display:inline;">
+                <input type="hidden" name="model_name" value="currentlyinstoragetable">
                 <button type="submit" class="button-style">Export as CSV</button>
             </form>
 
