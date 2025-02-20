@@ -48,36 +48,7 @@
         {% elif chemical_list_db %}
             <p class="results-count">{{ chemical_list_db|length }} result(s) found</p>
 
-            <table class="chemical_list_db">
-                <thead>
-                    <tr>
-                        <th>Chemical Name</th>
-                        <th>Bottle ID</th>
-                        <th>Cabinet</th>
-                        <th>Shelf</th>
-                        <th>Amount</th>
-                        <th>Unit</th>
-                        <th>Concentration</th>
-                        <th>SDS</th>
-                        <th>Storage Type</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for chemical in chemical_list_db %}
-                        <tr>
-                            <td>{{ chemical.chemName }}</td>
-                            <td>{{ chemical.chemBottleIDNUM }}</td>
-                            <td>{{ chemical.chemLocationCabinet }}</td>
-                            <td>{{ chemical.chemLocationShelf }}</td>
-                            <td>{{ chemical.chemAmountInBottle }}</td>
-                            <td>{{ chemical.chemAmountUnit }}</td>
-                            <td>{{ chemical.chemConcentration }}</td>
-                            <td>{{ chemical.chemSDS }}</td>
-                            <td>{{ chemical.chemStorageType }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            
             {% else %}
                 <p class="alert-message">No results found for "{{ query }}"</p>
             {% endif %}
