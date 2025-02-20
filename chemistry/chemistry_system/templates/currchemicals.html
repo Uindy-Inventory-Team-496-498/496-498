@@ -35,8 +35,10 @@
     {% if chemical_list_db %}
     <div class="filter-container">
         <strong>Chemical Type:</strong>
+        <input type="checkbox" id="select-all-type" class="select-all" data-category="type" checked onchange="selectAll('type')">
+        <label for="select-all-type">Select All</label>
         {% for chem_type in chemical_types %}
-            <input type="checkbox" class="type-choice" value="{{ chem_type|lower }}" onchange="toggleTriState(this); filterList()">
+            <input type="checkbox" class="type-choice" value="{{ chem_type|lower }}" checked onchange="filterList()">
             <label for="{{ chem_type|lower }}">{{ chem_type }}</label>
         {% empty %}
             <p>No chemical types available.</p>
@@ -46,8 +48,10 @@
     
     <div class="filter-container">
         <strong>Location:</strong>
+        <input type="checkbox" id="select-all-location" class="select-all" data-category="location" checked onchange="selectAll('location')">
+        <label for="select-all-location">Select All</label>
         {% for location in chemical_locations %}
-            <input type="checkbox" class="location-choice" value="{{ location|lower }}" onchange="toggleTriState(this); filterList()">
+            <input type="checkbox" class="location-choice" value="{{ location|lower }}" checked onchange="filterList()">
             <label for="{{ location|lower }}">{{ location }}</label>
         {% empty %}
             <p>No locations available.</p>
@@ -57,11 +61,13 @@
 
     <div class="filter-container">
         <strong>SDS:</strong>
-        <input type="checkbox" class="sds-choice" value="1" onchange="toggleTriState(this); filterList()">
+        <input type="checkbox" id="select-all-sds" class="select-all" data-category="sds" checked onchange="selectAll('sds')">
+        <label for="select-all-sds">Select All</label>
+        <input type="checkbox" class="sds-choice" value="1" checked onchange="filterList()">
         <label for="sds-1">1</label>
-        <input type="checkbox" class="sds-choice" value="0" onchange="toggleTriState(this); filterList()">
+        <input type="checkbox" class="sds-choice" value="0" checked onchange="filterList()">
         <label for="sds-0">0</label>
-        <input type="checkbox" class="sds-choice" value="none" onchange="toggleTriState(this); filterList()">
+        <input type="checkbox" class="sds-choice" value="none" checked onchange="filterList()">
         <label for="sds-none">None</label>
     </div>
     <br>
