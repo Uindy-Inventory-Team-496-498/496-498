@@ -22,9 +22,11 @@ urlpatterns = [
 
     path('scan/', views.qr_code_scan, name='scan'),
     path("search/", views.search_page, name="search"),
+    path('live-search-api/', views.live_search_api, name='live_search_api'),
     path('search_by_qr/', views.search_by_qr, name='search_by_qr'),
     path('checkinandout/', views.checkinandout, name='checkinandout'),
     path('currchemicals/', views.currchemicals, name='currchemicals'),
+    path('allchemicals/', views.allchemicals, name='allchemicals'),
     
     path('current_chemicals/', views.list_chemicals, {'model_name': 'currentlyinstoragetable'}, name='current_chemicals'),
     path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
@@ -38,4 +40,5 @@ urlpatterns = [
     path('delete_all_chemicals/', views.delete_all_chemicals, name='delete_all_chemicals'),
     path('print/', views.print_page, name='print_page'),
     path('download-qr-pdf/', views.generate_qr_pdf, name='download_qr_pdf'),
+    path('log/', views.log, name='log'),
 ]
