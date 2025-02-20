@@ -32,36 +32,27 @@ def get_dynamic_form(model_name):
 
     return DynamicChemicalForm
 
-# class DynamicChemicalForm(forms.ModelForm):
-#     def __init__(self, *args, **kwargs):
-#         model_name = kwargs.pop('model_name')
-#         model = self.get_model_by_name(model_name)
-#         self._meta.model = model
-#         super(DynamicChemicalForm, self).__init__(*args, **kwargs)
-
-#     @staticmethod
-#     def get_model_by_name(model_name):
-#         model_mapping = {
-#             'currentlyinstoragetable': currentlyInStorageTable,
-#             'allchemicalstable': allChemicalsTable,
-#         }
-#         return model_mapping.get(model_name.lower())
-    
-#     class Meta:
-#         model = None
-#         fields = '__all__'  # Include all fields from the model
-
 class AllChemicalForm(forms.ModelForm):
     class Meta:
         model = allChemicalsTable
         fields = '__all__'  # Include all fields from the model
 
 class CurrChemicalForm(forms.ModelForm):
+    chemAssociated = forms.ModelChoiceField(
+        queryset=allChemicalsTable.objects.all(),
+        label="Associated Chemical",
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        to_field_name='chemID'
+    )
+
     class Meta:
         model = currentlyInStorageTable
         fields = '__all__'  # Include all fields from the model
-        # We can customize fields if needed:
-        # fields = ['chemBottleIDNUM', 'chemName', 'chemLocation', 'chemAmountInBottle', 'chemStorageType']
+
+    def __init__(self, *args, **kwargs):
+        super(CurrChemicalForm, self).__init__(*args, **kwargs)
+        self.fields['chemAssociated'].queryset = allChemicalsTable.objects.all()
+        self.fields['chemAssociated'].label_from_instance = lambda obj: f"{obj.chemMaterial} - {obj.chemName} - {obj.chemConcentration}"
 
 class CSVUploadForm(forms.Form):
     file = forms.FileField()

@@ -1,10 +1,10 @@
 import re
-from chemistry_system.models import QRCodeData, currentlyInStorageTable, allChemicalsTable, get_model_by_name,  Log
+from chemistry_system.models import QRCodeData, allChemicalsTable, currentlyInStorageTable, get_model_by_name, Log
 from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
-from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm
+from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -21,7 +21,7 @@ import qrcode
 import io
 import random
 
-class ChemListView(LoginRequiredMixin,ListView):
+class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
     model = currentlyInStorageTable
 
@@ -31,12 +31,23 @@ class ChemListView(LoginRequiredMixin,ListView):
 
 @login_required
 def currchemicals(request):
-    chemical_list_db = currentlyInStorageTable.objects.all()
-    chemical_types = currentlyInStorageTable.objects.values_list('chemMaterial', flat=True).distinct()
-    chemical_locations = currentlyInStorageTable.objects.values_list('chemLocationRoom', flat=True).distinct()
-    #chemical_locations = ['None' if location == '' else location for location in chemical_locations]
+    chemical_list_db = currentlyInStorageTable.objects.select_related('chemAssociated').all()
+    chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
+    chemical_locations = currentlyInStorageTable.objects.values_list('chemAssociated__chemLocationRoom', flat=True).distinct()
 
     return render(request, 'currchemicals.html', {
+        'chemical_list_db': chemical_list_db,
+        'chemical_types': chemical_types,
+        'chemical_locations': chemical_locations
+    })
+
+@login_required
+def allchemicals(request):
+    chemical_list_db = allChemicalsTable.objects.all()
+    chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
+    chemical_locations = allChemicalsTable.objects.values_list('chemLocationRoom', flat=True).distinct()
+
+    return render(request, 'all_chemicals.html', {
         'chemical_list_db': chemical_list_db,
         'chemical_types': chemical_types,
         'chemical_locations': chemical_locations
@@ -70,7 +81,7 @@ def qr_code_scan(request):
 def update_checkout_status(request, model_name, qrcode_value):
     try:
         model_class, _ = get_model_by_name(model_name)
-        if model_class is None:
+        if (model_class is None):
             raise ValueError("Model not found for the given model name.")
         
         # Query the chemical in the storage table based on qrcodeValue
@@ -193,10 +204,13 @@ def live_search_api(request):
 
 @login_required
 def add_chemical(request, model_name):
+    if model_name.lower() == 'currentlyinstoragetable':
+        form_class = CurrChemicalForm
+    else:
+        form_class = get_dynamic_form(model_name)
 
-    DynamicChemicalForm = get_dynamic_form(model_name)
     if request.method == 'POST':
-        form = DynamicChemicalForm(request.POST)
+        form = form_class(request.POST)
         if form.is_valid():
             chem_bottle_id = form.cleaned_data.get('chemBottleIDNUM')
             form.save()
@@ -204,7 +218,7 @@ def add_chemical(request, model_name):
             messages.success(request, 'Chemical added successfully!')
             return redirect('currchemicals')
     else:
-        form = DynamicChemicalForm()
+        form = form_class()
 
     return render(request, 'add_chemical.html', {'form': form, 'model_name': model_name})
 
@@ -301,32 +315,26 @@ def export_chemicals_csv(request):
 @require_POST
 def import_chemicals_csv(request):
     form = CSVUploadForm(request.POST, request.FILES)
-    if form.is_valid():
+    model_name = request.POST.get('model_name', 'currentlyinstoragetable')
+    model_class, required_fields = get_model_by_name(model_name)
+    
+    if form.is_valid() and model_class:
         csv_file = request.FILES['file']
         reader = csv.DictReader(csv_file.read().decode('utf-8').splitlines())
         
+        id_field = required_fields[0]  # Use the first required field as the ID field
+        
         for row in reader:
-            currentlyInStorageTable.objects.update_or_create(
-                chemBottleIDNUM=row['chemBottleIDNUM'],
-                defaults={
-                    'chemMaterial': row['chemMaterial'],
-                    'chemName': row['chemName'],
-                    'chemConcentration': row['chemConcentration'],
-                    'chemAmountInBottle': row['chemAmountInBottle'],
-                    'chemAmountUnit': row['chemAmountUnit'],
-                    'chemLocationRoom': row['chemLocationRoom'],
-                    'chemLocationCabinet': row['chemLocationCabinet'],
-                    'chemLocationShelf': row['chemLocationShelf'],
-                    'chemSDS': row['chemSDS'],
-                    'chemNotes': row['chemNotes'],
-                    'chemInstrument': row['chemInstrument']
-                }
+            defaults = {field: row[field] for field in row if field in required_fields}
+            model_class.objects.update_or_create(
+                **{id_field: row[id_field]},
+                defaults=defaults
             )
         messages.success(request, 'Chemicals imported successfully!')
     else:
         messages.error(request, 'Failed to import chemicals. Please check the file format.')
 
-    return redirect('currchemicals')
+    return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
 
 @login_required
 def checkinandout(request):
