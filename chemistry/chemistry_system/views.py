@@ -270,9 +270,18 @@ def delete_chemical(request, model_name, pk):
 @login_required
 def delete_all_chemicals(request):
     if request.method == 'POST':
-        currentlyInStorageTable.objects.all().delete()
-        messages.success(request, 'All chemicals have been deleted successfully!')
-        return redirect('currchemicals')
+        model_name = request.POST.get('model_name', 'currentlyinstoragetable')
+        model_class, _ = get_model_by_name(model_name)
+        
+        if model_class:
+            row_count = model_class.objects.count()
+            model_class.objects.all().delete()
+            logCall(request.user.username, f"Deleted {row_count} rows from {model_name}")
+            messages.success(request, 'All chemicals have been deleted successfully!')
+        else:
+            messages.error(request, 'Invalid model name.')
+
+        return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
     return render(request, 'confirm_delete_all.html')
 
 @login_required
@@ -301,6 +310,7 @@ def export_chemicals_csv(request):
     writer = csv.writer(response)
     writer.writerow(required_fields)
 
+    row_count = 0
     for chemical in chemicals:
         row = []
         for field in required_fields:
@@ -309,7 +319,9 @@ def export_chemicals_csv(request):
             else:
                 row.append(getattr(chemical, field))
         writer.writerow(row)
+        row_count += 1
 
+    logCall(request.user.username, f"Exported {row_count} rows from {model_name}")
     return response
 
 @login_required
@@ -325,6 +337,7 @@ def import_chemicals_csv(request):
         
         id_field = required_fields[0]  # Use the first required field as the ID field
         
+        row_count = 0
         for row in reader:
             try:
                 defaults = {field: row[field] for field in row if field in required_fields}
@@ -340,6 +353,7 @@ def import_chemicals_csv(request):
                     **{id_field: row[id_field]},
                     defaults=defaults
                 )
+                row_count += 1
             except KeyError as e:
                 messages.error(request, f"Missing field in CSV: {e}")
                 return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
@@ -347,6 +361,7 @@ def import_chemicals_csv(request):
                 messages.error(request, f"Error importing row: {e}")
                 return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
         
+        logCall(request.user.username, f"Imported {row_count} rows into {model_name}")
         messages.success(request, 'Chemicals imported successfully!')
     else:
         messages.error(request, 'Failed to import chemicals. Please check the file format.')

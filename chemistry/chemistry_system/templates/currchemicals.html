@@ -27,6 +27,7 @@
 
             <form action="{% url 'delete_all_chemicals' %}" method="post" style="display:inline;">
                 {% csrf_token %}
+                <input type="hidden" name="model_name" value="currentlyinstoragetable">
                 <button type="submit" class="button-style" onclick="return confirm('Are you sure you want to delete all chemicals? This action cannot be undone.')">Delete All</button>
             </form>
         </div>
