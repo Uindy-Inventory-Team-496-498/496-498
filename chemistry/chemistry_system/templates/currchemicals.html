@@ -29,9 +29,60 @@
                 <button type="submit" class="button-style" onclick="return confirm('Are you sure you want to delete all chemicals? This action cannot be undone.')">Delete All</button>
             </form>
 
+            <!--Implement Search-->
+            <form action="{% url 'currchemicals' %}" method="get" style="display:inline;">
+                <input type="text" name="query" placeholder="Search chemicals by name or ID" value="{{ query }}">
+                <button type="submit" class="button-style">Search</button>
+            </form>
+
+
         </div>
     </div>
     <br>
+
+    <div class="results-container">
+        <h2>Search Results for "{{ query }}"</h2>
+
+        {% if message %}
+            <p class="alert-message">{{ message }}</p>
+        {% elif chemical_list_db %}
+            <p class="results-count">{{ chemical_list_db|length }} result(s) found</p>
+
+            <table class="chemical_list_db">
+                <thead>
+                    <tr>
+                        <th>Chemical Name</th>
+                        <th>Bottle ID</th>
+                        <th>Cabinet</th>
+                        <th>Shelf</th>
+                        <th>Amount</th>
+                        <th>Unit</th>
+                        <th>Concentration</th>
+                        <th>SDS</th>
+                        <th>Storage Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chemical in chemical_list_db %}
+                        <tr>
+                            <td>{{ chemical.chemName }}</td>
+                            <td>{{ chemical.chemBottleIDNUM }}</td>
+                            <td>{{ chemical.chemLocationCabinet }}</td>
+                            <td>{{ chemical.chemLocationShelf }}</td>
+                            <td>{{ chemical.chemAmountInBottle }}</td>
+                            <td>{{ chemical.chemAmountUnit }}</td>
+                            <td>{{ chemical.chemConcentration }}</td>
+                            <td>{{ chemical.chemSDS }}</td>
+                            <td>{{ chemical.chemStorageType }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p class="alert-message">No results found for "{{ query }}"</p>
+            {% endif %}
+        </div>
+    
     {% if chemical_list_db %}
     <div class="filter-container">
         <strong>Chemical Type:</strong>
