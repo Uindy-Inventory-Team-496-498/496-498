@@ -8,8 +8,12 @@ Log a Chemical
 {% load static %}
 
 <body>
-    <form action="{% url 'currchemicals' %}" method="get" style="flex: 1;">
+    <form id="return-form" action="" method="get" style="flex: 1;">
         <button type="submit" class="button-style">Return to Database</button>
+    </form>
+
+    <form id="add-form" action="" method="get" style="flex: 1;">
+        <button type="submit">Manually Add</button>
     </form>
 
     <h1>Scan from WebCam:</h1>
@@ -47,12 +51,10 @@ Log a Chemical
             lastQrCode = qrCodeValue;
             label.textContent = qrCodeValue;
             scanningEnabled = false;
-
             try {
                 const response = await fetch(`/search_by_qr/?chem_id=${encodeURIComponent(qrCodeValue)}`);
                 if (response.status === 404) {
-                    // Redirect to add page if no match is found
-                    window.location.href = `/add/currentlyinstoragetable/?chem_id=${encodeURIComponent(qrCodeValue)}`;
+                    window.location.href = `/add${window.gotoHref}/?chem_id=${encodeURIComponent(qrCodeValue)}`;
                 } else if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -79,7 +81,6 @@ Log a Chemical
         });
 
         scanner.start().then(() => {
-            // List cameras after the scanner starts
             QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
                 const option = document.createElement('option');
                 option.value = camera.id;
@@ -94,7 +95,27 @@ Log a Chemical
             scanner.setCamera(event.target.value);
         });
 
-        // Optional debugging
+        let gotoHref = "/";
+
+document.addEventListener("DOMContentLoaded", function () {
+            const referrer = document.referrer;
+            const returnForm = document.getElementById('return-form');
+            const addForm = document.getElementById('add-form');
+
+            let gotoHref = "/";
+
+            if (referrer.includes("allchemicals")) {
+                gotoHref = "/allchemicalstable";
+                addForm.action = "/add/allchemicalstable/";
+            } else if (referrer.includes("currchemicals")) {
+                gotoHref = "/currentlyinstoragetable";
+                addForm.action = "/add/currentlyinstoragetable/";
+            }
+
+            returnForm.action = gotoHref;
+    window.gotoHref = gotoHref;
+        });
+
         window.scanner = scanner;
     </script>
 
