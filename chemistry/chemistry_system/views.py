@@ -6,10 +6,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
+from django.views.decorators.http import require_POST
+from django.utils.timezone import now
 from django.core.paginator import Paginator
 from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
-from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, CSVUploadForm
-from .utils import update_total_amounts, logCall, generate_qr_pdf, populate_storage
+from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
+from .utils import update_total_amounts, logCall, generate_qr_pdf, export_chemicals_csv, import_chemicals_csv, update_checkout_status, populate_storage
+
 
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
@@ -25,10 +28,24 @@ def currchemicals(request):
     chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
     chemical_locations = currentlyInStorageTable.objects.values_list('chemAssociated__chemLocationRoom', flat=True).distinct()
 
+    # Get the number of entries per page from the request, default to 10
+    entries_per_page = request.GET.get('entries_per_page', 10)
+    if entries_per_page == 'all':
+        entries_per_page = len(chemical_list_db)
+    else:
+        entries_per_page = int(entries_per_page)
+
+    # Paginate
+    paginator = Paginator(chemical_list_db, entries_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'currchemicals.html', {
-        'chemical_list_db': chemical_list_db,
+        'chemical_list_db': page_obj,
         'chemical_types': chemical_types,
-        'chemical_locations': chemical_locations
+        'chemical_locations': chemical_locations,
+        'entries_per_page': entries_per_page,
+        'total_entries': paginator.count
     })
 
 @login_required
@@ -38,10 +55,24 @@ def allchemicals(request):
     chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
     chemical_locations = allChemicalsTable.objects.values_list('chemLocationRoom', flat=True).distinct()
 
+    # Get the number of entries per page from the request, default to 10
+    entries_per_page = request.GET.get('entries_per_page', 10)
+    if entries_per_page == 'all':
+        entries_per_page = len(chemical_list_db)
+    else:
+        entries_per_page = int(entries_per_page)
+
+    # Paginate
+    paginator = Paginator(chemical_list_db, entries_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'all_chemicals.html', {
-        'chemical_list_db': chemical_list_db,
+        'chemical_list_db': page_obj,
         'chemical_types': chemical_types,
-        'chemical_locations': chemical_locations
+        'chemical_locations': chemical_locations,
+        'entries_per_page': entries_per_page,
+        'total_entries': paginator.count
     })
 
 def login_view(request):

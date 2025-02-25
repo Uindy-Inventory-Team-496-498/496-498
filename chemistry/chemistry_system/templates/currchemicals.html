@@ -111,6 +111,42 @@
     </div>
     <br>
 
+    <!-- Pagination at the top -->
+    <div class="pagination">
+        <form method="get" class="entries-per-page-form">
+            <label for="entries_per_page">Entries per page:</label>
+            <select name="entries_per_page" id="entries_per_page" onchange="this.form.submit()">
+                <option value="10" {% if entries_per_page == 10 %}selected{% endif %}>10</option>
+                <option value="25" {% if entries_per_page == 25 %}selected{% endif %}>25</option>
+                <option value="50" {% if entries_per_page == 50 %}selected{% endif %}>50</option>
+                <option value="100" {% if entries_per_page == 100 %}selected{% endif %}>100</option>
+                <option value="all" {% if entries_per_page == total_entries %}selected{% endif %}>All</option>
+            </select>
+        </form>
+        <p>Total entries: {{ total_entries }}</p>
+        {% if chemical_list_db.has_previous %}
+            <a href="?page=1&entries_per_page={{ entries_per_page }}" class="pagination-link">First</a>
+            <a href="?page={{ chemical_list_db.previous_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Previous</a>
+        {% endif %}
+
+        {% with surrounding_links=5 %}
+            {% for page_num in chemical_list_db.paginator.page_range %}
+                {% if page_num >= chemical_list_db.number|add:"-5" and page_num <= chemical_list_db.number|add:"5" %}
+                    {% if page_num == chemical_list_db.number %}
+                        <span class="pagination-link active">{{ page_num }}</span>
+                    {% else %}
+                        <a href="?page={{ page_num }}&entries_per_page={{ entries_per_page }}" class="pagination-link">{{ page_num }}</a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        {% endwith %}
+
+        {% if chemical_list_db.has_next %}
+            <a href="?page={{ chemical_list_db.next_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Next</a>
+            <a href="?page={{ chemical_list_db.paginator.num_pages }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Last</a>
+        {% endif %}
+    </div>
+
     <table class="chemical_list_db">
         <thead>
             <tr>
@@ -206,6 +242,43 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Pagination at the bottom -->
+    <div class="pagination">
+        <form method="get" class="entries-per-page-form">
+            <label for="entries_per_page">Entries per page:</label>
+            <select name="entries_per_page" id="entries_per_page" onchange="this.form.submit()">
+                <option value="10" {% if entries_per_page == 10 %}selected{% endif %}>10</option>
+                <option value="25" {% if entries_per_page == 25 %}selected{% endif %}>25</option>
+                <option value="50" {% if entries_per_page == 50 %}selected{% endif %}>50</option>
+                <option value="100" {% if entries_per_page == 100 %}selected{% endif %}>100</option>
+                <option value="all" {% if entries_per_page == total_entries %}selected{% endif %}>All</option>
+            </select>
+        </form>
+        <p>Total entries: {{ total_entries }}</p>
+        {% if chemical_list_db.has_previous %}
+            <a href="?page=1&entries_per_page={{ entries_per_page }}" class="pagination-link">First</a>
+            <a href="?page={{ chemical_list_db.previous_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Previous</a>
+        {% endif %}
+
+        {% with surrounding_links=5 %}
+            {% for page_num in chemical_list_db.paginator.page_range %}
+                {% if page_num >= chemical_list_db.number|add:"-5" and page_num <= chemical_list_db.number|add:"5" %}
+                    {% if page_num == chemical_list_db.number %}
+                        <span class="pagination-link active">{{ page_num }}</span>
+                    {% else %}
+                        <a href="?page={{ page_num }}&entries_per_page={{ entries_per_page }}" class="pagination-link">{{ page_num }}</a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        {% endwith %}
+
+        {% if chemical_list_db.has_next %}
+            <a href="?page={{ chemical_list_db.next_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Next</a>
+            <a href="?page={{ chemical_list_db.paginator.num_pages }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Last</a>
+        {% endif %}
+    </div>
+    
     {% else %}
     <p>No chemicals have been logged.</p>
     {% endif %}
