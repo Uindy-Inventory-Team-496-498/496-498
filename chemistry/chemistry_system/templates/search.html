@@ -54,29 +54,31 @@
             <table class="results-table">
                 <thead>
                     <tr>
-                        <th>Chemical Name</th>
                         <th>Bottle ID</th>
+                        <th>Material</th>
+                        <th>Name</th>
                         <th>Cabinet</th>
                         <th>Shelf</th>
                         <th>Amount</th>
                         <th>Unit</th>
                         <th>Concentration</th>
                         <th>SDS</th>
-                        <th>Storage Type</th>
+                        <th>Instrument</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in results %}
                         <tr>
-                            <td>{{ item.chemName }}</td>
                             <td>{{ item.chemBottleIDNUM }}</td>
+                            <td>{{ item.chemAssociated.chemMaterial }}</td>
+                            <td>{{ item.chemAssociated.chemName }}</td>                           
                             <td>{{ item.chemLocationCabinet }}</td>
                             <td>{{ item.chemLocationShelf }}</td>
                             <td>{{ item.chemAmountInBottle }}</td>
-                            <td>{{ item.chemAmountUnit }}</td>
-                            <td>{{ item.chemConcentration }}</td>
-                            <td>{{ item.chemSDS }}</td>
-                            <td>{{ item.chemStorageType }}</td>
+                            <td>{{ item.chemAssociated.chemAmountUnit }}</td>
+                            <td>{{ item.chemAssociated.chemConcentration }}</td>
+                            <td>{{ item.chemAssociated.chemSDS }}</td>
+                            <td>{{ item.chemAssociated.chemInstrument }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
