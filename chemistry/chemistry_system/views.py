@@ -73,36 +73,6 @@ def qr_code_scan(request):
     return render(request, 'scan.html') # Only if you need to disable CSRF for testing
 
 @login_required
-def search_by_qr(request):
-    qr_code_value = request.GET.get('chem_id')
-
-    if not qr_code_value:
-        return JsonResponse({'error': 'chem_id is required'}, status=400)
-
-    # Perform the search based on chemBottleIDNUM
-    try:
-        results = currentlyInStorageTable.objects.filter(
-            chemBottleIDNUM__icontains=qr_code_value
-        )
-
-        if not results.exists():
-            return JsonResponse({'message': 'No results found'}, status=404)
-
-        # Assuming you want to return the first matching record, adjust this as needed
-        result = results.first()
-
-        # Prepare data to return
-        response_data = {
-            'chemName': result.chemName,
-            'chemBottleIDNUM': result.chemBottleIDNUM,
-            "chemCheckedOut": result.chemCheckedOut,
-        }
-        return JsonResponse(response_data, status=200)
-
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-@login_required
 def search_page(request):
     query = request.GET.get('query', '').strip()
     results = currentlyInStorageTable.objects.none()
