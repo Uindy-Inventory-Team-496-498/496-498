@@ -4,7 +4,7 @@ from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
-from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
+from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm, AllChemicalForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -205,19 +205,22 @@ def live_search_api(request):
 
 @login_required
 def add_chemical(request, model_name):
+    return_value = ""
     if model_name.lower() == 'currentlyinstoragetable':
         form_class = CurrChemicalForm
+        return_value = "currchemicals"
+    elif model_name.lower() == 'allchemicalstable':
+        form_class = AllChemicalForm
+        return_value = "allchemicals"
     else:
         form_class = get_dynamic_form(model_name)
 
     if request.method == 'POST':
         form = form_class(request.POST)
         if form.is_valid():
-            chem_bottle_id = form.cleaned_data.get('chemBottleIDNUM')
             form.save()
-            logCall(request.user.username, f"Added chemical to {model_name} with ID: {chem_bottle_id}")
             messages.success(request, 'Chemical added successfully!')
-            return redirect('currchemicals')
+            return redirect(return_value)
     else:
         form = form_class()
 
