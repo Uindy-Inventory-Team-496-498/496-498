@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.db.models import Sum
 from django.utils.timezone import now
 from django.http import HttpResponse, JsonResponse
-from django.views.decorators.http import require_POS
+from django.views.decorators.http import require_POST
 from django.shortcuts import redirect
 from .models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
 from .forms import CSVUploadForm
