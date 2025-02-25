@@ -1,19 +1,15 @@
-import csv
-from datetime import datetime
 from django.views.generic import ListView
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
-from django.views.decorators.http import require_POST
-from django.utils.timezone import now
 from django.core.paginator import Paginator
 from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
-from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
-from .utils import update_total_amounts, logCall, generate_qr_pdf, export_chemicals_csv, import_chemicals_csv, update_checkout_status, populate_storage
+from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, CSVUploadForm
+from .utils import update_total_amounts, logCall, generate_qr_pdf, populate_storage
 
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
