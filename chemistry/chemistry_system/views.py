@@ -1,5 +1,5 @@
 from django.views.generic import ListView
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm, AllChemicalForm
@@ -18,8 +18,18 @@ import os
 from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
 from .utils import update_total_amounts, logCall, generate_qr_pdf, export_chemicals_csv, import_chemicals_csv, update_checkout_status, populate_storage
+from dal import autocomplete
 
+class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = allChemicalsTable.objects.all()
 
+        if self.q:
+            qs = qs.filter(
+                Q(chemName__icontains=self.q)
+            )
+        
+        return qs
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
     model = currentlyInStorageTable
