@@ -111,8 +111,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 gotoHref = "/currentlyinstoragetable";
                 addForm.action = "/add/currentlyinstoragetable/";
             }
-
-            returnForm.action = gotoHref;
+            if (gotoHref === "/currentlyinstoragetable") {
+                returnForm.action = "/currchemicals";
+            } else if (gotoHref === "/allchemicalstable") {
+                returnForm.action = "/allchemicals";
+            } else {
+                returnForm.action = gotoHref;;
+            }
+            
     window.gotoHref = gotoHref;
         });
 

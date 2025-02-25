@@ -217,6 +217,7 @@ def add_chemical(request, model_name):
         form = form_class(request.POST)
         if form.is_valid():
             form.save()
+            logCall(request.user.username, f"Added chemical to {model_name}")
             messages.success(request, 'Chemical added successfully!')
             return redirect(return_value)
     else:
