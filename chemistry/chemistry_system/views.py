@@ -1,7 +1,5 @@
-import re
-from chemistry_system.models import QRCodeData, allChemicalsTable, currentlyInStorageTable, get_model_by_name, Log
 from django.views.generic import ListView
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm, AllChemicalForm
@@ -9,8 +7,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
-import csv
 from django.views.decorators.http import require_POST
 from django.utils.timezone import now
 from django.core.paginator import Paginator
@@ -19,6 +15,10 @@ import qrcode
 import io
 import random
 import os
+from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
+from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
+from .utils import update_total_amounts, logCall, generate_qr_pdf, export_chemicals_csv, import_chemicals_csv, update_checkout_status, populate_storage
+
 
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
@@ -34,22 +34,51 @@ def currchemicals(request):
     chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
     chemical_locations = currentlyInStorageTable.objects.values_list('chemAssociated__chemLocationRoom', flat=True).distinct()
 
+    # Get the number of entries per page from the request, default to 10
+    entries_per_page = request.GET.get('entries_per_page', 10)
+    if entries_per_page == 'all':
+        entries_per_page = len(chemical_list_db)
+    else:
+        entries_per_page = int(entries_per_page)
+
+    # Paginate
+    paginator = Paginator(chemical_list_db, entries_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'currchemicals.html', {
-        'chemical_list_db': chemical_list_db,
+        'chemical_list_db': page_obj,
         'chemical_types': chemical_types,
-        'chemical_locations': chemical_locations
+        'chemical_locations': chemical_locations,
+        'entries_per_page': entries_per_page,
+        'total_entries': paginator.count
     })
 
 @login_required
 def allchemicals(request):
+    update_total_amounts()  # Update total amounts before rendering
     chemical_list_db = allChemicalsTable.objects.all()
     chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
     chemical_locations = allChemicalsTable.objects.values_list('chemLocationRoom', flat=True).distinct()
 
+    # Get the number of entries per page from the request, default to 10
+    entries_per_page = request.GET.get('entries_per_page', 10)
+    if entries_per_page == 'all':
+        entries_per_page = len(chemical_list_db)
+    else:
+        entries_per_page = int(entries_per_page)
+
+    # Paginate
+    paginator = Paginator(chemical_list_db, entries_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'all_chemicals.html', {
-        'chemical_list_db': chemical_list_db,
+        'chemical_list_db': page_obj,
         'chemical_types': chemical_types,
-        'chemical_locations': chemical_locations
+        'chemical_locations': chemical_locations,
+        'entries_per_page': entries_per_page,
+        'total_entries': paginator.count
     })
 
 def login_view(request):
@@ -77,69 +106,6 @@ def qr_code_scan(request):
     return render(request, 'scan.html') # Only if you need to disable CSRF for testing
 
 @login_required
-def update_checkout_status(request, model_name, qrcode_value):
-    try:
-        model_class, _ = get_model_by_name(model_name)
-        if (model_class is None):
-            raise ValueError("Model not found for the given model name.")
-        
-        # Query the chemical in the storage table based on qrcodeValue
-        chemical_instance = model_class.objects.get(chemBottleIDNUM=qrcode_value)
-    
-    except model_class.DoesNotExist:
-        return JsonResponse({"message": f"Chemical with QR code {qrcode_value} not found."}, status=404)
-    
-    # Toggle the checkout status
-    if chemical_instance.chemCheckedOut:
-        chemical_instance.chemCheckedOut = False
-        chemical_instance.chemCheckedOutBy = None
-        chemical_instance.chemCheckedOutDate = None
-        message = f"Chemical successfully checked in by {request.user.username} at {now().strftime('%Y-%m-%d %H:%M:%S')}."
-        logCall(request.user.username, f"Checked in chemical with QR code {qrcode_value}")
-    else:
-        chemical_instance.chemCheckedOut = True
-        chemical_instance.chemCheckedOutBy = request.user
-        chemical_instance.chemCheckedOutDate = now()
-        message = f"Chemical successfully checked out by {request.user.username} at {chemical_instance.chemCheckedOutDate.strftime('%Y-%m-%d %H:%M:%S')}."
-        logCall(request.user.username, f"Checked out chemical with QR code {qrcode_value}")
-    
-    # Save the updated chemical instance
-    chemical_instance.save()
-    
-    return JsonResponse({"message": message})
-
-
-@login_required
-def search_by_qr(request):
-    qr_code_value = request.GET.get('chem_id')
-
-    if not qr_code_value:
-        return JsonResponse({'error': 'chem_id is required'}, status=400)
-
-    # Perform the search based on chemBottleIDNUM
-    try:
-        results = currentlyInStorageTable.objects.filter(
-            chemBottleIDNUM__icontains=qr_code_value
-        )
-
-        if not results.exists():
-            return JsonResponse({'message': 'No results found'}, status=404)
-
-        # Assuming you want to return the first matching record, adjust this as needed
-        result = results.first()
-
-        # Prepare data to return
-        response_data = {
-            'chemName': result.chemName,
-            'chemBottleIDNUM': result.chemBottleIDNUM,
-            "chemCheckedOut": result.chemCheckedOut,
-        }
-        return JsonResponse(response_data, status=200)
-
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-@login_required
 def search_page(request):
     query = request.GET.get('query', '').strip()
     results = currentlyInStorageTable.objects.none()
@@ -154,7 +120,7 @@ def search_page(request):
         else:
             # If query is non-numeric, match names by partial or startswith, etc.
             results = currentlyInStorageTable.objects.filter(
-                chemName__icontains=query
+                chemAssociated__chemName__icontains=query
             )
 
         if results.exists():
@@ -182,24 +148,23 @@ def live_search_api(request):
     if not query:
         return JsonResponse([], safe=False)
 
-    # If the user typed only digits, do exact match on ID; otherwise do 'starts with' on chemName.
+    # If the user typed only digits, do exact match on ID; otherwise do 'starts with' on chemAssociated__chemName.
     if query.isdigit():
         # We want ID == query OR name starts with query (in case you still want name matches).
         matches = currentlyInStorageTable.objects.filter(
-            Q(chemName__istartswith=query) | Q(chemBottleIDNUM__iexact=query)
+            Q(chemAssociated__chemName__istartswith=query) | Q(chemBottleIDNUM__iexact=query)
         )
     else:
         # If it's non-numeric, match only names that start with the query.
         matches = currentlyInStorageTable.objects.filter(
-            chemName__istartswith=query
+            Q(chemAssociated__chemName__istartswith=query)
         )
     
     data = [
-        {'chemName': m.chemName, 'chemBottleIDNUM': m.chemBottleIDNUM}
+        {'chemName': m.chemAssociated.chemName, 'chemBottleIDNUM': m.chemBottleIDNUM}
         for m in matches
     ]
     return JsonResponse(data, safe=False)
-
 
 @login_required
 def add_chemical(request, model_name):
@@ -271,9 +236,18 @@ def delete_chemical(request, model_name, pk):
 @login_required
 def delete_all_chemicals(request):
     if request.method == 'POST':
-        currentlyInStorageTable.objects.all().delete()
-        messages.success(request, 'All chemicals have been deleted successfully!')
-        return redirect('currchemicals')
+        model_name = request.POST.get('model_name', 'currentlyinstoragetable')
+        model_class, _ = get_model_by_name(model_name)
+        
+        if model_class:
+            row_count = model_class.objects.count()
+            model_class.objects.all().delete()
+            logCall(request.user.username, f"Deleted {row_count} rows from {model_name}")
+            messages.success(request, 'All chemicals have been deleted successfully!')
+        else:
+            messages.error(request, 'Invalid model name.')
+
+        return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
     return render(request, 'confirm_delete_all.html')
 
 @login_required
@@ -285,59 +259,6 @@ def list_chemicals(request, model_name):
     
     chemicals = model.objects.all()
     return render(request, 'list_chemicals.html', {'chemicals': chemicals, 'model_name': model_name})
-
-@login_required
-def export_chemicals_csv(request):
-    chemicals = currentlyInStorageTable.objects.all()
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="chemicals.csv"'
-
-    writer = csv.writer(response)
-    writer.writerow(['chemBottleIDNUM', 'chemMaterial', 'chemName', 'chemLocationRoom', 'chemLocationCabinet', 'chemLocationShelf', 
-        'chemAmountInBottle', 'chemAmountUnit', 'chemConcentration', 'chemSDS', 'chemNotes', 'chemInstrument'])
-
-    for chemical in chemicals:
-        writer.writerow([
-            chemical.chemBottleIDNUM,
-            chemical.chemMaterial,
-            chemical.chemName,
-            chemical.chemLocationRoom,
-            chemical.chemLocationCabinet,
-            chemical.chemLocationShelf,
-            chemical.chemAmountInBottle,
-            chemical.chemAmountUnit,
-            chemical.chemConcentration,
-            chemical.chemSDS,
-            chemical.chemNotes,
-            chemical.chemInstrument
-        ])
-
-    return response
-
-@login_required
-@require_POST
-def import_chemicals_csv(request):
-    form = CSVUploadForm(request.POST, request.FILES)
-    model_name = request.POST.get('model_name', 'currentlyinstoragetable')
-    model_class, required_fields = get_model_by_name(model_name)
-    
-    if form.is_valid() and model_class:
-        csv_file = request.FILES['file']
-        reader = csv.DictReader(csv_file.read().decode('utf-8').splitlines())
-        
-        id_field = required_fields[0]  # Use the first required field as the ID field
-        
-        for row in reader:
-            defaults = {field: row[field] for field in row if field in required_fields}
-            model_class.objects.update_or_create(
-                **{id_field: row[id_field]},
-                defaults=defaults
-            )
-        messages.success(request, 'Chemicals imported successfully!')
-    else:
-        messages.error(request, 'Failed to import chemicals. Please check the file format.')
-
-    return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
 
 @login_required
 def checkinandout(request):
@@ -419,17 +340,16 @@ def generate_qr_pdf(request):
     response = HttpResponse(pdf_buffer, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="qr_codes.pdf"'
     return response
+def generate_qr_pdf_view(request):
+    return generate_qr_pdf()
 
 @login_required
 def log(request):
     Log_entries = Log.objects.all()
     return render(request, 'log.html', {'log': Log_entries})
 
-def logCall(user: str, action: str):
-    try:
-        date = now()
-        log_add = Log(user=user, action=action, date=date)
-        log_add.save()
-        print(f"Log entry saved: {user} - {action}")  # Debugging print statement
-    except Exception as e:
-        print(f"Logging error: {e}")  # Print errors for debugging
+@login_required
+def run_populate_storage(request):
+    populate_storage()
+    messages.success(request, 'Database populated with dummy data successfully!')
+    return redirect('currchemicals')
