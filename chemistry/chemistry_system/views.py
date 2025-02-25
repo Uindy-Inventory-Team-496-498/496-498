@@ -19,6 +19,7 @@ import qrcode
 import io
 import random
 from datetime import datetime
+from .utils import update_total_amounts
 
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
@@ -42,6 +43,7 @@ def currchemicals(request):
 
 @login_required
 def allchemicals(request):
+    update_total_amounts()  # Update total amounts before rendering
     chemical_list_db = allChemicalsTable.objects.all()
     chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
     chemical_locations = allChemicalsTable.objects.values_list('chemLocationRoom', flat=True).distinct()
