@@ -14,8 +14,6 @@ import csv
 from django.views.decorators.http import require_POST
 from django.utils.timezone import now
 from django.core.paginator import Paginator
-
-
 from PIL import Image, ImageDraw, ImageFont
 import qrcode
 import io
@@ -386,7 +384,7 @@ def generate_qr_pdf(request):
             current_x = first_x
             current_y += between_y
         num_so_far += 1
-        data = f"QR Code {i+1}"  # Unique data for each QR code
+        data = random.randint(0, 12000000000)  # Unique data for each QR code
         qr = qrcode.QRCode(box_size=5, border=0)  # Adjust size
         qr.add_data(data)
         qr.make(fit=True)
