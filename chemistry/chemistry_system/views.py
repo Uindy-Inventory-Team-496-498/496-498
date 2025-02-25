@@ -13,7 +13,7 @@ from django.utils.timezone import now
 from django.core.paginator import Paginator
 from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
-from .utils import update_total_amounts, logCall, generate_qr_pdf, export_chemicals_csv, import_chemicals_csv, update_checkout_status
+from .utils import update_total_amounts, logCall, generate_qr_pdf, export_chemicals_csv, import_chemicals_csv, update_checkout_status, populate_storage
 
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
@@ -243,3 +243,9 @@ def generate_qr_pdf_view(request):
 def log(request):
     Log_entries = Log.objects.all()
     return render(request, 'log.html', {'log': Log_entries})
+
+@login_required
+def run_populate_storage(request):
+    populate_storage()
+    messages.success(request, 'Database populated with dummy data successfully!')
+    return redirect('currchemicals')
