@@ -15,6 +15,7 @@
 
         <div style="flex: 1; text-align: right;">
             <form action="{% url 'export_chemicals_csv' %}" method="get" style="display:inline;">
+                <input type="hidden" name="model_name" value="allchemicalstable">
                 <button type="submit" class="button-style">Export as CSV</button>
             </form>
 
@@ -27,6 +28,7 @@
 
             <form action="{% url 'delete_all_chemicals' %}" method="post" style="display:inline;">
                 {% csrf_token %}
+                <input type="hidden" name="model_name" value="allchemicalstable">
                 <button type="submit" class="button-style" onclick="return confirm('Are you sure you want to delete all chemicals? This action cannot be undone.')">Delete All</button>
             </form>
         </div>
@@ -153,7 +155,7 @@
                 <td class="column-room" data-label="Room">{{ chemical.chemLocationRoom|default_if_none:'None' }}</td>
                 <td class="column-cabinet" data-label="Cabinet">{{ chemical.chemLocationCabinet }}</td>
                 <td class="column-shelf" data-label="Shelf">{{ chemical.chemLocationShelf }}</td>
-                <td class="column-amount" data-label="Amount">{{ chemical.chemAmountInBottle }}</td>
+                <td class="column-amount" data-label="Amount">{{ chemical.chemAmountTotal }}</td>
                 <td class="column-unit" data-label="Unit">{{ chemical.chemAmountUnit }}</td>
                 <td class="column-concentration" data-label="Concentration">{{ chemical.chemConcentration }}</td>
                 <td class="column-sds" data-label="SDS">{{ chemical.chemSDS }}</td>
