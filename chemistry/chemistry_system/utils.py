@@ -186,3 +186,24 @@ def update_checkout_status(request, model_name, qrcode_value):
     chemical_instance.save()
     
     return JsonResponse({"message": message})
+
+def populate_storage():
+    # Clear existing data
+    currentlyInStorageTable.objects.all().delete()
+
+    # Get all chemical records
+    all_chemicals = list(allChemicalsTable.objects.all())
+
+    # Generate dummy data
+    bottle_id = 1
+    for chem in all_chemicals:
+        for _ in range(1):  # Create x bottles for each chemical
+            currentlyInStorageTable.objects.create(
+                chemBottleIDNUM=bottle_id,
+                chemAssociated=chem,
+                chemLocationRoom=chem.chemLocationRoom,
+                chemLocationCabinet=random.choice(['Cabinet A', 'Cabinet B', 'Cabinet C']),
+                chemLocationShelf=random.choice(['Shelf 1', 'Shelf 2', 'Shelf 3']),
+                chemAmountInBottle=f"{random.randint(1, 1000)} mL",
+            )
+            bottle_id += 1
