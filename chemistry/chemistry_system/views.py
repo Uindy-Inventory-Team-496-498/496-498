@@ -1,7 +1,5 @@
-import csv
-from datetime import datetime
 from django.views.generic import ListView
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
@@ -14,6 +12,7 @@ from django.core.paginator import Paginator
 from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
 from .utils import update_total_amounts, logCall, generate_qr_pdf, export_chemicals_csv, import_chemicals_csv, update_checkout_status, populate_storage
+
 
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
@@ -163,19 +162,22 @@ def live_search_api(request):
 
 @login_required
 def add_chemical(request, model_name):
+    return_value = ""
     if model_name.lower() == 'currentlyinstoragetable':
         form_class = CurrChemicalForm
+        return_value = "currchemicals"
+    elif model_name.lower() == 'allchemicalstable':
+        form_class = AllChemicalForm
+        return_value = "allchemicals"
     else:
         form_class = get_dynamic_form(model_name)
 
     if request.method == 'POST':
         form = form_class(request.POST)
         if form.is_valid():
-            chem_bottle_id = form.cleaned_data.get('chemBottleIDNUM')
             form.save()
-            logCall(request.user.username, f"Added chemical to {model_name} with ID: {chem_bottle_id}")
             messages.success(request, 'Chemical added successfully!')
-            return redirect('currchemicals')
+            return redirect(return_value)
     else:
         form = form_class()
 
