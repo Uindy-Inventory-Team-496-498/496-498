@@ -8,6 +8,8 @@
 </head>
 
 <body>
+<!-- Navbar only appears if user is authenticated -->
+{% if user.is_authenticated %}
 <div class="navbar">
     <a href="{% url 'home' %}" class="navbar-brand">Home</a>
     <a href="{% url 'currchemicals' %}" class="navbar-item">Chemicals DB</a>
@@ -23,8 +25,8 @@
             Logout
         </button>
     </form>
-    
 </div>
+{% endif %} <!-- End of authentication check -->
 
 <div class="body-content">
     {% block content %}
