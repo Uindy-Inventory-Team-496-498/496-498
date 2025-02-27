@@ -1,11 +1,13 @@
+/* ======================================
+   GLOBAL RESETS & COMMON STYLES
+   ====================================== */
 
-
-body {
+   body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f9;
-    color: #333;
+    background-color: #f4f4f9; /* Light grey background */
+    color: #333;              /* Dark text for contrast */
 }
 
 h2 {
@@ -32,31 +34,85 @@ select {
     background-color: #fff;
     font-family: inherit;
     font-size: 1rem;
+    box-sizing: border-box;
 }
+
+/* ======================================
+   NAVBAR STYLING (Only shown if logged in)
+   ====================================== */
 
 .navbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start; /* items start left by default */
     background-color: rgb(136, 39, 39);
-    font-size: 1em;
-    font-family: 'Trebuchet MS', Arial, sans-serif;
+    font-size: 1.05em; 
+    font-family: 'Trebuchet MS', Arial, sans-serif; /* or add a custom font */
     color: lightgray;
-    padding: 8px 5px;
+    padding: 10px 15px;
+    gap: 15px;
 }
 
+/* Left links in the navbar */
 .navbar a {
     text-decoration: none;
     color: inherit;
+    margin-right: 15px;
+    font-weight: 600;       /* slightly bolder */
+    letter-spacing: 1px;    /* more “industrial” spacing */
+    text-transform: uppercase;
+    transition: color 0.2s, text-shadow 0.2s;
 }
 
+.navbar a:hover {
+    color: #f7f7f7;
+    text-shadow: 0 0 2px rgba(255,255,255,0.8);
+}
+
+/* “Home” link a bit bigger if desired */
 .navbar-brand {
-    font-size: 1.2em;
+    font-size: 1.3em; /* The “Home” or brand link can stand out a bit */
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    margin-right: 20px;
+}
+
+.logout-container {
+    margin-left: auto; 
+}
+
+/* The logout button itself */
+.logout-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
     font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.2s, background-color 0.2s;
 }
 
-.navbar-item {
-    font-variant: small-caps;
-    margin-left: 30px;
+.logout-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: #fff;
 }
 
+/* On mobile, the navbar items stack more neatly */
+@media (max-width: 768px) {
+    .navbar {
+        justify-content: center;
+    }
+    .navbar a,
+    .logout-button {
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+}
+
+/* Generic button & search-button */
 button,
 .search-button {
     display: inline-block;
@@ -75,25 +131,23 @@ button:hover,
 .search-button:hover {
     background-color: rgb(189, 54, 54);
 }
-
 .search-button {
     background-color: #8b0000;
 }
-
 .search-button:hover {
     background-color: #a52a2a;
 }
 
-input[name="message"] {
-    width: 80%;
-}
+/* ======================================
+   TABLES & RESPONSIVE
+   ====================================== */
 
 table {
     width: 90%;
     margin: 20px auto;
     border-collapse: collapse;
     background-color: #fff;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 th,
@@ -109,20 +163,52 @@ th {
     color: white;
     text-transform: uppercase;
     font-size: 0.9rem;
+    display: table-cell;
+    align-items: center;
+    justify-content: space-between;
+    white-space: nowrap;
 }
 
 tbody tr:nth-child(odd) {
     background-color: #f9f9f9;
 }
-
 tbody tr:hover {
     background-color: #eaf4ff;
     cursor: pointer;
 }
 
+@media (max-width: 768px) {
+    table {
+        width: 100%;
+        overflow-x: auto;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+    label, 
+    input, 
+    select {
+        display: block;
+        margin: 5px 0;
+    }
+    button {
+        width: 100%;
+        margin: 10px 0;
+    }
+}
+
+/* ======================================
+   COMMON PAGE CONTENT AREA
+   ====================================== */
+
 .body-content {
     padding: 5px;
     font-family: 'Segoe UI', Tahoma, Geneva, sans-serif;
+}
+
+hr {
+    margin-top: 40px;
+    opacity: 0.3;
 }
 
 .button-container {
@@ -136,27 +222,10 @@ tbody tr:hover {
     padding: 5px 10px;
 }
 
-@media (max-width: 768px) {
-    table {
-        width: 100%;
-    }
+/* ======================================
+   STYLED BUTTON
+   ====================================== */
 
-    h2 {
-        font-size: 1.5rem;
-    }
-
-    label,
-    input,
-    select {
-        display: block;
-        margin: 5px 0;
-    }
-
-    button {
-        width: 100%;
-        margin: 10px 0;
-    }
-}
 .button-style {
     display: inline-block;
     padding: 5px 10px;
@@ -166,19 +235,164 @@ tbody tr:hover {
     border: 1px solid #607892;
     border-radius: 3px;
     text-align: center;
-    text-decoration: none; 
+    text-decoration: none;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
-
 .button-style:hover {
     background-color: #0056b3;
     border-color: #0056b3;
 }
-
 .button-style:active {
     background-color: #004085;
     border-color: #004085;
 }
+
+/* ======================================
+   AUTH / LOGIN / SIGNUP PAGE STYLES
+   ====================================== */
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.auth-box {
+    width: 100%;
+    max-width: 420px;
+    padding: 35px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+.logo {
+    width: 130px;
+    margin-bottom: 15px;
+    max-width: 60%;
+}
+.login-title {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 1.75rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #444;
+}
+.auth-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+.auth-box input:focus {
+    border-color: #981e32;
+    box-shadow: 0 0 5px rgba(152, 30, 50, 0.3);
+    outline: none;
+}
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+.back-button,
+.next-button {
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 48%;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.back-button {
+    background: #8a8a8a;
+    color: white;
+}
+.back-button:hover {
+    background: #6c757d;
+}
+.next-button {
+    background: #981e32;
+    color: white;
+}
+.next-button:hover {
+    background: #b5293a;
+}
+
+.login-links {
+    margin-top: 12px;
+}
+.login-links a {
+    display: block;
+    margin-top: 6px;
+    color: #981e32;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.login-links a:hover {
+    text-decoration: underline;
+    color: #b5293a;
+}
+.form-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+.form-group label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+}
+.form-text {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 3px 0 0 2px;
+    line-height: 1.3em;
+}
+.form-text li {
+    margin-left: 20px;
+    list-style-type: disc;
+}
+.auth-box .next-button {
+    width: 100%;
+    margin-top: 15px;
+}
+@media (max-width: 500px) {
+    .auth-box {
+        width: 90%;
+        padding: 30px;
+    }
+    .button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .back-button,
+    .next-button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    .login-title {
+        font-size: 1.4rem;
+    }
+    .logo {
+        max-width: 80%;
+    }
+}
+
+/* ======================================
+   PAGINATION STYLES
+   ====================================== */
 
 .pagination {
     display: flex;
@@ -187,7 +401,6 @@ tbody tr:hover {
     gap: 5px;
     margin: 20px 0;
 }
-
 .pagination-link {
     padding: 8px 12px;
     background-color: #882727;
@@ -197,23 +410,23 @@ tbody tr:hover {
     font-weight: bold;
     transition: background-color 0.3s;
 }
-
 .pagination-link:hover {
     background-color: #a03a3a;
 }
-
 .pagination-link.active {
     background-color: #444;
     cursor: default;
 }
-
 .pagination-link:disabled,
 .pagination-link[aria-disabled="true"] {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-/* Search Input Field */
+/* ======================================
+   SEARCH BOX & LIVE-DROPDOWN
+   ====================================== */
+
 .search-input {
     flex: 1;
     padding: 12px 20px;
@@ -223,16 +436,13 @@ tbody tr:hover {
     outline: none;
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 400px; /* Adjusted to fit the placeholder text */
-    max-width: 100%; /* Ensures it doesn't overflow on smaller screens */
+    width: 400px;
+    max-width: 100%;
 }
-
 .search-input:focus {
     border-color: rgb(136, 39, 39);
     box-shadow: 0 0 8px rgba(136, 39, 39, 0.5);
 }
-
-/* Search Button */
 .search-button {
     padding: 12px 25px;
     background-color: rgb(136, 39, 39);
@@ -244,55 +454,33 @@ tbody tr:hover {
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-
 .search-button:hover {
     background-color: rgb(189, 54, 54);
     transform: translateY(-2px);
 }
-
 .search-button:active {
     background-color: rgb(100, 30, 30);
     transform: translateY(1px);
 }
-
-/* Responsive Adjustments */
+.search-box-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 400px; 
+}
 @media (max-width: 768px) {
     .search-box-container {
         flex-direction: column;
         gap: 15px;
-    }
-
-    .search-input {
-        width: 100%; /* Expand to full width on smaller screens */
-    }
-
-    .search-button {
         width: 100%;
     }
 }
-
-.search-box-container {
-    position: relative;
-    display: flex;         /* Switch to flex layout */
-    align-items: center;   /* Vertically center items in the container */
-    gap: 10px;             /* Space between input & button */
-    width: 400px;          /* Or use any fixed/percentage width you like */
-}
-
-/* The dropdown menu itself */
-/* 2) The search input fills the container's width */
-.search-input {
-    width: 100%;           /* Fills the .search-box-container’s width */
-    border-radius: 30px;   /* Rounded corners */
- 
-}
-
-/* 3) The dropdown menu is absolutely positioned & matches container width */
 .dropdown-menu {
     position: absolute;
     top: calc(100% + 5px);
     left: 0;
-    width: 100%;           /* Exactly as wide as the container */
+    width: 100%;
     max-height: 200px;
     overflow-y: auto;
     background: #fff;
@@ -300,15 +488,8 @@ tbody tr:hover {
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0,0,0,0.12);
     z-index: 9999;
-    display: none;         /* JavaScript will set to "block" */
+    display: none; 
 }
-
-  
-/* If you prefer it to fade in only when displayed, 
-   add a class to show/hide and trigger the animation that way. 
-   But as a quick fix, you can place the animation above. */
-
-/* Custom scrollbar styling (works in WebKit-based browsers) */
 .dropdown-menu::-webkit-scrollbar {
     width: 8px;
 }
@@ -323,14 +504,11 @@ tbody tr:hover {
 .dropdown-menu::-webkit-scrollbar-thumb:hover {
     background: #999;
 }
-
-/* Suggestion list items */
 .suggestion-list {
     list-style: none;
     margin: 0;
     padding: 0;
 }
-
 .suggestion-item {
     padding: 12px 16px;
     cursor: pointer;
@@ -338,40 +516,29 @@ tbody tr:hover {
     border-bottom: 1px solid #eee;
     transition: background-color 0.2s;
 }
-
 .suggestion-item:last-child {
     border-bottom: none;
 }
-
-/* Light hover state */
 .suggestion-item:hover {
     background-color: #fafafa;
 }
-
-/* The clickable link inside each item */
 .dropdown-link {
     text-decoration: none;
-    color: #333; /* or your preferred color */
-    display: block; /* So the entire item is clickable */
+    color: #333;
+    display: block;
 }
-
-/* If no suggestions come back */
 .no-suggestions {
     padding: 12px 16px;
     font-size: 14px;
     color: #666;
 }
-
-/* Highlighted portion of the text */
 .suggestion-item mark {
     background-color: yellow;
     font-weight: bold;
     color: #333;
 }
-
-/* Optional label for ID, if you want smaller text or a different style */
 .id-label {
     font-size: 0.85em;
     color: #999;
     margin-left: 5px;
-}
+} 
