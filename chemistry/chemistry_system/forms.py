@@ -1,3 +1,4 @@
+from dal import autocomplete
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from chemistry_system.models import currentlyInStorageTable, allChemicalsTable, get_model_by_name
@@ -41,18 +42,20 @@ class CurrChemicalForm(forms.ModelForm):
     chemAssociated = forms.ModelChoiceField(
         queryset=allChemicalsTable.objects.all(),
         label="Associated Chemical",
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=autocomplete.ModelSelect2(
+            url='chemical-autocomplete',
+            attrs={
+                'class': 'form-control', 
+                'data-placeholder': 'Start typing...',
+                'data-minimum-input-length': 0
+                }
+            ),
         to_field_name='chemID'
     )
 
     class Meta:
         model = currentlyInStorageTable
         fields = '__all__'  # Include all fields from the model
-
-    def __init__(self, *args, **kwargs):
-        super(CurrChemicalForm, self).__init__(*args, **kwargs)
-        self.fields['chemAssociated'].queryset = allChemicalsTable.objects.all()
-        self.fields['chemAssociated'].label_from_instance = lambda obj: f"{obj.chemMaterial} - {obj.chemName} - {obj.chemConcentration}"
 
 class CSVUploadForm(forms.Form):
     file = forms.FileField()

@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'chemistry_system',
     'accounts',
+    'dal',
+    'dal_select2',
 ]
 
 
