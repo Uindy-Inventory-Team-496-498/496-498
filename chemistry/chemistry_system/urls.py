@@ -1,4 +1,5 @@
 from chemistry_system import views
+from .views import ChemicalAutocomplete
 from chemistry_system.models import currentlyInStorageTable
 from django.contrib import admin
 from django.urls import path, include
@@ -40,4 +41,5 @@ urlpatterns = [
     path('download-qr-pdf/', views.generate_qr_pdf_view, name='download_qr_pdf'), 
     path('log/', views.log, name='log'),
     path('run-populate-storage/', views.run_populate_storage, name='run_populate_storage'),  # Add the URL pattern
+    path('chemical-autocomplete/', ChemicalAutocomplete.as_view(), name='chemical-autocomplete')
 ]

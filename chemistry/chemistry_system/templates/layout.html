@@ -1,10 +1,21 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <title>{% block title %}{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'site.css' %}"/>
+
+    <!-- Load jQuery first -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'autocomplete_light/autocomplete_light.js' %}"></script>
+
+    <!-- Then load Select2 -->
+    <script src="{% static 'autocomplete_light/select2.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'autocomplete_light/select2.css' %}">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'site.css' %}" />
+    {{ form.media }}
 </head>
 
 <body>
@@ -37,4 +48,5 @@
     </footer>
 </div>
 </body>
+
 </html>

@@ -7,3 +7,4 @@ tzdata==2024.2
 qrcode==8.0
 Pillow==11.1.0
 mysqlclient
+django-autocomplete-light
