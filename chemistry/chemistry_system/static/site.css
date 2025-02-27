@@ -1,10 +1,8 @@
-
 /* ======================================
    GLOBAL RESETS & COMMON STYLES
    ====================================== */
 
-body {
-
+   body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -44,28 +42,70 @@ select {
    ====================================== */
 
 .navbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start; /* items start left by default */
     background-color: rgb(136, 39, 39);
-    font-size: 1em;
-    font-family: 'Trebuchet MS', Arial, sans-serif;
+    font-size: 1.05em; 
+    font-family: 'Trebuchet MS', Arial, sans-serif; /* or add a custom font */
     color: lightgray;
-    padding: 8px 5px;
+    padding: 10px 15px;
+    gap: 15px;
 }
 
+/* Left links in the navbar */
 .navbar a {
     text-decoration: none;
     color: inherit;
+    margin-right: 15px;
+    font-variant: small-caps;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
+/* “Home” link a bit bigger if desired */
 .navbar-brand {
     font-size: 1.2em;
     font-weight: 600;
+    margin-right: 20px;
 }
 
-.navbar-item {
+/* Container that pushes Logout to the far right */
+.logout-container {
+    margin-left: auto; /* Key for floating to the right */
+}
+
+/* The logout button itself */
+.logout-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
     font-variant: small-caps;
-    margin-left: 30px;
+    text-transform: uppercase;
+    padding: 0 8px;
+    transition: background-color 0.3s;
 }
 
+.logout-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+/* On mobile, the navbar items stack more neatly */
+@media (max-width: 768px) {
+    .navbar {
+        justify-content: center;
+    }
+    .navbar a,
+    .logout-button {
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+}
+
+/* Generic button & search-button */
 button,
 .search-button {
     display: inline-block;
@@ -84,8 +124,6 @@ button:hover,
 .search-button:hover {
     background-color: rgb(189, 54, 54);
 }
-
-/* Special coloring for .search-button, if used */
 .search-button {
     background-color: #8b0000;
 }
@@ -102,7 +140,7 @@ table {
     margin: 20px auto;
     border-collapse: collapse;
     background-color: #fff;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 th,
@@ -127,10 +165,29 @@ th {
 tbody tr:nth-child(odd) {
     background-color: #f9f9f9;
 }
-
 tbody tr:hover {
     background-color: #eaf4ff;
     cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    table {
+        width: 100%;
+        overflow-x: auto;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+    label, 
+    input, 
+    select {
+        display: block;
+        margin: 5px 0;
+    }
+    button {
+        width: 100%;
+        margin: 10px 0;
+    }
 }
 
 /* ======================================
@@ -147,47 +204,15 @@ hr {
     opacity: 0.3;
 }
 
-/* Buttons often used to delete, etc. */
 .button-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
 }
+
 .btn-delete {
     padding: 5px 10px;
-}
-
-/* Media Query for narrower screens */
-@media (max-width: 768px) {
-    table {
-        width: 100%;
-        overflow-x: auto;
-    }
-    h2 {
-        font-size: 1.5rem;
-    }
-    label,
-    input,
-    select {
-        display: block;
-        margin: 5px 0;
-    }
-    button {
-        width: 100%;
-        margin: 10px 0;
-    }
-}
-
-/* ======================================
-   GENERIC FILTER CONTAINER (if used)
-   ====================================== */
-
-.filter-container label,
-.filter-container input {
-    flex: 0 1 auto;
-    min-width: auto;
-    max-width: 100%;
 }
 
 /* ======================================
@@ -203,7 +228,7 @@ hr {
     border: 1px solid #607892;
     border-radius: 3px;
     text-align: center;
-    text-decoration: none; 
+    text-decoration: none;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -220,32 +245,29 @@ hr {
    AUTH / LOGIN / SIGNUP PAGE STYLES
    ====================================== */
 
-/* Center container (shared by login & signup) */
 .auth-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
 }
-
-/* The actual box for the forms */
 .auth-box {
-    width: 420px;
+    width: 100%;
+    max-width: 420px;
     padding: 35px;
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
-
-/* The big UIndy logo on top */
 .logo {
     width: 130px;
     margin-bottom: 15px;
+    max-width: 60%;
 }
-
-/* The form title: "SIGN IN" or "SIGN UP" */
 .login-title {
     margin-top: 10px;
     margin-bottom: 20px;
@@ -255,8 +277,6 @@ hr {
     text-transform: uppercase;
     color: #444;
 }
-
-/* The input fields inside auth forms */
 .auth-box input {
     width: 100%;
     padding: 12px;
@@ -272,8 +292,6 @@ hr {
     box-shadow: 0 0 5px rgba(152, 30, 50, 0.3);
     outline: none;
 }
-
-/* Buttons inside the form */
 .button-group {
     display: flex;
     justify-content: space-between;
@@ -305,7 +323,6 @@ hr {
     background: #b5293a;
 }
 
-/* Additional text or links below form */
 .login-links {
     margin-top: 12px;
 }
@@ -321,11 +338,6 @@ hr {
     text-decoration: underline;
     color: #b5293a;
 }
-
-/* 
-   For the extended sign-up form, we might have 
-   .form-group for label+input and .form-text for small help text or bullet rules 
-*/
 .form-group {
     text-align: left;
     margin-bottom: 15px;
@@ -345,14 +357,10 @@ hr {
     margin-left: 20px;
     list-style-type: disc;
 }
-
-/* Make single big sign-up button stand out */
 .auth-box .next-button {
     width: 100%;
     margin-top: 15px;
 }
-
-/* For smaller screens */
 @media (max-width: 500px) {
     .auth-box {
         width: 90%;
@@ -360,12 +368,25 @@ hr {
     }
     .button-group {
         flex-direction: column;
+        gap: 10px;
     }
     .back-button,
     .next-button {
         width: 100%;
         margin-bottom: 8px;
     }
+    .login-title {
+        font-size: 1.4rem;
+    }
+    .logo {
+        max-width: 80%;
+    }
+}
+
+/* ======================================
+   PAGINATION STYLES
+   ====================================== */
+
 .pagination {
     display: flex;
     justify-content: center;
@@ -373,7 +394,6 @@ hr {
     gap: 5px;
     margin: 20px 0;
 }
-
 .pagination-link {
     padding: 8px 12px;
     background-color: #882727;
@@ -383,23 +403,23 @@ hr {
     font-weight: bold;
     transition: background-color 0.3s;
 }
-
 .pagination-link:hover {
     background-color: #a03a3a;
 }
-
 .pagination-link.active {
     background-color: #444;
     cursor: default;
 }
-
 .pagination-link:disabled,
 .pagination-link[aria-disabled="true"] {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-/* Search Input Field */
+/* ======================================
+   SEARCH BOX & LIVE-DROPDOWN
+   ====================================== */
+
 .search-input {
     flex: 1;
     padding: 12px 20px;
@@ -409,16 +429,13 @@ hr {
     outline: none;
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 400px; /* Adjusted to fit the placeholder text */
-    max-width: 100%; /* Ensures it doesn't overflow on smaller screens */
+    width: 400px;
+    max-width: 100%;
 }
-
 .search-input:focus {
     border-color: rgb(136, 39, 39);
     box-shadow: 0 0 8px rgba(136, 39, 39, 0.5);
 }
-
-/* Search Button */
 .search-button {
     padding: 12px 25px;
     background-color: rgb(136, 39, 39);
@@ -430,55 +447,33 @@ hr {
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-
 .search-button:hover {
     background-color: rgb(189, 54, 54);
     transform: translateY(-2px);
 }
-
 .search-button:active {
     background-color: rgb(100, 30, 30);
     transform: translateY(1px);
 }
-
-/* Responsive Adjustments */
+.search-box-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 400px; 
+}
 @media (max-width: 768px) {
     .search-box-container {
         flex-direction: column;
         gap: 15px;
-    }
-
-    .search-input {
-        width: 100%; /* Expand to full width on smaller screens */
-    }
-
-    .search-button {
         width: 100%;
     }
 }
-
-.search-box-container {
-    position: relative;
-    display: flex;         /* Switch to flex layout */
-    align-items: center;   /* Vertically center items in the container */
-    gap: 10px;             /* Space between input & button */
-    width: 400px;          /* Or use any fixed/percentage width you like */
-}
-
-/* The dropdown menu itself */
-/* 2) The search input fills the container's width */
-.search-input {
-    width: 100%;           /* Fills the .search-box-container’s width */
-    border-radius: 30px;   /* Rounded corners */
- 
-}
-
-/* 3) The dropdown menu is absolutely positioned & matches container width */
 .dropdown-menu {
     position: absolute;
     top: calc(100% + 5px);
     left: 0;
-    width: 100%;           /* Exactly as wide as the container */
+    width: 100%;
     max-height: 200px;
     overflow-y: auto;
     background: #fff;
@@ -486,15 +481,8 @@ hr {
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0,0,0,0.12);
     z-index: 9999;
-    display: none;         /* JavaScript will set to "block" */
+    display: none; 
 }
-
-  
-/* If you prefer it to fade in only when displayed, 
-   add a class to show/hide and trigger the animation that way. 
-   But as a quick fix, you can place the animation above. */
-
-/* Custom scrollbar styling (works in WebKit-based browsers) */
 .dropdown-menu::-webkit-scrollbar {
     width: 8px;
 }
@@ -509,14 +497,11 @@ hr {
 .dropdown-menu::-webkit-scrollbar-thumb:hover {
     background: #999;
 }
-
-/* Suggestion list items */
 .suggestion-list {
     list-style: none;
     margin: 0;
     padding: 0;
 }
-
 .suggestion-item {
     padding: 12px 16px;
     cursor: pointer;
@@ -524,40 +509,29 @@ hr {
     border-bottom: 1px solid #eee;
     transition: background-color 0.2s;
 }
-
 .suggestion-item:last-child {
     border-bottom: none;
 }
-
-/* Light hover state */
 .suggestion-item:hover {
     background-color: #fafafa;
 }
-
-/* The clickable link inside each item */
 .dropdown-link {
     text-decoration: none;
-    color: #333; /* or your preferred color */
-    display: block; /* So the entire item is clickable */
+    color: #333;
+    display: block;
 }
-
-/* If no suggestions come back */
 .no-suggestions {
     padding: 12px 16px;
     font-size: 14px;
     color: #666;
 }
-
-/* Highlighted portion of the text */
 .suggestion-item mark {
     background-color: yellow;
     font-weight: bold;
     color: #333;
 }
-
-/* Optional label for ID, if you want smaller text or a different style */
 .id-label {
     font-size: 0.85em;
     color: #999;
     margin-left: 5px;
-}}
+} 

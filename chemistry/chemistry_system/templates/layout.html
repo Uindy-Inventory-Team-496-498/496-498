@@ -8,7 +8,6 @@
 </head>
 
 <body>
-<!-- Navbar only appears if user is authenticated -->
 {% if user.is_authenticated %}
 <div class="navbar">
     <a href="{% url 'home' %}" class="navbar-brand">Home</a>
@@ -19,18 +18,19 @@
     <a href="{% url 'checkinandout' %}" class="navbar-item">Check Chemical In or Out</a>
     <a href="{% url 'print_page' %}" class="navbar-item">Print</a>
     <a href="{% url 'log' %}" class="navbar-item">Log of Actions</a>
-    <form method="post" action="{% url 'logout' %}" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit" class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer; color: white">
-            Logout
-        </button>
-    </form>
+    <div class="logout-container">
+      <form method="post" action="{% url 'logout' %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="navbar-item logout-button">
+              Logout
+          </button>
+      </form>
+    </div>
 </div>
-{% endif %} <!-- End of authentication check -->
+{% endif %}
 
 <div class="body-content">
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
     <hr/>
     <footer>
         <p>&copy; 2024</p>
