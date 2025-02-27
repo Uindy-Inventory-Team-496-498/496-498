@@ -11,6 +11,8 @@ from django.views.decorators.http import require_POST
 from django.utils.timezone import now
 from django.core.paginator import Paginator
 from PIL import Image, ImageDraw, ImageFont
+from django.http import HttpResponse
+
 import qrcode
 import io
 import random
@@ -279,6 +281,7 @@ def print_page(request):
     """Render the page with the download button."""
     return render(request, 'print.html')
 
+    
 @login_required
 def generate_qr_pdf(request):
     num_qr = 24  # Number of QR codes
@@ -351,7 +354,7 @@ def generate_qr_pdf(request):
     response['Content-Disposition'] = 'attachment; filename="qr_codes.pdf"'
     return response
 def generate_qr_pdf_view(request):
-    return generate_qr_pdf()
+    return generate_qr_pdf(request)
 
 @login_required
 def log(request):
