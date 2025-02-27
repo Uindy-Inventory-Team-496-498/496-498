@@ -3,6 +3,8 @@ import io
 import random
 import csv
 from datetime import datetime
+import os
+from PIL import ImageFont
 
 from PIL import Image, ImageDraw
 from django.contrib import messages
@@ -13,6 +15,7 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import redirect
 from .models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
 from .forms import CSVUploadForm
+
 
 def update_total_amounts():
     # Aggregate the total amounts for each chemical in currentlyInStorageTable
@@ -36,45 +39,68 @@ def logCall(user: str, action: str):
     except Exception as e:
         print(f"Logging error: {e}")  # Print errors for debugging
 
-def generate_qr_pdf():
+def generate_qr_pdf(request):
     num_qr = 24  # Number of QR codes
-    cols = 4  
-    rows = 6  
-    qr_size = 300  
+    cols = 4  # Number of columns
+    rows = 6   # Number of rows (num_qr / cols)
+    qr_size = 300  # Size of each QR code in pixels
 
+    # Calculate canvas size (including margins)
     dpi = 300  
     canvas_width = 8.5 * dpi  
     canvas_height = 11 * dpi  
+    canvas_size = (int(canvas_width), int(canvas_height))
 
-    canvas = Image.new("RGB", (int(canvas_width), int(canvas_height)), "white")
+    # Create a blank canvas
+    canvas = Image.new("RGB", canvas_size, "white")
     draw = ImageDraw.Draw(canvas)
 
-    first_x = 384 + 46
-    first_y = 337 + 46
-    between_x = 534 + 4
-    between_y = 515 + 20
-
+    first_x = 384+40
+    first_y = 250
+    between_x = 565
+    between_y = 565
     num_so_far = 0
+
     current_x = first_x
     current_y = first_y
 
+    current_directory = os.path.dirname(os.path.realpath(__file__))
+
+    font_path = os.path.join(current_directory, "tnr.ttf")  # Replace with your font file name
+    font_size = 24  # Adjust the font size here
+    font = ImageFont.truetype(font_path, font_size)
+    # Generate and place QR codes
     for i in range(num_qr):
         if num_so_far % cols == 0 and num_so_far != 0:
             current_x = first_x
             current_y += between_y
-
         num_so_far += 1
-        data = random.randint(0, 2147483640)
-        qr = qrcode.QRCode(box_size=5, border=0)  
+        data = random.randint(0, 12000000000)  # Unique data for each QR code
+        qr = qrcode.QRCode(box_size=5, border=0)  # Adjust size
         qr.add_data(data)
         qr.make(fit=True)
         qr_img = qr.make_image(fill="black", back_color="white").resize((qr_size, qr_size))
 
-        canvas.paste(qr_img, (current_x - 150, current_y - 150))
+        # Compute position with margins
+        
+
+        # Paste QR code on canvas
+        canvas.paste(qr_img, (current_x-150, current_y-150))
+
+        # Draw text on canvas
+        position = (current_x-50, current_y + 175)
+        draw.text(position, str(data), font=font, fill="black")
+
+
+        # Update position for next QR code
         current_x += between_x
 
+        
+
+    # trim the right side of the image
     canvas = canvas.crop((0, 0, canvas_width, canvas_height))
-    canvas = canvas.resize((int(9 * 300), int(11 * 300)))
+    # set image size to 9*11 inches
+    canvas = canvas.resize((int(9*300), int(11*300)))
 
     pdf_buffer = io.BytesIO()
     canvas.save(pdf_buffer, format="PDF")
