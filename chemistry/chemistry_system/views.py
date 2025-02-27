@@ -28,10 +28,15 @@ class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
 
         if self.q:
             qs = qs.filter(
-                Q(chemName__icontains=self.q)
+                Q(chemName__icontains=self.q) |
+                Q(chemConcentration__icontains=self.q)
             )
         
-        return qs
+        return (qs)
+    
+    def get_result_label(self, item):
+        """Function that defines how the results appear in the dropdown"""
+        return f"{item.chemName} ({item.chemConcentration})"
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
     model = currentlyInStorageTable
