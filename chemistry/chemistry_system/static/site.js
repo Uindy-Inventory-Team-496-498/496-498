@@ -41,54 +41,26 @@ function sortList(tableBodyId, column) {
 }
 
 function getSortValue(row, column) {
-    switch (column) {
-        case 'id':
-            return row.cells[0].textContent;
-        case 'material':
-            return row.cells[1].textContent;
-        case 'name':
-            return row.cells[2].textContent;
-        case 'room':
-            return row.cells[3].textContent;
-        case 'cabinet':
-            return row.cells[4].textContent;
-        case 'shelf':
-            return row.cells[5].textContent;
-        case 'amount':
-            return row.cells[6].textContent;
-        case 'unit':
-            return row.cells[7].textContent;
-        case 'concentration':
-            return row.cells[8].textContent;
-        case 'sds':
-            return row.cells[9].textContent;
-        case 'notes':
-            return row.cells[10].textContent;
-        case 'instrument':
-            return row.cells[11].textContent;
-        case 'checked-out-by':
-            return row.cells[12].textContent;
-        case 'checked-out-date':
-            return row.cells[13].textContent;
-        default:
-            return '';
-    }
+    const cell = row.querySelector(`.column-${column}`);
+    return cell ? cell.textContent.trim() : '';
 }
 
 function updateSortArrows(column, order) {
-    const columns = ['id', 'material', 'name', 'room', 'cabinet', 'shelf', 'amount', 'unit', 'concentration', 'sds', 'notes', 'instrument', 'checked-out-by', 'checked-out-date'];
+    const columns = ['id', 'material', 'name', 'room', 'cabinet', 'shelf', 'amount', 'unit', 'concentration', 'sds', 'notes', 'instrument', 'checked-out-by', 'checked-out-date', 'expected', 'percentage'];
     columns.forEach(col => {
         const arrow = document.getElementById(`sort-arrow-${col}`);
-        if (col === column) {
-            if (order === 'asc') {
-                arrow.textContent = '▲';
-            } else if (order === 'desc') {
-                arrow.textContent = '▼';
+        if (arrow) {
+            if (col === column) {
+                if (order === 'asc') {
+                    arrow.textContent = '▲';
+                } else if (order === 'desc') {
+                    arrow.textContent = '▼';
+                } else {
+                    arrow.textContent = '';
+                }
             } else {
                 arrow.textContent = '';
             }
-        } else {
-            arrow.textContent = '';
         }
     });
 }
