@@ -255,4 +255,58 @@
     {% endif %}
 
     <script src="{% static 'site.js' %}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to save filter selections to local storage
+            function saveFilters() {
+                const filters = {
+                    type: Array.from(document.querySelectorAll('.type-choice:checked')).map(cb => cb.value),
+                    location: Array.from(document.querySelectorAll('.location-choice:checked')).map(cb => cb.value),
+                    sds: Array.from(document.querySelectorAll('.sds-choice:checked')).map(cb => cb.value),
+                    columns: Array.from(document.querySelectorAll('.column-toggle:checked')).map(cb => cb.value)
+                };
+                localStorage.setItem('all_chemicalFilters', JSON.stringify(filters));
+            }
+    
+            // Function to load filter selections from local storage
+            function loadFilters() {
+                const filters = JSON.parse(localStorage.getItem('all_chemicalFilters'));
+                if (filters) {
+                    document.querySelectorAll('.type-choice').forEach(cb => {
+                        cb.checked = filters.type.includes(cb.value);
+                    });
+                    document.querySelectorAll('.location-choice').forEach(cb => {
+                        cb.checked = filters.location.includes(cb.value);
+                    });
+                    document.querySelectorAll('.sds-choice').forEach(cb => {
+                        cb.checked = filters.sds.includes(cb.value);
+                    });
+                    document.querySelectorAll('.column-toggle').forEach(cb => {
+                        cb.checked = filters.columns.includes(cb.value);
+                    });
+                    filterList();
+                    toggleColumns();
+                }
+            }
+    
+            // Function to apply column visibility based on checkboxes
+            function toggleColumns() {
+                document.querySelectorAll('.column-toggle').forEach(cb => {
+                    const columnClass = `.column-${cb.value}`;
+                    document.querySelectorAll(columnClass).forEach(col => {
+                        col.style.display = cb.checked ? '' : 'none';
+                    });
+                });
+            }
+    
+            // Event listeners to save filters when they are changed
+            document.querySelectorAll('.type-choice, .location-choice, .sds-choice, .column-toggle').forEach(cb => {
+                cb.addEventListener('change', saveFilters);
+            });
+    
+            // Load filters on page load
+            loadFilters();
+        });
+    </script>
 {% endblock %}

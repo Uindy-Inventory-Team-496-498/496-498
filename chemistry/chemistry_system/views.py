@@ -47,9 +47,21 @@ class ChemListView(LoginRequiredMixin, ListView):
 
 @login_required
 def currchemicals(request):
-    chemical_list_db = currentlyInStorageTable.objects.select_related('chemAssociated').all()
+    query = request.GET.get('query', '').strip()
+    message = None
+
+    if query:
+        chemical_list_db = currentlyInStorageTable.objects.filter(
+            Q(chemAssociated__chemName__icontains=query) |
+            Q(chemBottleIDNUM__icontains=query)
+        )
+        if not chemical_list_db.exists():
+            message = "No results found."
+    else:
+        chemical_list_db = currentlyInStorageTable.objects.all()
+
     chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
-    chemical_locations = currentlyInStorageTable.objects.values_list('chemAssociated__chemLocationRoom', flat=True).distinct()
+    chemical_locations = currentlyInStorageTable.objects.values_list('chemLocationRoom', flat=True).distinct()
 
     # Get the number of entries per page from the request, default to 10
     entries_per_page = request.GET.get('entries_per_page', 10)
@@ -67,6 +79,8 @@ def currchemicals(request):
         'chemical_list_db': page_obj,
         'chemical_types': chemical_types,
         'chemical_locations': chemical_locations,
+        'query': query,
+        'message': message,
         'entries_per_page': entries_per_page,
         'total_entries': paginator.count
     })
