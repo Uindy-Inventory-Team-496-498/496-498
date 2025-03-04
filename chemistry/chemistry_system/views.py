@@ -13,10 +13,12 @@ from django.core.paginator import Paginator
 from PIL import Image, ImageDraw, ImageFont
 from django.http import HttpResponse
 
+
 import qrcode
 import io
 import random
 import os
+import pytz
 from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
 from .utils import update_total_amounts, logCall, generate_qr_pdf, export_chemicals_csv, import_chemicals_csv, update_checkout_status, populate_storage
@@ -305,10 +307,32 @@ def print_page(request):
 def generate_qr_pdf_view(request):
     return generate_qr_pdf(request)
 
+
 @login_required
 def log(request):
-    Log_entries = Log.objects.all()
-    return render(request, 'log.html', {'log': Log_entries})
+    query = request.GET.get('search', '')
+    query_date = request.GET.get('date', '')
+    log_entries = Log.objects.all().order_by('-date')  # Fetch logs ordered by date
+    if query_date:
+        print("WORKING")
+        log_entries = log_entries.filter(
+            date__icontains=query_date  # Search by date (if needed)
+        )
+    if query:
+        log_entries = log_entries.filter(
+            user__icontains=query  # Case-insensitive search for user
+        ) | log_entries.filter(
+            action__icontains=query  # Case-insensitive search for action
+        ) | log_entries.filter(
+            date__icontains=query  # Search by date (if needed)
+        )
+    
+    
+    paginator = Paginator(log_entries, 25)  # Show 10 logs per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)  # Get the requested page
+
+    return render(request, 'log.html', {'page_obj': page_obj, 'query': query})  
 
 @login_required
 def run_populate_storage(request):

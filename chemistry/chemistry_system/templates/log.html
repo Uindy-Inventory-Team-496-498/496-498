@@ -7,6 +7,14 @@
 {% block content %}
     <h1>Action Logs</h1>
 
+    <!-- Search Form -->
+    <h3>Search by User/Action and/or Date</h3>
+    <form method="get" action="{% url 'log' %}">
+        <input type="text" name="search" placeholder="Search by user or action" value="{{ query }}">
+        <input type="date" name="date" value="{{ request.GET.date }}"> <!-- Date input -->
+        <button type="submit">Search</button>
+    </form>
+
     <table border="1">
         <thead>
             <tr>
@@ -16,7 +24,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for log in log %}
+            {% for log in page_obj %}
                 <tr>
                     <td>{{ log.user }}</td>
                     <td>{{ log.action }}</td>
@@ -29,4 +37,18 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1&search={{ query }}&date={{ request.GET.date }}">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}&search={{ query }}&date={{ request.GET.date }}">Previous</a>
+        {% endif %}
+    
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&search={{ query }}&date={{ request.GET.date }}">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&search={{ query }}&date={{ request.GET.date }}">Last</a>
+        {% endif %}
+    </div>
 {% endblock %}

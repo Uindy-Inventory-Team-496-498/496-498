@@ -4,6 +4,7 @@ import random
 import csv
 from datetime import datetime
 import os
+import pytz
 from PIL import ImageFont
 
 from PIL import Image, ImageDraw
@@ -15,6 +16,7 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import redirect
 from .models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
 from .forms import CSVUploadForm
+from datetime import timedelta
 
 
 def update_total_amounts():
@@ -32,7 +34,8 @@ def update_total_amounts():
 
 def logCall(user: str, action: str):
     try:
-        date = now()
+        date = datetime.now()
+        date = date - timedelta(hours=5)
         log_add = Log(user=user, action=action, date=date)
         log_add.save()
         print(f"Log entry saved: {user} - {action}")  # Debugging print statement
@@ -202,13 +205,13 @@ def update_checkout_status(request, model_name, qrcode_value):
         chemical_instance.chemCheckedOutBy = None
         chemical_instance.chemCheckedOutDate = None
         message = f"Chemical successfully checked in by {request.user.username} at {now().strftime('%Y-%m-%d %H:%M:%S')}."
-        logCall(request.user.username, f"Checked in chemical with QR code {qrcode_value}")
+        logCall(request.user.username, f"Checked in chemical with QR ID: {qrcode_value}")
     else:
         chemical_instance.chemCheckedOut = True
         chemical_instance.chemCheckedOutBy = request.user
         chemical_instance.chemCheckedOutDate = now()
         message = f"Chemical successfully checked out by {request.user.username} at {chemical_instance.chemCheckedOutDate.strftime('%Y-%m-%d %H:%M:%S')}."
-        logCall(request.user.username, f"Checked out chemical with QR code {qrcode_value}")
+        logCall(request.user.username, f"Checked out chemical with QR ID: {qrcode_value}")
     
     # Save the updated chemical instance
     chemical_instance.save()
