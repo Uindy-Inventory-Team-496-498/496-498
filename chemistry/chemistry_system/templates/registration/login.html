@@ -1,9 +1,30 @@
-<!-- templates/registration/login.html -->
-<h2>Log In</h2>
-<form method="post">
-  {% csrf_token %}  
-  {{ form }}
-  <button type="submit">Log In</button>
-  <p>Don't have an account? <a href="{% url 'signup' %}">Register here</a></p>
-  <p>Forgot password? <a href="{% url 'password_reset' %}">Forgot Password</a></p>
-</form>
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <img src="{% static 'images/uindy-logo.png' %}" alt="UIndy Logo" class="logo">
+
+        <h2 class="login-title">Sign In</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="UIndy Email Address" required>
+            <input type="password" name="password" placeholder="Password" required>
+
+            <div class="button-group">
+                <button type="button" class="back-button">Back</button>
+                <button type="submit" class="next-button">Next</button>
+            </div>
+        </form>
+
+        <div class="login-links">
+            <a href="{% url 'password_reset' %}">Forgot Password?</a>
+            <a href="{% url 'signup' %}">Register here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
