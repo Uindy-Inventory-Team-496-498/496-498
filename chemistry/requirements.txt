@@ -6,5 +6,6 @@ sqlparse==0.5.1
 tzdata==2024.2
 qrcode==8.0
 Pillow==11.1.0
+pytz==2025.1
 mysqlclient
 django-autocomplete-light
