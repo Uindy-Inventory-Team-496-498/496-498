@@ -31,6 +31,13 @@
                 <button type="submit" class="button-style" onclick="return confirm('Are you sure you want to delete all chemicals? This action cannot be undone.')">Delete All</button>
             </form>
 
+            <!--Implement Search-->
+            <form action="{% url 'currchemicals' %}" method="get" style="display:inline;">
+                <input type="text" name="query" placeholder="Search chemicals by name or ID" value="{{ query }}">
+                <button type="submit" class="button-style">Search</button>
+            </form>
+
+
             <form action="{% url 'run_populate_storage' %}" method="post" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit" class="button-style">Populate Database</button>
@@ -38,6 +45,21 @@
         </div>
     </div>
     <br>
+
+    <div class="results-container">
+        <h2>Search Results for "{{ query }}"</h2>
+
+        {% if message %}
+            <p class="alert-message">{{ message }}</p>
+        {% elif chemical_list_db %}
+            <p class="results-count">{{ chemical_list_db|length }} result(s) found</p>
+
+            
+            {% else %}
+                <p class="alert-message">No results found for "{{ query }}"</p>
+            {% endif %}
+        </div>
+    
     {% if chemical_list_db %}
     <div class="filter-container">
         <strong>Chemical Type:</strong>
@@ -290,4 +312,58 @@
     {% endif %}
 
     <script src="{% static 'site.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to save filter selections to local storage
+            function saveFilters() {
+                const filters = {
+                    type: Array.from(document.querySelectorAll('.type-choice:checked')).map(cb => cb.value),
+                    location: Array.from(document.querySelectorAll('.location-choice:checked')).map(cb => cb.value),
+                    sds: Array.from(document.querySelectorAll('.sds-choice:checked')).map(cb => cb.value),
+                    columns: Array.from(document.querySelectorAll('.column-toggle:checked')).map(cb => cb.value)
+                };
+                localStorage.setItem('chemicalFilters', JSON.stringify(filters));
+            }
+    
+            // Function to load filter selections from local storage
+            function loadFilters() {
+                const filters = JSON.parse(localStorage.getItem('chemicalFilters'));
+                if (filters) {
+                    document.querySelectorAll('.type-choice').forEach(cb => {
+                        cb.checked = filters.type.includes(cb.value);
+                    });
+                    document.querySelectorAll('.location-choice').forEach(cb => {
+                        cb.checked = filters.location.includes(cb.value);
+                    });
+                    document.querySelectorAll('.sds-choice').forEach(cb => {
+                        cb.checked = filters.sds.includes(cb.value);
+                    });
+                    document.querySelectorAll('.column-toggle').forEach(cb => {
+                        cb.checked = filters.columns.includes(cb.value);
+                    });
+                    filterList();
+                    toggleColumns();
+                }
+            }
+    
+            // Function to apply column visibility based on checkboxes
+            function toggleColumns() {
+                document.querySelectorAll('.column-toggle').forEach(cb => {
+                    const columnClass = `.column-${cb.value}`;
+                    document.querySelectorAll(columnClass).forEach(col => {
+                        col.style.display = cb.checked ? '' : 'none';
+                    });
+                });
+            }
+    
+            // Event listeners to save filters when they are changed
+            document.querySelectorAll('.type-choice, .location-choice, .sds-choice, .column-toggle').forEach(cb => {
+                cb.addEventListener('change', saveFilters);
+            });
+    
+            // Load filters on page load
+            loadFilters();
+        });
+    </script>
+
 {% endblock %}
