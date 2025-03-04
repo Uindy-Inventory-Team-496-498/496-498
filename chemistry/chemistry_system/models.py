@@ -14,7 +14,7 @@ def get_model_by_name(model_name):
             'chemID', 'chemMaterial', 'chemName', 'chemConcentration', 
             'chemAmountUnit', 'chemLocationRoom', 
             'chemLocationCabinet', 'chemLocationShelf', 'chemSDS', 'chemNotes', 
-            'chemInstrument'
+            'chemInstrument', 'chemManufacturerBarcode'
         ]),
     }
     return model_mapping.get(model_name.lower())
@@ -32,6 +32,7 @@ class allChemicalsTable(models.Model):
     chemSDS = models.CharField(null = True, max_length=20)
     chemNotes = models.CharField(null = True, max_length=255)
     chemInstrument = models.CharField(null = True, max_length=255)
+    chemManufacturerBarcode = models.CharField(max_length=255, default="None")
 
     def __str__(self):
         return self.chemName

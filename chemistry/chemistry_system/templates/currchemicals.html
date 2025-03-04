@@ -108,6 +108,8 @@
         <label for="checked-out-by">Checked Out By</label>
         <input type="checkbox" class="column-toggle" value="checked-out-date" checked onchange="toggleColumn(this)">
         <label for="checked-out-date">Checked Out Date</label>
+        <input type="checkbox" class="column-toggle" value="manufacturer-barcode" checked onchange="toggleColumn(this)">
+        <label for="manufacturer-barcode">Manufacturer Barcode</label>
     </div>
     <br>
 
@@ -186,6 +188,9 @@
                 <th class="column-instrument" onclick="sortList('chemical-table-body', 'instrument')">
                     <div class="header-container">Instrument <span id="sort-arrow-instrument"></span></div>
                 </th>
+                <th class="column-manufacturer-barcode" onclick="sortList('chemical-table-body', 'manufacturer-barcode')">
+                    <div class="header-container">Manufacturer Barcode<span id="sort-arrow-manufacturer-barcode"></span></div>
+                </th>
                 <th class="column-checked-out-by" onclick="sortList('chemical-table-body', 'checked-out-by')">
                     <div class="header-container">Checked By<span id="sort-arrow-checked-out-by"></span></div>
                 </th>
@@ -211,6 +216,7 @@
                 <td class="column-sds" data-label="SDS">{{ chemical.chemAssociated.chemSDS }}</td>
                 <td class="column-notes" data-label="Notes">{{ chemical.chemAssociated.chemNotes }}</td>
                 <td class="column-instrument" data-label="Instrument">{{ chemical.chemAssociated.chemInstrument }}</td>
+                <td class="column-manufacturer-barcode" data-label="Manufacturer Barcode">{{ chemical.chemAssociated.chemManufacturerBarcode }}</td>
                 <td class="column-checked-out-by" data-label="Checked Out By">
                     {% if chemical.chemCheckedOutBy %}
                         {{ chemical.chemCheckedOutBy.username }}

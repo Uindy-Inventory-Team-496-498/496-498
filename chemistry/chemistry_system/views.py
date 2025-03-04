@@ -286,8 +286,6 @@ def print_page(request):
     """Render the page with the download button."""
     return render(request, 'print.html')
 
-    
-
 def generate_qr_pdf_view(request):
     return generate_qr_pdf(request)
 
