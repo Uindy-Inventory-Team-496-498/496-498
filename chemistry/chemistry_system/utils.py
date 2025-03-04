@@ -5,9 +5,9 @@ import csv
 from datetime import datetime
 import os
 import pytz
-from PIL import ImageFont
 
-from PIL import Image, ImageDraw
+
+from PIL import Image, ImageDraw, ImageFont
 from django.contrib import messages
 from django.db.models import Sum
 from django.utils.timezone import now
@@ -17,7 +17,6 @@ from django.shortcuts import redirect
 from .models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
 from .forms import CSVUploadForm
 from datetime import timedelta
-
 
 def update_total_amounts():
     # Aggregate the total amounts for each chemical in currentlyInStorageTable
@@ -36,6 +35,15 @@ def logCall(user: str, action: str):
     try:
         date = datetime.now()
         date = date - timedelta(hours=5)
+        log_add = Log(user=user, action=action, date=date)
+        log_add.save()
+        print(f"Log entry saved: {user} - {action}")  # Debugging print statement
+    except Exception as e:
+        print(f"Logging error: {e}")  # Print errors for debugging
+
+def logCall(user: str, action: str):
+    try:
+        date = now()
         log_add = Log(user=user, action=action, date=date)
         log_add.save()
         print(f"Log entry saved: {user} - {action}")  # Debugging print statement

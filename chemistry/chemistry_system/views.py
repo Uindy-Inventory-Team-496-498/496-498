@@ -1,14 +1,12 @@
 from django.views.generic import ListView
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
-from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm, AllChemicalForm
+from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
-from django.views.decorators.http import require_POST
-from django.utils.timezone import now
 from django.core.paginator import Paginator
 from PIL import Image, ImageDraw, ImageFont
 from django.http import HttpResponse
@@ -19,9 +17,10 @@ import io
 import random
 import os
 import pytz
+
 from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
-from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
-from .utils import update_total_amounts, logCall, generate_qr_pdf, export_chemicals_csv, import_chemicals_csv, update_checkout_status, populate_storage
+from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm
+from .utils import update_total_amounts, logCall, generate_qr_pdf, populate_storage
 from dal import autocomplete
 
 class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
@@ -39,6 +38,7 @@ class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
     def get_result_label(self, item):
         """Function that defines how the results appear in the dropdown"""
         return f"{item.chemName} ({item.chemConcentration})"
+    
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
     model = currentlyInStorageTable
