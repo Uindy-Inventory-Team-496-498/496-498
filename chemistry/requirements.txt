@@ -9,3 +9,4 @@ Pillow==11.1.0
 pytz==2025.1
 mysqlclient
 django-autocomplete-light
+django-filter

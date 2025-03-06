@@ -2,26 +2,37 @@ from django.views.generic import ListView
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
-from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from django.core.paginator import Paginator
-from PIL import Image, ImageDraw, ImageFont
-from django.http import HttpResponse
-
-
-import qrcode
-import io
-import random
-import os
-import pytz
 
 from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
-from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm
+from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
 from .utils import update_total_amounts, logCall, generate_qr_pdf, populate_storage
+from .filters import ChemicalFilter
+
 from dal import autocomplete
+from PIL import Image, ImageDraw, ImageFont
+
+def show_all_chemicals(request):
+    context = {}
+
+    filtered_chemicals = ChemicalFilter(
+        request.GET, 
+        queryset=allChemicalsTable.objects.all()
+    )
+
+    context['filtered_chemicals'] = filtered_chemicals
+
+    paginated_filtered_chemicals = Paginator(filtered_chemicals.qs, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginated_filtered_chemicals.get_page(page_number)
+
+    context['page_obj'] = page_obj
+
+    return render(request, 'show_all_chemicals.html', context)
 
 class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
