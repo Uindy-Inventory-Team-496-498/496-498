@@ -41,5 +41,6 @@ urlpatterns = [
     path('download-qr-pdf/', views.generate_qr_pdf_view, name='download_qr_pdf'), 
     path('log/', views.log, name='log'),
     path('run-populate-storage/', views.run_populate_storage, name='run_populate_storage'),  # Add the URL pattern
-    path('chemical-autocomplete/', ChemicalAutocomplete.as_view(), name='chemical-autocomplete')
+    path('chemical-autocomplete/', ChemicalAutocomplete.as_view(), name='chemical-autocomplete'),
+    path('scan_barcode/', views.scan_barcode, name='scan_barcode')
 ]

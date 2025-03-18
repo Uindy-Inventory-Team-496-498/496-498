@@ -26,6 +26,7 @@
         <a href="{% url 'search' %}" class="navbar-item">Search</a>
         <a href="{% url 'checkinandout' %}" class="navbar-item">Check Chemical In or Out</a>
         <a href="{% url 'print_page' %}" class="navbar-item">Print</a>
+        <a href="{% url 'scan_barcode' %}" class="navbar-item">Scan Barcode Test</a>
         <a href="{% url 'log' %}" class="navbar-item">Log of Actions</a>
         <form method="post" action="{% url 'logout' %}" style="display: inline;">
             {% csrf_token %}

@@ -10,6 +10,8 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from PIL import Image, ImageDraw, ImageFont
 from django.http import HttpResponse
+from chemistry_system.models import Barcode
+import json
 
 
 import qrcode
@@ -137,6 +139,30 @@ def home(request):
 @login_required
 def qr_code_scan(request):
     return render(request, 'scan.html') # Only if you need to disable CSRF for testing
+
+@login_required
+def scan_barcode(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            barcode_data = str(data.get('barcode', '')).strip()  # Ensure it's a string and remove spaces
+            
+            if not barcode_data:
+                return JsonResponse({'status': 'Failure', 'message': 'No barcode received'}, status=400)
+
+            # Query the database for the barcode
+            barcode_obj = Barcode.objects.filter(code=barcode_data).first()
+            chemical_obj = allChemicalsTable.objects.filter(chemManufacturerBarcode=barcode_data).first()
+
+            if barcode_obj or chemical_obj:
+                return JsonResponse({'status': 'Success', 'message': f'Barcode {barcode_data} found'})
+
+            return JsonResponse({'status': 'Failure', 'message': f'Barcode {barcode_data} not found'}, status=404)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'Failure', 'message': 'Invalid JSON'}, status=400)
+
+    return render(request, 'scan_barcode.html')
 
 @login_required
 def search_page(request):
