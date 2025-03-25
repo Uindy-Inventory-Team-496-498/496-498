@@ -87,7 +87,7 @@ See current tables:
 ```SHOW TABLES;```
 
 See structure of specific table:
-```DESCRIBE chemistry_system_currentlyinstoragetable;```
+```DESCRIBE chemistry_system_individualChemicals;```
 
 Delete previous migration:
 ```DELETE FROM django_migrations WHERE app = 'chemistry_system';```
@@ -96,8 +96,8 @@ Drop Tables:
 
 ```USE your_db_name;```
 
-```DROP TABLE IF EXISTS chemistry_system_allchemicalstable;```
+```DROP TABLE IF EXISTS chemistry_system_allChemicals;```
 
-```DROP TABLE IF EXISTS chemistry_system_currentlyinstoragetable;```
+```DROP TABLE IF EXISTS chemistry_system_individualChemicals;```
 
 ```DROP TABLE IF EXISTS chemistry_system_qrcodedata;```

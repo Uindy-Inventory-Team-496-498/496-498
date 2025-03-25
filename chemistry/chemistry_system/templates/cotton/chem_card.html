@@ -1,0 +1,36 @@
+{% load static %}
+
+<table class="table-auto w-full border-collapse border border-gray-300 shadow-lg">
+    <thead class="bg-gray-100">
+        <tr>
+            <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Material</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Concentration</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Location</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Total Amount</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Expected Amount</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Stock %</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">SDS</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="border border-gray-300 px-4 py-2">{{ chemical.chemName }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ chemical.chemMaterial }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ chemical.chemConcentration }}</td>
+            <td class="border border-gray-300 px-4 py-2">
+                Room: {{ chemical.chemLocationRoom }}<br>
+                Cabinet: {{ chemical.chemLocationCabinet }}<br>
+                Shelf: {{ chemical.chemLocationShelf }}
+            </td>
+            <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountTotal }} {{ chemical.chemAmountUnit }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountExpected }} {{ chemical.chemAmountUnit }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountPercentage }}%</td>
+            <td class="border border-gray-300 px-4 py-2">
+                <a href="{{ chemical.chemSDS }}" class="text-blue-500 underline" target="_blank">View SDS</a>
+            </td>
+            <td class="border border-gray-300 px-4 py-2">{{ chemical.chemNotes }}</td>
+        </tr>
+    </tbody>
+</table>
