@@ -8,6 +8,7 @@
 {% block content %}
     <h2>Logged Chemicals</h2>
 
+    
     <div class="button-container">
         <form action="{% url 'scanner_add' %}" method="get" style="flex: 1;">
             <button type="submit" class="button-style">Add New Chemical</button>
@@ -31,20 +32,45 @@
                 <button type="submit" class="button-style" onclick="return confirm('Are you sure you want to delete all chemicals? This action cannot be undone.')">Delete All</button>
             </form>
 
-            <!--Implement Search-->
-            <form action="{% url 'currchemicals' %}" method="get" style="display:inline;">
-                <input type="text" name="query" placeholder="Search chemicals by name or ID" value="{{ query }}">
-                <button type="submit" class="button-style">Search</button>
-            </form>
-
 
             <form action="{% url 'run_populate_storage' %}" method="post" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit" class="button-style">Populate Database</button>
             </form>
+            
         </div>
     </div>
+   
     <br>
+
+
+    <div class="search-container">
+    <!-- Search Form -->
+    <form action="{% url 'currchemicals' %}" method="get" class="search-form">
+        <div class="search-box-container">
+            <input
+                type="text"
+                name="query"
+                id="search-input"
+                placeholder="Enter chemical name or ID ..."
+                class="search-input"
+                value="{{ query|default_if_none:'' }}"
+                autocomplete="off"
+            >
+             <!-- Include the entries_per_page parameter in the search form -->
+             <input type="hidden" name="entries_per_page" value="{{ entries_per_page }}">
+            <!-- Live search results container -->
+            <div id="live-results" class="dropdown-menu"></div>
+
+            <button type="submit" class="search-button">Search</button>
+        </div>
+    </form>
+</div>
+<script src="{% static 'js/live-search.js' %}"></script>
+
+
+
+
 
     <div class="results-container">
         <h2>Search Results for "{{ query }}"</h2>
@@ -52,13 +78,13 @@
         {% if message %}
             <p class="alert-message">{{ message }}</p>
         {% elif chemical_list_db %}
-            <p class="results-count">{{ chemical_list_db|length }} result(s) found</p>
+            <p class="results-count">{{ total_matching_entries }} total matching entries</p>
+            <p class="resultsAndFilters-count">{{ total_matching_entries }} total matching entries</p>
 
-            
             {% else %}
                 <p class="alert-message">No results found for "{{ query }}"</p>
             {% endif %}
-        </div>
+    </div>
     
     {% if chemical_list_db %}
     <div class="filter-container">
@@ -147,8 +173,8 @@
         </form>
         <p>Total entries: {{ total_entries }}</p>
         {% if chemical_list_db.has_previous %}
-            <a href="?page=1&entries_per_page={{ entries_per_page }}" class="pagination-link">First</a>
-            <a href="?page={{ chemical_list_db.previous_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Previous</a>
+            <a href="?query={{ query }}&page=1&entries_per_page={{ entries_per_page }}" class="pagination-link">First</a>
+            <a href="?query={{ query }}&page={{ chemical_list_db.previous_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Previous</a>
         {% endif %}
 
         {% with surrounding_links=5 %}
@@ -157,15 +183,15 @@
                     {% if page_num == chemical_list_db.number %}
                         <span class="pagination-link active">{{ page_num }}</span>
                     {% else %}
-                        <a href="?page={{ page_num }}&entries_per_page={{ entries_per_page }}" class="pagination-link">{{ page_num }}</a>
+                        <a href="?query={{ query }}&page={{ page_num }}&entries_per_page={{ entries_per_page }}" class="pagination-link">{{ page_num }}</a>
                     {% endif %}
                 {% endif %}
             {% endfor %}
         {% endwith %}
 
         {% if chemical_list_db.has_next %}
-            <a href="?page={{ chemical_list_db.next_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Next</a>
-            <a href="?page={{ chemical_list_db.paginator.num_pages }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Last</a>
+            <a href="?query={{ query }}&page={{ chemical_list_db.next_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Next</a>
+            <a href="?query={{ query }}&page={{ chemical_list_db.paginator.num_pages }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Last</a>
         {% endif %}
     </div>
 
@@ -279,8 +305,8 @@
         </form>
         <p>Total entries: {{ total_entries }}</p>
         {% if chemical_list_db.has_previous %}
-            <a href="?page=1&entries_per_page={{ entries_per_page }}" class="pagination-link">First</a>
-            <a href="?page={{ chemical_list_db.previous_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Previous</a>
+            <a href="?query={{ query }}&page=1&entries_per_page={{ entries_per_page }}" class="pagination-link">First</a>
+            <a href="?query={{ query }}&page={{ chemical_list_db.previous_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Previous</a>
         {% endif %}
 
         {% with surrounding_links=5 %}
@@ -289,15 +315,15 @@
                     {% if page_num == chemical_list_db.number %}
                         <span class="pagination-link active">{{ page_num }}</span>
                     {% else %}
-                        <a href="?page={{ page_num }}&entries_per_page={{ entries_per_page }}" class="pagination-link">{{ page_num }}</a>
+                        <a href="?query={{ query }}&page={{ page_num }}&entries_per_page={{ entries_per_page }}" class="pagination-link">{{ page_num }}</a>
                     {% endif %}
                 {% endif %}
             {% endfor %}
         {% endwith %}
 
         {% if chemical_list_db.has_next %}
-            <a href="?page={{ chemical_list_db.next_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Next</a>
-            <a href="?page={{ chemical_list_db.paginator.num_pages }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Last</a>
+            <a href="?query={{ query }}&page={{ chemical_list_db.next_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Next</a>
+            <a href="?query={{ query }}&page={{ chemical_list_db.paginator.num_pages }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Last</a>
         {% endif %}
     </div>
     
@@ -306,58 +332,182 @@
     {% endif %}
 
     <script src="{% static 'site.js' %}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Function to save filter selections to local storage
-            function saveFilters() {
-                const filters = {
-                    type: Array.from(document.querySelectorAll('.type-choice:checked')).map(cb => cb.value),
-                    location: Array.from(document.querySelectorAll('.location-choice:checked')).map(cb => cb.value),
-                    sds: Array.from(document.querySelectorAll('.sds-choice:checked')).map(cb => cb.value),
-                    columns: Array.from(document.querySelectorAll('.column-toggle:checked')).map(cb => cb.value)
-                };
-                localStorage.setItem('chemicalFilters', JSON.stringify(filters));
-            }
+
     
-            // Function to load filter selections from local storage
-            function loadFilters() {
-                const filters = JSON.parse(localStorage.getItem('chemicalFilters'));
-                if (filters) {
-                    document.querySelectorAll('.type-choice').forEach(cb => {
-                        cb.checked = filters.type.includes(cb.value);
-                    });
-                    document.querySelectorAll('.location-choice').forEach(cb => {
-                        cb.checked = filters.location.includes(cb.value);
-                    });
-                    document.querySelectorAll('.sds-choice').forEach(cb => {
-                        cb.checked = filters.sds.includes(cb.value);
-                    });
-                    document.querySelectorAll('.column-toggle').forEach(cb => {
-                        cb.checked = filters.columns.includes(cb.value);
-                    });
-                    filterList();
-                    toggleColumns();
+    <script>
+        //below is for persistent filter selections
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                loadSearchQuery();
+            }, 100); 
+
+
+
+            // Function to save filter selections to local storage
+        function saveFilters() {
+            const filters = {
+                type: Array.from(document.querySelectorAll('.type-choice:checked')).map(cb => cb.value),
+                location: Array.from(document.querySelectorAll('.location-choice:checked')).map(cb => cb.value),
+                sds: Array.from(document.querySelectorAll('.sds-choice:checked')).map(cb => cb.value),
+                columns: Array.from(document.querySelectorAll('.column-toggle:checked')).map(cb => cb.value)
+            };
+            localStorage.setItem('chemicalFilters', JSON.stringify(filters));
+        }
+
+        // Function to load filter selections from local storage
+        function loadFilters() {
+            const filters = JSON.parse(localStorage.getItem('chemicalFilters'));
+            if (filters) {
+                document.querySelectorAll('.type-choice').forEach(cb => {
+                    cb.checked = filters.type.includes(cb.value);
+                });
+                document.querySelectorAll('.location-choice').forEach(cb => {
+                    cb.checked = filters.location.includes(cb.value);
+                });
+                document.querySelectorAll('.sds-choice').forEach(cb => {
+                    cb.checked = filters.sds.includes(cb.value);
+                });
+                document.querySelectorAll('.column-toggle').forEach(cb => {
+                    cb.checked = filters.columns.includes(cb.value);
+                });
+                filterList();
+                toggleColumns();
+            }
+        }
+
+        // Function to apply column visibility based on checkboxes
+        function toggleColumns() {
+            document.querySelectorAll('.column-toggle').forEach(cb => {
+                const columnClass = `.column-${cb.value}`;
+                document.querySelectorAll(columnClass).forEach(col => {
+                    col.style.display = cb.checked ? '' : 'none';
+                });
+            });
+        }
+
+        // Function to update the results count
+        function updateResultsCount() {
+            const selectedTypes = Array.from(document.querySelectorAll('.type-choice:checked')).map(cb => cb.value);
+            const selectedLocations = Array.from(document.querySelectorAll('.location-choice:checked')).map(cb => cb.value);
+            const selectedSDS = Array.from(document.querySelectorAll('.sds-choice:checked')).map(cb => cb.value);
+            const rows = document.querySelectorAll('.chemical-row');
+
+            let totalResults = 0;
+
+            rows.forEach(row => {
+            const rowType = row.getAttribute('data-type');
+            const rowLocation = row.getAttribute('data-location');
+            let rowSDS = row.getAttribute('data-sds');
+            if (rowSDS === '') rowSDS = 'none';
+
+            const typeMatches = selectedTypes.length === 0 || selectedTypes.includes(rowType);
+            const locationMatches = selectedLocations.length === 0 || selectedLocations.includes(rowLocation);
+            const sdsMatches = selectedSDS.length === 0 || selectedSDS.includes(rowSDS);
+
+            if (typeMatches && locationMatches && sdsMatches) {
+                totalResults++;
+            }
+            });
+            document.querySelector('.resultsAndFilters-count').textContent = `${totalResults} result(s) with current filters`;
+        }
+
+        // Function to filter the list based on selected filters
+        function filterList() {
+            const selectedTypes = Array.from(document.querySelectorAll('.type-choice:checked')).map(cb => cb.value);
+            const selectedLocations = Array.from(document.querySelectorAll('.location-choice:checked')).map(cb => cb.value);
+            const selectedSDS = Array.from(document.querySelectorAll('.sds-choice:checked')).map(cb => cb.value);
+            const rows = document.querySelectorAll('.chemical-row');
+
+            rows.forEach(row => {
+            const rowType = row.getAttribute('data-type');
+            const rowLocation = row.getAttribute('data-location');
+            let rowSDS = row.getAttribute('data-sds');
+            if (rowSDS === '') rowSDS = 'none';
+
+            const typeMatches = selectedTypes.length === 0 || selectedTypes.includes(rowType);
+            const locationMatches = selectedLocations.length === 0 || selectedLocations.includes(rowLocation);
+            const sdsMatches = selectedSDS.length === 0 || selectedSDS.includes(rowSDS);
+
+            if (typeMatches && locationMatches && sdsMatches) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+            });
+
+            updateResultsCount();
+        }
+
+        // Event listeners to save filters when they are changed
+        document.querySelectorAll('.type-choice, .location-choice, .sds-choice, .column-toggle').forEach(cb => {
+            cb.addEventListener('change', saveFilters);
+            cb.addEventListener('change', filterList);
+        });
+
+        // Load filters on page load
+        loadFilters();
+        // Load the search query on page load
+        loadSearchQuery();
+            // Function to save the search query to local storage
+        function saveSearchQuery() {
+            const searchQuery = document.getElementById('search-input').value;
+            if (searchQuery) {
+                localStorage.setItem('chemicalSearchQuery', searchQuery);
+                console.log("Saved search query to local storage:", searchQuery); // Debugging log
+            } else {
+                localStorage.removeItem('chemicalSearchQuery'); // Clear if empty
+                console.log("Cleared search query from local storage"); // Debugging log
+
+            }
+        }
+
+        
+        // Function to load the search query from local storage
+        function loadSearchQuery() {
+            const searchQuery = localStorage.getItem('chemicalSearchQuery');
+            console.log("Loaded search query from local storage:", searchQuery); // Debugging log
+            if (searchQuery) {
+                const searchInput = document.getElementById('search-input');
+                searchInput.value = searchQuery;
+                // Automatically submit the form to reload results
+                const searchForm = document.querySelector('.search-form');
+                const urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.has('query')) {
+                    searchForm.submit();
                 }
             }
-    
-            // Function to apply column visibility based on checkboxes
-            function toggleColumns() {
-                document.querySelectorAll('.column-toggle').forEach(cb => {
-                    const columnClass = `.column-${cb.value}`;
-                    document.querySelectorAll(columnClass).forEach(col => {
-                        col.style.display = cb.checked ? '' : 'none';
-                    });
-                });
+        }
+
+        // Function to clear the "No results found" message
+        function clearNoResultsMessage() {
+            const noResultsMessage = document.querySelector('.alert-message');
+            if (noResultsMessage) {
+                noResultsMessage.remove();
             }
-    
-            // Event listeners to save filters when they are changed
-            document.querySelectorAll('.type-choice, .location-choice, .sds-choice, .column-toggle').forEach(cb => {
-                cb.addEventListener('change', saveFilters);
-            });
-    
-            // Load filters on page load
-            loadFilters();
+        }
+
+        
+
+        // Clear the "No results found" message on new search
+        document.querySelector('.search-form').addEventListener('submit', clearNoResultsMessage);
+
+        // Update the search input field with the current query
+        const currentQuery = "{{ query|default_if_none:'' }}";
+        document.getElementById('search-input').value = currentQuery;
+
+        updateResultsCount();
+
+        // Event listener to save the search query when the search form is submitted
+        document.querySelector('.search-form').addEventListener('submit', (event) => {
+            saveSearchQuery();
+            clearNoResultsMessage();
+            console.log("Search form submitted, query saved."); // Debugging log
+
         });
+
+    });
     </script>
+
+
 
 {% endblock %}

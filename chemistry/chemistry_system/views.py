@@ -10,6 +10,8 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from PIL import Image, ImageDraw, ImageFont
 from django.http import HttpResponse
+from .models import get_model_by_name, currentlyInStorageTable
+
 
 
 import qrcode
@@ -52,11 +54,27 @@ def currchemicals(request):
     query = request.GET.get('query', '').strip()
     message = None
 
+    fields = ['chemAssociated__chemName', 'chemBottleIDNUM', 'chemAssociated__chemMaterial',
+        'chemLocationRoom', 'chemLocationCabinet', 'chemLocationShelf',
+        'chemAmountInBottle', 'chemAssociated__chemAmountUnit', 'chemAssociated__chemConcentration',
+        'chemAssociated__chemSDS', 'chemAssociated__chemNotes', 'chemAssociated__chemInstrument',
+        'chemCheckedOutBy__username', 'chemCheckedOutDate'
+        ]
     if query:
-        chemical_list_db = currentlyInStorageTable.objects.filter(
-            Q(chemAssociated__chemName__icontains=query) |
-            Q(chemBottleIDNUM__icontains=query)
-        )
+        q_objects = Q()
+        for field in fields:
+            q_objects |= Q(**{f"{field}__icontains": query})
+        chemical_list_db = currentlyInStorageTable.objects.filter(q_objects)
+        #chemical_list_db = currentlyInStorageTable.objects.filter(
+            #prev working version:
+            #Q(chemAssociated__chemName__icontains=query) |
+            #Q(chemBottleIDNUM__icontains=query) | 
+            #Q(chemAssociated__chemMaterial__icontains=query) |
+            #Q(chemLocationRoom__icontains=query) |
+            #Q(chemLocationCabinet__icontains=query) |
+            #Q(chemLocationShelf__icontains=query) 
+            
+        #)
         if not chemical_list_db.exists():
             message = "No results found."
     else:
@@ -71,6 +89,9 @@ def currchemicals(request):
         entries_per_page = len(chemical_list_db)
     else:
         entries_per_page = int(entries_per_page)
+    
+    # Calculate the total number of matching entries
+    total_matching_entries = chemical_list_db.count()
 
     # Paginate
     paginator = Paginator(chemical_list_db, entries_per_page)
@@ -84,6 +105,7 @@ def currchemicals(request):
         'query': query,
         'message': message,
         'entries_per_page': entries_per_page,
+        'total_matching_entries': total_matching_entries, 
         'total_entries': paginator.count
     })
 
