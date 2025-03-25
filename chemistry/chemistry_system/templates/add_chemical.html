@@ -7,30 +7,58 @@
 {% block content %}
     <h2>Add a New Chemical</h2>
 
+    {% if model_name == "currentlyinstoragetable" %}
+    <form action="{% url 'scan_barcode' %}" method="get" style="flex: 1;">
+        <button type="submit" class="button-style">Scan Manufacturer Barcode</button>
+    </form>
+    {% endif %}
+
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="button-style">Add Chemical</button>
     </form>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('chem_id')) {
-                const chemId = urlParams.get('chem_id');
-                const inputs = document.querySelectorAll('input');
-                for (let input of inputs) {
-                    if (!input.value) { 
-                        input.value = chemId;
-                        break;
+
+            // Autofill input fields with scanned chemical data
+            const fields = ['chem_id'];
+            fields.forEach(field => {
+                if (urlParams.has(field)) {
+                    const value = urlParams.get(field);
+                    const inputElement = document.querySelector(`input[name="${field}"]`);
+                    if (inputElement && !inputElement.value) {
+                        inputElement.value = value;
                     }
                 }
+            });
+
+            // Autofill the Select2 dropdown for the associated chemical
+            const assocChemicalField = document.querySelector('select[name="chemAssociated"]');
+            if (assocChemicalField && urlParams.has('chem_id')) {
+                const chemId = urlParams.get('chem_id');
+
+                // Fetch the full chemical name for display using Select2 widget format
+                $.ajax({
+                    url: "{% url 'chemical-autocomplete' %}",
+                    data: { q: chemId },
+                    success: function (data) {
+                        if (data.results.length > 0) {
+                            const chemInfo = data.results[0];
+
+                            // Manually add option and select it
+                            const newOption = new Option(chemInfo.text, chemInfo.id, true, true);
+                            $(assocChemicalField).append(newOption).trigger('change');
+                        }
+                    }
+                });
             }
         });
+
         $(document).on('select2:open', () => {
             document.querySelector('.select2-search__field').focus();
         });
     </script>
-      
-    
-    
 {% endblock %}

@@ -30,16 +30,24 @@ class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
         qs = allChemicalsTable.objects.all()
 
         if self.q:
-            qs = qs.filter(
-                Q(chemName__icontains=self.q) |
-                Q(chemConcentration__icontains=self.q)
-            )
-        
-        return (qs)
-    
+            if self.q.isnumeric():  # Allow lookup by chemID directly
+                qs = qs.filter(chemID=self.q)
+            else:
+                qs = qs.filter(
+                    Q(chemName__icontains=self.q) |
+                    Q(chemConcentration__icontains=self.q)
+                )
+
+        return qs
+
     def get_result_label(self, item):
         """Function that defines how the results appear in the dropdown"""
         return f"{item.chemName} ({item.chemConcentration})"
+
+    def get_result_value(self, item):
+        """Return the primary key (chemID) of the selected item"""
+        return item.chemID
+    
     
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
@@ -140,29 +148,33 @@ def home(request):
 def qr_code_scan(request):
     return render(request, 'scan.html') # Only if you need to disable CSRF for testing
 
-@login_required
+@login_required 
 def scan_barcode(request):
+    return render(request, 'scan_barcode.html')
+
+@login_required
+def process_barcode(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            barcode_data = str(data.get('barcode', '')).strip()  # Ensure it's a string and remove spaces
-            
+            barcode_data = str(data.get('barcode', '')).strip()
+
             if not barcode_data:
                 return JsonResponse({'status': 'Failure', 'message': 'No barcode received'}, status=400)
 
-            # Query the database for the barcode
-            barcode_obj = Barcode.objects.filter(code=barcode_data).first()
-            chemical_obj = allChemicalsTable.objects.filter(chemManufacturerBarcode=barcode_data).first()
+            chemical = allChemicalsTable.objects.filter(chemManufacturerBarcode=barcode_data).first()
 
-            if barcode_obj or chemical_obj:
-                return JsonResponse({'status': 'Success', 'message': f'Barcode {barcode_data} found'})
+            if chemical:
+                # Redirect to Add Chemical page with chemical data in query params
+                return JsonResponse({
+                    'status': 'Success',
+                    'redirect_url': f"/add/currentlyinstoragetable/?chem_id={chemical.chemID}"
+                })
 
-            return JsonResponse({'status': 'Failure', 'message': f'Barcode {barcode_data} not found'}, status=404)
+            return JsonResponse({'status': 'Failure', 'message': 'Barcode not found'}, status=404)
 
         except json.JSONDecodeError:
             return JsonResponse({'status': 'Failure', 'message': 'Invalid JSON'}, status=400)
-
-    return render(request, 'scan_barcode.html')
 
 @login_required
 def search_page(request):
@@ -228,6 +240,8 @@ def live_search_api(request):
 @login_required
 def add_chemical(request, model_name):
     return_value = ""
+
+    # Determine the form class based on model
     if model_name.lower() == 'currentlyinstoragetable':
         form_class = CurrChemicalForm
         return_value = "currchemicals"
@@ -237,6 +251,26 @@ def add_chemical(request, model_name):
     else:
         form_class = get_dynamic_form(model_name)
 
+    # If redirected from barcode scanner, attempt to prefill the form
+    initial_data = {}
+    if 'chem_id' in request.GET:
+        try:
+            chem_id = request.GET.get('chem_id')
+            chemical = allChemicalsTable.objects.get(chemID=chem_id)
+
+            # Prefill the form fields with chemical data
+            initial_data = {
+                'chemName': chemical.chemName,
+                'chemMaterial': chemical.chemMaterial,
+                'chemLocationRoom': chemical.chemLocationRoom,
+                'chemLocationShelf': chemical.chemLocationShelf,
+                'chemLocationCabinet': chemical.chemLocationCabinet,
+            }
+            if model_name.lower() == 'currentlyinstoragetable':
+                initial_data['chemAmountInBottle'] = chemical.chemAmountTotal
+        except allChemicalsTable.DoesNotExist:
+            messages.error(request, "Chemical not found in the database.")
+
     if request.method == 'POST':
         form = form_class(request.POST)
         if form.is_valid():
@@ -245,9 +279,10 @@ def add_chemical(request, model_name):
             messages.success(request, 'Chemical added successfully!')
             return redirect(return_value)
     else:
-        form = form_class()
+        form = form_class(initial=initial_data)  # Pass prefilled data to form
 
     return render(request, 'add_chemical.html', {'form': form, 'model_name': model_name})
+
 
 @login_required
 def scanner_add(request):

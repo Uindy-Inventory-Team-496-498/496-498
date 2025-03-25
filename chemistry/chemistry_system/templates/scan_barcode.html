@@ -89,20 +89,20 @@ Scan Barcode Tester
         Quagga.onProcessed(function (result) {
             let canvas = document.getElementById("overlay");
             let ctx = canvas.getContext("2d");
-            
+
             // Make sure canvas dimensions match the video
             canvas.width = document.getElementById('video').offsetWidth;
             canvas.height = document.getElementById('video').offsetHeight;
-            
+
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawings
 
             // Check if any barcode is being detected
             const hasBarcode = result && result.boxes && result.boxes.length > 0;
-            
+
             if (hasBarcode) {
                 barcodeInFrame = true;
                 noBarcodeCounter = 0; // Reset counter when we see a barcode
-                
+
                 ctx.strokeStyle = "red"; // Box color
                 ctx.lineWidth = 3;
                 result.boxes.forEach(box => {
@@ -119,7 +119,7 @@ Scan Barcode Tester
             } else {
                 // Increment counter when no barcode is detected
                 noBarcodeCounter++;
-                
+
                 // After several frames without a barcode, reset the message
                 if (noBarcodeCounter > NO_BARCODE_THRESHOLD && barcodeInFrame) {
                     document.getElementById("result").innerHTML = "Waiting for barcode...";
@@ -134,52 +134,34 @@ Scan Barcode Tester
         let processingBarcode = false;
 
         Quagga.onDetected(function (result) {
-            if (processingBarcode) return; // Don't process if we're already handling a barcode
+            if (processingBarcode) return;
 
-            let barcode = result.codeResult.code.toString().trim(); // Get the detected barcode
-            
-            // If this is the same barcode we just processed, ignore it
-            if (barcode === lastDetectedBarcode) {
-                return;
-            }
-            
-            console.log("Detected barcode:", barcode);
+            let barcode = result.codeResult.code.toString().trim();
+            if (barcode === lastDetectedBarcode) return;
+
             lastDetectedBarcode = barcode;
             processingBarcode = true;
-            barcodeInFrame = true; // Mark that a barcode is in frame
 
-            // Send the barcode to the Django server via a POST request
-            fetch('/scan_barcode/', {
+            fetch('/process_barcode/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for security
+                    'X-CSRFToken': '{{ csrf_token }}'
                 },
                 body: JSON.stringify({ barcode: barcode })
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Server responded with ${response.status}`); // Handle non-200 responses
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    let resultDiv = document.getElementById("result");
-
-                    if (data.message) {
-                        resultDiv.innerHTML = "<strong>Success!</strong>";
+                    if (data.status === 'Success' && data.redirect_url) {
+                        window.location.href = data.redirect_url;  // Redirect with chemical data
                     } else {
-                        resultDiv.innerHTML = "<strong>Failure!</strong>";
+                        document.getElementById("result").innerHTML = "<strong>Failure: " + data.message + "</strong>";
                     }
-                    
-                    // Allow processing new barcodes immediately
                     processingBarcode = false;
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     document.getElementById("result").innerHTML = `<strong>Error: ${error.message}</strong>`;
-                    
-                    // Allow processing new barcodes immediately
                     processingBarcode = false;
                 });
         });
