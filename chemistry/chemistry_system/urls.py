@@ -44,4 +44,5 @@ urlpatterns = [
     path('chemical-autocomplete/', ChemicalAutocomplete.as_view(), name='chemical-autocomplete'),
 
     path('show_all_chemicals/', views.show_all_chemicals, name='show_all_chemicals'),
+    path("index/", views.index, name="index"),
 ]

@@ -1,0 +1,45 @@
+<div class="border rounded-lg px-3 pt-3"
+    hx-target="chem-list" 
+    hx-swap="outerHTML show:top"
+    hx-include="#filter-form">
+
+    <div class="flex justify-between items-center">
+        <h2 class="text-lg font-bold">Filter</h2>
+        <a hx-get="{% url 'index' %}" 
+            hx-target="#chem-list" 
+            hx-swap="outerHTML"
+            hx-on::after-request="document.getElementById('filter-form').reset()"
+            class="text-blue-500 hover:text-blue-700 hover:underline text-xs cursor-pointer">
+            Clear all filters
+        </a>
+    </div>
+
+    <div class="divider my-2"></div>
+
+    <h3 class="font-bold">Transmission</h3>
+
+    <form id="filter-form" 
+    hx-get="{% url 'index' %}" 
+    hx-target="#chem-list" 
+    hx-swap="outerHTML"
+    hx-trigger="change from:input">
+    <div class="form-control">
+        <label class="cursor-pointer label justify-start">
+            <input type="checkbox" 
+                class="checkbox checkbox-info mr-2" 
+                name="chemMaterial"
+                value="Acid"/>
+            <span class="label-text">Acid</span>
+        </label>
+
+        <label class="cursor-pointer label justify-start">
+            <input type="checkbox" 
+                class="checkbox checkbox-info mr-2" 
+                name="chemMaterial"
+                value="Inorganics"/>
+            <span class="label-text">Inorganics</span>
+        </label>
+    </div>
+</form>
+
+</div>

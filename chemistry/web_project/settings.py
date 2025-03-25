@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'dal',
     'dal_select2',
     'django_filters',
+    'django_cotton'
 ]
 
 

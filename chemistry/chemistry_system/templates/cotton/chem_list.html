@@ -1,0 +1,61 @@
+<div id="chem-list" class="px-0 sm:px-2 lg:px-4">
+    <h1 class="text-2xl font-bold mb-4"></h1>
+
+    <!-- Responsive grid for smaller screens -->
+    <div class="grid gap-4 sm:hidden">
+        {% for chemical in page_obj %}
+        <div class="border border-gray-300 p-4 rounded-lg shadow">
+            <p><strong>Name:</strong> {{ chemical.chemName }}</p>
+            <p><strong>Material:</strong> {{ chemical.chemMaterial }}</p>
+            <p><strong>Concentration:</strong> {{ chemical.chemConcentration }}</p>
+            <p><strong>Location:</strong> Room: {{ chemical.chemLocationRoom }}, Cabinet: {{ chemical.chemLocationCabinet }}, Shelf: {{ chemical.chemLocationShelf }}</p>
+            <p><strong>Total Amount:</strong> {{ chemical.chemAmountTotal }} {{ chemical.chemAmountUnit }}</p>
+            <p><strong>Expected Amount:</strong> {{ chemical.chemAmountExpected }} {{ chemical.chemAmountUnit }}</p>
+            <p><strong>Stock %:</strong> {{ chemical.chemAmountPercentage }}%</p>
+            <p><strong>SDS:</strong> <a href="{{ chemical.chemSDS }}" class="text-blue-500 underline" target="_blank">View SDS</a></p>
+            <p><strong>Notes:</strong> {{ chemical.chemNotes }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Table for larger screens -->
+    <div class="hidden sm:block">
+        <div class="overflow-x-auto h-[calc(100vh-150px)]">
+            <table class="table-auto w-full border-collapse border border-gray-300 shadow-lg">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Material</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Concentration</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Location</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Total Amount</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Expected Amount</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Stock %</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">SDS</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chemical in page_obj %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemName }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemMaterial }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemConcentration }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemLocationRoom }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountTotal }} {{ chemical.chemAmountUnit }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountExpected }} {{ chemical.chemAmountUnit }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountPercentage }}%</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemSDS }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemNotes }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    
+                </tbody>
+            </table>
+
+            <c-pagination />
+        </div>
+    </div>
+
+</div>

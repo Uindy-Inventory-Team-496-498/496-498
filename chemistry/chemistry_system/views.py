@@ -16,6 +16,23 @@ from .filters import ChemicalFilter
 from dal import autocomplete
 from PIL import Image, ImageDraw, ImageFont
 
+def index(request):
+    chemMaterials = request.GET.getlist("chemMaterial")
+    chemicals = allChemicalsTable.objects.all()
+    if chemMaterials:
+        chemicals = chemicals.filter(chemMaterial__in=chemMaterials)
+    paginator = Paginator(chemicals, 5)
+
+    page_number = request.GET.get("page", 1)
+    page_obj = paginator.get_page(page_number)
+
+
+
+    context = {"page_obj": page_obj, "chemical_count": chemicals.count()}
+    if 'HX-Request' in request.headers:
+        return render(request, 'cotton/chem_list.html', context)
+    return render(request, "index.html", context)
+
 def show_all_chemicals(request):
     context = {}
 
