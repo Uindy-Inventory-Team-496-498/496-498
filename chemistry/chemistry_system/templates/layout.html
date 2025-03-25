@@ -38,10 +38,10 @@
 <body id="page-top">
     <div class="navbar">
         <a href="{% url 'home' %}" class="navbar-brand">Home</a>
-        <a href="{% url 'currchemicals' %}" class="navbar-item">Individual Bottles</a>
-        <a href="{% url 'allchemicals' %}" class="navbar-item">All Chemicals</a>
-        <a href="{% url 'allchem' 'allChemicals' %}" class="navbar-item">All Chemicals Testing</a>
-        <a href="{% url 'allchem' 'individualChemicals' %}" class="navbar-item">All Chemicals Testing</a>
+        <a href="{% url 'chem_display' 'allChemicals' %}" class="navbar-item">All Chemicals </a>
+        <a href="{% url 'chem_display' 'individualChemicals' %}" class="navbar-item">Individual Chemcials </a>
+        <a href="{% url 'currchemicals' %}" class="navbar-item">Individual Bottles Testing</a>
+        <a href="{% url 'allchemicals' %}" class="navbar-item">All Chemicals Testing</a>
         <a href="{% url 'search' %}" class="navbar-item">Search</a>
         <a href="{% url 'checkinandout' %}" class="navbar-item">Check Chemical In or Out</a>
         <a href="{% url 'print_page' %}" class="navbar-item">Print</a>
