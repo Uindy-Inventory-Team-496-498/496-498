@@ -11,3 +11,5 @@ django-cotton==0.9.32
 mysqlclient
 django-autocomplete-light
 django-filter
+django-tailwind
+django-tailwind[reload]

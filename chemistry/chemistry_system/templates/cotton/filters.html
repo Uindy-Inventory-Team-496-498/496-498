@@ -1,5 +1,5 @@
 <div class="border rounded-lg px-3 pt-3"
-    hx-target="chem-list" 
+    hx-target="#chem-list" 
     hx-swap="outerHTML show:top"
     hx-include="#filter-form">
 
@@ -8,7 +8,8 @@
         <a hx-get="{% url 'chem_display' table_name %}?entries_per_page={{ entries_per_page }}" 
             hx-target="#chem-list" 
             hx-swap="outerHTML"
-            hx-on::after-request="document.getElementById('filter-form').reset()"
+            hx-include="none"
+            hx-on::after-request="document.getElementById('filter-form').reset()" 
             class="text-blue-500 hover:text-blue-700 hover:underline text-xs cursor-pointer">
             Clear all filters
         </a>
