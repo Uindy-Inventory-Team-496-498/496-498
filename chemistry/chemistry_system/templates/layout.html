@@ -24,6 +24,22 @@
 </head>
 <body>
 
+    <div class="navbar">
+        <a href="{% url 'home' %}" class="navbar-brand">Home</a>
+        <a href="{% url 'currchemicals' %}" class="navbar-item">Individual Bottles</a>
+        <a href="{% url 'allchemicals' %}" class="navbar-item">All Chemicals</a>
+        <a href="{% url 'search' %}" class="navbar-item">Search</a>
+        <a href="{% url 'checkinandout' %}" class="navbar-item">Check Chemical In or Out</a>
+        <a href="{% url 'print_page' %}" class="navbar-item">Print</a>
+        <a href="{% url 'log' %}" class="navbar-item">Log of Actions</a>
+        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="navbar-item"
+                style="background: none; border: none; padding: 0; cursor: pointer; color: white">
+                Logout
+            </button>
+        </form>
+
 {% if user.is_authenticated %}
   <!-- Desktop Nav (≥768px) -->
   <div class="navbar desktop-nav">

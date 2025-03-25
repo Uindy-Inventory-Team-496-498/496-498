@@ -14,7 +14,7 @@ def get_model_by_name(model_name):
             'chemID', 'chemMaterial', 'chemName', 'chemConcentration', 
             'chemAmountUnit', 'chemLocationRoom', 
             'chemLocationCabinet', 'chemLocationShelf', 'chemSDS', 'chemNotes', 
-            'chemInstrument'
+            'chemInstrument', 'chemAmountExpected'  
         ]),
     }
     return model_mapping.get(model_name.lower())
@@ -26,7 +26,9 @@ class allChemicalsTable(models.Model):
     chemLocationRoom = models.CharField(max_length=255, default="None")
     chemLocationCabinet = models.CharField(max_length=255, default="None")
     chemLocationShelf = models.CharField(max_length=255, default="None")
-    chemAmountTotal = models.CharField(max_length=255, default="0")
+    chemAmountTotal = models.FloatField(default=0)
+    chemAmountExpected = models.FloatField(default=0) 
+    chemAmountPercentage = models.FloatField(default=0)
     chemAmountUnit = models.CharField(null = True, max_length=255)
     chemConcentration = models.CharField(null = True, max_length=255)
     chemSDS = models.CharField(null = True, max_length=20)
@@ -39,18 +41,22 @@ class allChemicalsTable(models.Model):
     def update_total_amount(self):
         total_amount = currentlyInStorageTable.objects.filter(chemAssociated=self).aggregate(Sum('chemAmountInBottle'))['chemAmountInBottle__sum'] or 0
         self.chemAmountTotal = total_amount
+        if self.chemAmountExpected > 0:
+            self.chemAmountPercentage = (total_amount / self.chemAmountExpected) * 100
+        else:
+            self.chemAmountPercentage = 0
         self.save()
         
 class currentlyInStorageTable(models.Model):
-    chemBottleIDNUM = models.IntegerField(primary_key=True)
-    chemAssociated = models.ForeignKey(allChemicalsTable, on_delete=models.CASCADE, default=1)
-    chemLocationRoom = models.CharField(max_length=255, default="None")
-    chemLocationCabinet = models.CharField(max_length=255, default="None")
-    chemLocationShelf = models.CharField(max_length=255, default="None")
-    chemAmountInBottle = models.CharField(max_length=255, default="0")
-    chemCheckedOut = models.BooleanField(default=False)
-    chemCheckedOutBy = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    chemCheckedOutDate = models.DateTimeField(null=True, blank=True)
+	chemBottleIDNUM = models.IntegerField(primary_key=True)
+	chemAssociated = models.ForeignKey(allChemicalsTable, null=True, blank=True, on_delete=models.CASCADE, default=1)
+	chemLocationRoom = models.CharField(max_length=255, default="None")
+	chemLocationCabinet = models.CharField(max_length=255, default="None")
+	chemLocationShelf = models.CharField(max_length=255, default="None")
+	chemAmountInBottle = models.CharField(max_length=255, default="0")
+	chemCheckedOut = models.BooleanField(default=False)
+	chemCheckedOutBy = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+	chemCheckedOutDate = models.DateTimeField(null=True, blank=True)
 
 class QRCodeData(models.Model):
     qr_code = models.CharField(max_length=255, unique=True)  # Field to store the QR code data

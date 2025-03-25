@@ -1,25 +1,26 @@
 from django.views.generic import ListView
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
-from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm, AllChemicalForm
+from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
-from django.views.decorators.http import require_POST
-from django.utils.timezone import now
 from django.core.paginator import Paginator
 from PIL import Image, ImageDraw, ImageFont
 from django.http import HttpResponse
+
 
 import qrcode
 import io
 import random
 import os
+import pytz
+
 from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
-from .forms import CustomLoginForm, get_dynamic_form, CSVUploadForm, CurrChemicalForm
-from .utils import update_total_amounts, logCall, generate_qr_pdf, export_chemicals_csv, import_chemicals_csv, update_checkout_status, populate_storage
+from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm
+from .utils import update_total_amounts, logCall, generate_qr_pdf, populate_storage
 from dal import autocomplete
 
 class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
@@ -37,6 +38,7 @@ class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
     def get_result_label(self, item):
         """Function that defines how the results appear in the dropdown"""
         return f"{item.chemName} ({item.chemConcentration})"
+    
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
     model = currentlyInStorageTable
@@ -47,9 +49,21 @@ class ChemListView(LoginRequiredMixin, ListView):
 
 @login_required
 def currchemicals(request):
-    chemical_list_db = currentlyInStorageTable.objects.select_related('chemAssociated').all()
+    query = request.GET.get('query', '').strip()
+    message = None
+
+    if query:
+        chemical_list_db = currentlyInStorageTable.objects.filter(
+            Q(chemAssociated__chemName__icontains=query) |
+            Q(chemBottleIDNUM__icontains=query)
+        )
+        if not chemical_list_db.exists():
+            message = "No results found."
+    else:
+        chemical_list_db = currentlyInStorageTable.objects.all()
+
     chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
-    chemical_locations = currentlyInStorageTable.objects.values_list('chemAssociated__chemLocationRoom', flat=True).distinct()
+    chemical_locations = currentlyInStorageTable.objects.values_list('chemLocationRoom', flat=True).distinct()
 
     # Get the number of entries per page from the request, default to 10
     entries_per_page = request.GET.get('entries_per_page', 10)
@@ -67,6 +81,8 @@ def currchemicals(request):
         'chemical_list_db': page_obj,
         'chemical_types': chemical_types,
         'chemical_locations': chemical_locations,
+        'query': query,
+        'message': message,
         'entries_per_page': entries_per_page,
         'total_entries': paginator.count
     })
@@ -291,10 +307,32 @@ def print_page(request):
 def generate_qr_pdf_view(request):
     return generate_qr_pdf(request)
 
+
 @login_required
 def log(request):
-    Log_entries = Log.objects.all()
-    return render(request, 'log.html', {'log': Log_entries})
+    query = request.GET.get('search', '')
+    query_date = request.GET.get('date', '')
+    log_entries = Log.objects.all().order_by('-date')  # Fetch logs ordered by date
+    if query_date:
+        print("WORKING")
+        log_entries = log_entries.filter(
+            date__icontains=query_date  # Search by date (if needed)
+        )
+    if query:
+        log_entries = log_entries.filter(
+            user__icontains=query  # Case-insensitive search for user
+        ) | log_entries.filter(
+            action__icontains=query  # Case-insensitive search for action
+        ) | log_entries.filter(
+            date__icontains=query  # Search by date (if needed)
+        )
+    
+    
+    paginator = Paginator(log_entries, 25)  # Show 10 logs per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)  # Get the requested page
+
+    return render(request, 'log.html', {'page_obj': page_obj, 'query': query})  
 
 @login_required
 def run_populate_storage(request):

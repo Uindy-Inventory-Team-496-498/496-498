@@ -90,6 +90,10 @@
         <label for="shelf">Shelf</label>
         <input type="checkbox" class="column-toggle" value="amount" checked onchange="toggleColumn(this)">
         <label for="amount">Amount</label>
+        <input type="checkbox" class="column-toggle" value="expected" checked onchange="toggleColumn(this)">
+        <label for="expected">Expected</label>
+        <input type="checkbox" class="column-toggle" value="percentage" checked onchange="toggleColumn(this)">
+        <label for="percentage">Percentage</label>
         <input type="checkbox" class="column-toggle" value="unit" checked onchange="toggleColumn(this)">
         <label for="unit">Unit</label>
         <input type="checkbox" class="column-toggle" value="concentration" checked onchange="toggleColumn(this)">
@@ -162,6 +166,12 @@
                 <th class="column-amount" onclick="sortList('chemical-table-body', 'amount')">
                     <div class="header-container">Amount <span id="sort-arrow-amount"></span></div>
                 </th>
+                <th class="column-epected" onclick="sortList('chemical-table-body', 'epected')">
+                    <div class="header-container">Expected <span id="sort-arrow-amount"></span></div>
+                </th>
+                <th class="column-percentage" onclick="sortList('chemical-table-body', 'percentage')">
+                    <div class="header-container">Percentage <span id="sort-arrow-amount"></span></div>
+                </th>
                 <th class="column-unit" onclick="sortList('chemical-table-body', 'unit')">
                     <div class="header-container">Unit <span id="sort-arrow-unit"></span></div>
                 </th>
@@ -191,6 +201,8 @@
                 <td class="column-cabinet" data-label="Cabinet">{{ chemical.chemLocationCabinet }}</td>
                 <td class="column-shelf" data-label="Shelf">{{ chemical.chemLocationShelf }}</td>
                 <td class="column-amount" data-label="Amount">{{ chemical.chemAmountTotal }}</td>
+                <td class="column-expected" data-label="Expected">{{ chemical.chemAmountExpected }}</td>
+                <td class="column-percentage" data-label="Percentage">{{ chemical.chemAmountPercentage|floatformat:2 }}%</td>
                 <td class="column-unit" data-label="Unit">{{ chemical.chemAmountUnit }}</td>
                 <td class="column-concentration" data-label="Concentration">{{ chemical.chemConcentration }}</td>
                 <td class="column-sds" data-label="SDS">{{ chemical.chemSDS }}</td>
@@ -255,4 +267,58 @@
     {% endif %}
 
     <script src="{% static 'site.js' %}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to save filter selections to local storage
+            function saveFilters() {
+                const filters = {
+                    type: Array.from(document.querySelectorAll('.type-choice:checked')).map(cb => cb.value),
+                    location: Array.from(document.querySelectorAll('.location-choice:checked')).map(cb => cb.value),
+                    sds: Array.from(document.querySelectorAll('.sds-choice:checked')).map(cb => cb.value),
+                    columns: Array.from(document.querySelectorAll('.column-toggle:checked')).map(cb => cb.value)
+                };
+                localStorage.setItem('all_chemicalFilters', JSON.stringify(filters));
+            }
+    
+            // Function to load filter selections from local storage
+            function loadFilters() {
+                const filters = JSON.parse(localStorage.getItem('all_chemicalFilters'));
+                if (filters) {
+                    document.querySelectorAll('.type-choice').forEach(cb => {
+                        cb.checked = filters.type.includes(cb.value);
+                    });
+                    document.querySelectorAll('.location-choice').forEach(cb => {
+                        cb.checked = filters.location.includes(cb.value);
+                    });
+                    document.querySelectorAll('.sds-choice').forEach(cb => {
+                        cb.checked = filters.sds.includes(cb.value);
+                    });
+                    document.querySelectorAll('.column-toggle').forEach(cb => {
+                        cb.checked = filters.columns.includes(cb.value);
+                    });
+                    filterList();
+                    toggleColumns();
+                }
+            }
+    
+            // Function to apply column visibility based on checkboxes
+            function toggleColumns() {
+                document.querySelectorAll('.column-toggle').forEach(cb => {
+                    const columnClass = `.column-${cb.value}`;
+                    document.querySelectorAll(columnClass).forEach(col => {
+                        col.style.display = cb.checked ? '' : 'none';
+                    });
+                });
+            }
+    
+            // Event listeners to save filters when they are changed
+            document.querySelectorAll('.type-choice, .location-choice, .sds-choice, .column-toggle').forEach(cb => {
+                cb.addEventListener('change', saveFilters);
+            });
+    
+            // Load filters on page load
+            loadFilters();
+        });
+    </script>
 {% endblock %}
