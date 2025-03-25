@@ -5,13 +5,13 @@
         </form>
 
         <form action="{% url 'export_chemicals_csv' %}" method="get">
-            <input type="hidden" name="model_name" value="allchemicalstable">
+            <input type="hidden" name="model_name" value="allChemicals">
             <button type="submit" class="button-style">Export as CSV</button>
         </form>
 
         <form action="{% url 'import_chemicals_csv' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <input type="hidden" name="model_name" value="allchemicalstable">
+            <input type="hidden" name="model_name" value="allChemicals">
             <input type="file" name="file" required class="file-input file-input-bordered file-input-sm">
             <button type="submit" class="button-style">Import CSV</button>
         </form>
@@ -21,7 +21,7 @@
     <div class="hidden sm:flex space-x-4">
         <form action="{% url 'delete_all_chemicals' %}" method="post">
             {% csrf_token %}
-            <input type="hidden" name="model_name" value="allchemicalstable">
+            <input type="hidden" name="model_name" value="allChemicals">
             <button type="submit" class="button-style btn-delete" onclick="return confirm('Are you sure you want to delete all chemicals? This action cannot be undone.')">Delete All</button>
         </form>
 

@@ -1,13 +1,13 @@
 from chemistry_system import views
 from .views import ChemicalAutocomplete
-from chemistry_system.models import currentlyInStorageTable
+from chemistry_system.models import individualChemicals, allChemicals
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from chemistry_system.utils import export_chemicals_csv, import_chemicals_csv, update_checkout_status  # Import the new views
 
 curr_list_view = views.ChemListView.as_view(
-    queryset=currentlyInStorageTable.objects.order_by("-chemBottleIDNUM"),
+    queryset=individualChemicals.objects.order_by("-chemBottleIDNUM"),
     context_object_name ="chemical_list_db",
     template_name = "currchemicals.html",
 )
@@ -27,7 +27,7 @@ urlpatterns = [
     path('currchemicals/', views.currchemicals, name='currchemicals'),
     path('allchemicals/', views.allchemicals, name='allchemicals'),
     
-    path('current_chemicals/', views.list_chemicals, {'model_name': 'currentlyinstoragetable'}, name='current_chemicals'),
+    path('current_chemicals/', views.list_chemicals, {'model_name': 'individualChemicals'}, name='current_chemicals'),
     path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
     path('edit_chemical/<str:model_name>/<int:pk>/', views.edit_chemical, name='edit_chemical'),
     path('delete_chemical/<str:model_name>/<int:pk>/', views.delete_chemical, name='delete_chemical'),
@@ -44,6 +44,6 @@ urlpatterns = [
     path('chemical-autocomplete/', ChemicalAutocomplete.as_view(), name='chemical-autocomplete'),
 
     path('show_all_chemicals/', views.show_all_chemicals, name='show_all_chemicals'),
-    path("allchem/", views.allchem, name="allchem"),
+    path("allchem/<str:table_name>/", views.allchem, name="allchem"),
     path('force-update-total-amount/', views.force_update_total_amount, name='force_update_total_amount'),
 ]

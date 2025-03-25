@@ -1,6 +1,6 @@
 [
     {
-        "model": "chemistry_system.currentlyinstoragetable",
+        "model": "chemistry_system.individualChemicals",
         "pk": 1,
         "fields": {
             "chemBottleIDNUM": 1,
@@ -10,7 +10,7 @@
         }
     },
     {
-        "model": "chemistry_system.currentlyinstoragetable",
+        "model": "chemistry_system.individualChemicals",
         "pk": 2,
         "fields": {
             "chemBottleIDNUM": 2,
@@ -20,7 +20,7 @@
         }
     },
     {
-        "model": "chemistry_system.currentlyinstoragetable",
+        "model": "chemistry_system.individualChemicals",
         "pk": 3,
         "fields": {
             "chemBottleIDNUM": 3,

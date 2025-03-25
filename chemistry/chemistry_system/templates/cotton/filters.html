@@ -5,7 +5,7 @@
 
     <div class="flex justify-between items-center">
         <h2 class="text-lg font-bold">Filter</h2>
-        <a hx-get="{% url 'allchem' %}" 
+        <a hx-get="{% url 'allchem' table_name %}" 
             hx-target="#chem-list" 
             hx-swap="outerHTML"
             hx-on::after-request="document.getElementById('filter-form').reset()"
@@ -17,7 +17,7 @@
     <div class="divider my-2"></div>
 
     <form id="filter-form" 
-    hx-get="{% url 'allchem' %}" 
+    hx-get="{% url 'allchem' table_name %}" 
     hx-target="#chem-list" 
     hx-swap="outerHTML"
     hx-trigger="change from:input">

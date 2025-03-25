@@ -15,20 +15,20 @@
 
         <div style="flex: 1; text-align: right;">
             <form action="{% url 'export_chemicals_csv' %}" method="get" style="display:inline;">
-                <input type="hidden" name="model_name" value="allchemicalstable">
+                <input type="hidden" name="model_name" value="allChemicals">
                 <button type="submit" class="button-style">Export as CSV</button>
             </form>
 
             <form action="{% url 'import_chemicals_csv' %}" method="post" enctype="multipart/form-data" style="display:inline;">
                 {% csrf_token %}
-                <input type="hidden" name="model_name" value="allchemicalstable">
+                <input type="hidden" name="model_name" value="allChemicals">
                 <input type="file" name="file" required>
                 <button type="submit" class="button-style">Import CSV</button>
             </form>
 
             <form action="{% url 'delete_all_chemicals' %}" method="post" style="display:inline;">
                 {% csrf_token %}
-                <input type="hidden" name="model_name" value="allchemicalstable">
+                <input type="hidden" name="model_name" value="allChemicals">
                 <button type="submit" class="button-style" onclick="return confirm('Are you sure you want to delete all chemicals? This action cannot be undone.')">Delete All</button>
             </form>
         </div>
@@ -210,13 +210,13 @@
                 <td class="column-instrument" data-label="Instrument">{{ chemical.chemInstrument }}</td>
                 <td data-label="Edit">
                     <!-- Edit Chemical Button -->
-                    <form action="{% url 'edit_chemical' 'allchemicalstable' chemical.chemID %}" method="get" style="display:inline;">
+                    <form action="{% url 'edit_chemical' 'allChemicals' chemical.chemID %}" method="get" style="display:inline;">
                         <button type="submit" class="button-style">Edit</button>
                     </form>
                 </td>
                 <td data-label="Delete">
                     <!-- Delete Chemical Button -->
-                    <form method="POST" action="{% url 'delete_chemical' 'allchemicalstable' chemical.chemID %}" style="display:inline;">
+                    <form method="POST" action="{% url 'delete_chemical' 'allChemicals' chemical.chemID %}" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" onclick="return confirm('Are you sure you want to delete this chemical?')" class="button-style">Delete</button>
                     </form>

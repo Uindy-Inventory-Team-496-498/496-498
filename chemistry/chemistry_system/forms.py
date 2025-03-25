@@ -1,7 +1,7 @@
 from dal import autocomplete
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from chemistry_system.models import currentlyInStorageTable, allChemicalsTable, get_model_by_name
+from chemistry_system.models import individualChemicals, allChemicals, get_model_by_name
 
 class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(label='Username', max_length=150)
@@ -35,12 +35,12 @@ def get_dynamic_form(model_name):
 
 class AllChemicalForm(forms.ModelForm):
     class Meta:
-        model = allChemicalsTable
+        model = allChemicals
         fields = '__all__'  # Include all fields from the model
 
 class CurrChemicalForm(forms.ModelForm):
     chemAssociated = forms.ModelChoiceField(
-        queryset=allChemicalsTable.objects.all(),
+        queryset=allChemicals.objects.all(),
         label="Associated Chemical",
         widget=autocomplete.ModelSelect2(
             url='chemical-autocomplete',
@@ -54,7 +54,7 @@ class CurrChemicalForm(forms.ModelForm):
     )
 
     class Meta:
-        model = currentlyInStorageTable
+        model = individualChemicals
         fields = '__all__'  # Include all fields from the model
 
 class CSVUploadForm(forms.Form):
