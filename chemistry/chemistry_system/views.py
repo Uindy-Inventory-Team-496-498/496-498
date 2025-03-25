@@ -228,13 +228,13 @@ def process_barcode(request):
             if not barcode_data:
                 return JsonResponse({'status': 'Failure', 'message': 'No barcode received'}, status=400)
 
-            chemical = allChemicalsTable.objects.filter(chemManufacturerBarcode=barcode_data).first()
+            chemical = allChemicals.objects.filter(chemManufacturerBarcode=barcode_data).first()
 
             if chemical:
                 # Redirect to Add Chemical page with chemical data in query params
                 return JsonResponse({
                     'status': 'Success',
-                    'redirect_url': f"/add/currentlyinstoragetable/?chem_id={chemical.chemID}"
+                    'redirect_url': f"/add/individualchemicals/?chem_id={chemical.chemID}"
                 })
 
             return JsonResponse({'status': 'Failure', 'message': 'Barcode not found'}, status=404)
@@ -320,7 +320,7 @@ def add_chemical(request, model_name):
     if 'chem_id' in request.GET:
         try:
             chem_id = request.GET.get('chem_id')
-            chemical = allChemicalsTable.objects.get(chemID=chem_id)
+            chemical = allChemicals.objects.get(chemID=chem_id)
 
             # Prefill the form fields with chemical data
             initial_data = {
@@ -332,7 +332,7 @@ def add_chemical(request, model_name):
             }
             if model_name.lower() == 'currentlyinstoragetable':
                 initial_data['chemAmountInBottle'] = chemical.chemAmountTotal
-        except allChemicalsTable.DoesNotExist:
+        except allChemicals.DoesNotExist:
             messages.error(request, "Chemical not found in the database.")
 
     if request.method == 'POST':

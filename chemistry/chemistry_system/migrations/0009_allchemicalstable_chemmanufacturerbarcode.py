@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='allchemicalstable',
+            model_name='allchemicals',
             name='chemManufacturerBarcode',
             field=models.CharField(max_length=255, null=True),
         ),
