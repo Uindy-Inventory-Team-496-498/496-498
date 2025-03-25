@@ -107,11 +107,11 @@ Log a Chemical
             if (referrer.includes("allchemicals")) {
                 gotoHref = "/allchemicals";
                 addForm.action = "/add/allChemicals/";
-            } else if (referrer.includes("allchem")) {
-                gotoHref = "/allchem";
+            } else if (referrer.includes("chem_display")) {
+                gotoHref = "/chem_display/allChemicals";
                 addForm.action = "/add/allChemicals/";
             } else if (referrer.includes("currchemicals")) {
-                gotoHref = "/currchemicals";
+                gotoHref = "/currchemicals/individualChemicals";
                 addForm.action = "/add/individualChemicals/";
             }
 

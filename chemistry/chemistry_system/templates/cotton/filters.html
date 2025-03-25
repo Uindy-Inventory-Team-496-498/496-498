@@ -5,7 +5,7 @@
 
     <div class="flex justify-between items-center">
         <h2 class="text-lg font-bold">Filter</h2>
-        <a hx-get="{% url 'allchem' table_name %}" 
+        <a hx-get="{% url 'chem_display' table_name %}?entries_per_page={{ entries_per_page }}" 
             hx-target="#chem-list" 
             hx-swap="outerHTML"
             hx-on::after-request="document.getElementById('filter-form').reset()"
@@ -17,10 +17,13 @@
     <div class="divider my-2"></div>
 
     <form id="filter-form" 
-    hx-get="{% url 'allchem' table_name %}" 
+    hx-get="{% url 'chem_display' table_name %}" 
     hx-target="#chem-list" 
     hx-swap="outerHTML"
     hx-trigger="change from:input">
+        <!-- Hidden input to persist entries_per_page -->
+        <input type="hidden" name="entries_per_page" value="{{ entries_per_page }}">
+
         <div class="form-control grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
             <div class="flex flex-col space-y-1">
                 <h3 class="font-bold">Material</h3>

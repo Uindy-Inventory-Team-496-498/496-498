@@ -17,7 +17,7 @@ from dal import autocomplete
 from PIL import Image, ImageDraw, ImageFont
 from django.http import Http404
 
-def allchem(request, table_name):
+def chem_display(request, table_name):
     model_class = get_model_by_name(table_name)
     if not model_class:
         raise Http404(f"Table '{table_name}' does not exist.")
@@ -25,7 +25,13 @@ def allchem(request, table_name):
     model, _ = model_class  # Extract the model class
     chemMaterials = request.GET.getlist("chemMaterial")
     ChemLocationRoom = request.GET.getlist("chemLocationRoom")
-    entries_per_page = request.GET.get("entries_per_page", 10)  # Default to 10
+    entries_per_page = request.GET.get("entries_per_page", "10")  # Default to "10"
+    
+    try:
+        entries_per_page = int(entries_per_page) if entries_per_page != "all" else "all"
+    except ValueError:
+        entries_per_page = 10  # Fallback to default if invalid
+
     chemicals = model.objects.all()
 
     if chemMaterials:
@@ -36,7 +42,7 @@ def allchem(request, table_name):
     if entries_per_page == "all":
         paginator = Paginator(chemicals, chemicals.count())  # Show all items
     else:
-        paginator = Paginator(chemicals, int(entries_per_page))
+        paginator = Paginator(chemicals, entries_per_page)
 
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
@@ -57,7 +63,7 @@ def allchem(request, table_name):
     if 'HX-Request' in request.headers:
         return render(request, 'cotton/chem_list.html', context)
 
-    return render(request, "allchem.html", context)
+    return render(request, "chem_display.html", context)
 
 def show_all_chemicals(request):
     context = {}
@@ -392,7 +398,7 @@ def log(request): # DONT MODIFY THIS FUNCTION
 def run_populate_storage(request):
     populate_storage()
     messages.success(request, 'Database populated with dummy data successfully!')
-    return redirect('currchemicals')
+    return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect to the referring page
 
 @login_required
 def force_update_total_amount(request):
@@ -400,4 +406,4 @@ def force_update_total_amount(request):
     for chemical in chemicals:
         chemical.update_total_amount()
     messages.success(request, 'Total amounts updated for all chemicals successfully!')
-    return redirect('allchem')
+    return redirect('chem_display')

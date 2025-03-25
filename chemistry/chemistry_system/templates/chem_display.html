@@ -22,7 +22,11 @@
 
         <!-- Chemicals List Section -->
         <section class="col-span-1 lg:col-span-8">
-            <c-chem-list />
+            {% if table_name == "individualChemicals" %}
+                <c-chem-list-indiv />
+            {% elif table_name == "allChemicals" %}
+                <c-chem-list />
+            {% endif %}
         </section>
     </div>
 </div>

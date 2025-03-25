@@ -44,6 +44,6 @@ urlpatterns = [
     path('chemical-autocomplete/', ChemicalAutocomplete.as_view(), name='chemical-autocomplete'),
 
     path('show_all_chemicals/', views.show_all_chemicals, name='show_all_chemicals'),
-    path("allchem/<str:table_name>/", views.allchem, name="allchem"),
+    path("chem_display/<str:table_name>/", views.chem_display, name="chem_display"),
     path('force-update-total-amount/', views.force_update_total_amount, name='force_update_total_amount'),
 ]
