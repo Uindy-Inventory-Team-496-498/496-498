@@ -65,11 +65,16 @@ def chem_display(request, table_name):
 
     return render(request, "chem_display.html", context)
 
-def allchem(request):
+def allchem(request, table_name):
+    model_class = get_model_by_name(table_name)
+    if not model_class:
+        raise Http404(f"Table '{table_name}' does not exist.")
+    
+    model, _ = model_class  # Extract the model class
     chemMaterials = request.GET.getlist("chemMaterial")
     ChemLocationRoom = request.GET.getlist("chemLocationRoom")
     entries_per_page = request.GET.get("entries_per_page", 10)  # Default to 10
-    chemicals = allChemicalsTable.objects.all()
+    chemicals = model.objects.all()
 
     if chemMaterials:
         chemicals = chemicals.filter(chemMaterial__in=chemMaterials)
@@ -85,8 +90,8 @@ def allchem(request):
     page_obj = paginator.get_page(page_number)
 
     # Fetch distinct values for filters
-    distinct_materials = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
-    distinct_locations = allChemicalsTable.objects.values_list('chemLocationRoom', flat=True).distinct()
+    distinct_materials = model.objects.values_list('chemMaterial', flat=True).distinct()
+    distinct_locations = model.objects.values_list('chemLocationRoom', flat=True).distinct()
 
     context = {
         "page_obj": page_obj,
@@ -94,6 +99,7 @@ def allchem(request):
         "distinct_materials": distinct_materials,
         "distinct_locations": distinct_locations,
         "entries_per_page": entries_per_page,
+        "table_name": table_name,  # Pass table_name to the context
     }
 
     if 'HX-Request' in request.headers:

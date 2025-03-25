@@ -40,7 +40,8 @@
         <a href="{% url 'home' %}" class="navbar-brand">Home</a>
         <a href="{% url 'currchemicals' %}" class="navbar-item">Individual Bottles</a>
         <a href="{% url 'allchemicals' %}" class="navbar-item">All Chemicals</a>
-        <a href="{% url 'allchem' %}" class="navbar-item">All Chemicals Testing</a>
+        <a href="{% url 'allchem' 'allChemicals' %}" class="navbar-item">All Chemicals Testing</a>
+        <a href="{% url 'allchem' 'individualChemicals' %}" class="navbar-item">All Chemicals Testing</a>
         <a href="{% url 'search' %}" class="navbar-item">Search</a>
         <a href="{% url 'checkinandout' %}" class="navbar-item">Check Chemical In or Out</a>
         <a href="{% url 'print_page' %}" class="navbar-item">Print</a>
