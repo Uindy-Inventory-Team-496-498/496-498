@@ -1,52 +1,116 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <meta charset="utf-8" />
-    <title>{% block title %}{% endblock %}</title>
-    {% load static %}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}{% endblock %}</title>
+  {% load static %}
 
-    <!-- Load jQuery first -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{% static 'autocomplete_light/autocomplete_light.js' %}"></script>
+  <!-- jQuery (if needed) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Then load Select2 -->
-    <script src="{% static 'autocomplete_light/select2.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'autocomplete_light/select2.css' %}">
+  <!-- Optional Autocomplete / Select2 -->
+  <script src="{% static 'autocomplete_light/autocomplete_light.js' %}"></script>
+  <script src="{% static 'autocomplete_light/select2.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'autocomplete_light/select2.css' %}">
 
-    <link rel="stylesheet" type="text/css" href="{% static 'site.css' %}" />
-    {{ form.media }}
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="{% static 'site.css' %}" />
+  {{ form.media }}
 </head>
-
 <body>
+
 {% if user.is_authenticated %}
-<div class="navbar">
+  <!-- Desktop Nav (≥768px) -->
+  <div class="navbar desktop-nav">
     <a href="{% url 'home' %}" class="navbar-brand">Home</a>
-    <a href="{% url 'currchemicals' %}" class="navbar-item">Chemicals DB</a>
-    <a href="{% url 'allchemicals' %}" class="navbar-item">All Chemicals</a>
-    <a href="{% url 'search' %}" class="navbar-item">Search</a>
-    <a href="{% url 'scan' %}" class="navbar-item" target="_blank">Access Scanner Test</a>
-    <a href="{% url 'checkinandout' %}" class="navbar-item">Check Chemical In or Out</a>
-    <a href="{% url 'print_page' %}" class="navbar-item">Print</a>
-    <a href="{% url 'log' %}" class="navbar-item">Log of Actions</a>
+    <a href="{% url 'currchemicals' %}">Chemicals DB</a>
+    <a href="{% url 'allchemicals' %}">All Chemicals</a>
+    <a href="{% url 'search' %}">Search</a>
+    <a href="{% url 'scan' %}">Scanner</a>
+    <a href="{% url 'checkinandout' %}">Check In/Out</a>
+    <a href="{% url 'print_page' %}">Print</a>
+    <a href="{% url 'log' %}">Log</a>
     <div class="logout-container">
-      <form method="post" action="{% url 'logout' %}" style="display: inline;">
-          {% csrf_token %}
-          <button type="submit" class="navbar-item logout-button">
-              Logout
-          </button>
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="logout-button">Logout</button>
       </form>
     </div>
-</div>
+  </div>
+
+  <!-- Mobile Top Bar (<768px) -->
+  <div class="mobile-top-bar">
+    <div id="hamburgerBtn" class="mobile-hamburger">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </div>
+    <div class="uindy-logo">
+      <img src="{% static 'images/U-Of-I-Logo.png' %}" alt="Logo">
+    </div>
+  </div>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-nav-links" id="mobileNav">
+    <div class="drawer-profile">
+      <div class="profile-text">
+        <strong>{{ user.username }}</strong>
+        <span class="profile-email">{{ user.email|default_if_none:"[No email]" }}</span>
+      </div>
+    </div>
+    <h3 style="color: #fff; margin: 0 0 8px;">Chemistry Inventory</h3>
+    <hr style="border-color: rgba(255,255,255,0.3); margin: 10px 0;" />
+
+    <a href="{% url 'home' %}"><i class="fa fa-home"></i> Home</a>
+    <a href="{% url 'currchemicals' %}"><i class="fa fa-flask"></i> Chemicals DB</a>
+    <a href="{% url 'allchemicals' %}"><i class="fa fa-list-alt"></i> All Chemicals</a>
+    <a href="{% url 'search' %}"><i class="fa fa-search"></i> Search</a>
+    <a href="{% url 'scan' %}"><i class="fa fa-qrcode"></i> Scanner</a>
+    <a href="{% url 'checkinandout' %}"><i class="fa fa-exchange-alt"></i> Check In/Out</a>
+    <a href="{% url 'print_page' %}"><i class="fa fa-print"></i> Print</a>
+    <a href="{% url 'log' %}"><i class="fa fa-history"></i> Log</a>
+
+    <!-- Logout in middle -->
+    <form method="post" action="{% url 'logout' %}" class="logout-form">
+      {% csrf_token %}
+      <button type="submit" class="logout-button">
+        <i class="fa fa-sign-out-alt"></i> Logout
+      </button>
+    </form>
+  </div>
+  <div class="mobile-overlay" id="overlay"></div>
 {% endif %}
 
 <div class="body-content">
-    {% block content %}{% endblock %}
-    <hr/>
-    <footer>
-        <p>&copy; 2024</p>
-    </footer>
+  {% block content %}{% endblock %}
+  <hr/>
+  <footer><p>&copy; 2025</p></footer>
 </div>
-</body>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const menuBtn = document.getElementById("hamburgerBtn");
+    const mobileNav = document.getElementById("mobileNav");
+    const overlay = document.getElementById("overlay");
+
+    menuBtn.addEventListener("click", () => {
+      mobileNav.classList.toggle("active-drawer");
+      overlay.classList.toggle("show-overlay");
+    });
+    overlay.addEventListener("click", () => {
+      mobileNav.classList.remove("active-drawer");
+      overlay.classList.remove("show-overlay");
+    });
+  });
+</script>
+
+<!-- Optionally add your site.js or sorting/filtering scripts here -->
+<script src="{% static 'site.js' %}"></script>
+
+</body>
 </html>

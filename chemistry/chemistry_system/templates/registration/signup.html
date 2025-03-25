@@ -7,14 +7,14 @@
 <div class="auth-container">
     <div class="auth-box">
         <img src="{% static 'images/uindy-logo.png' %}" alt="UIndy Logo" class="logo">
-        <h2 class="login-title">Sign Up</h2>
+        <p class="subheading">Sign Up</p>
 
         <form method="post">
             {% csrf_token %}
 
             <div class="form-group">
-                <label for="id_username">Username:</label>
-                <input type="text" name="username" id="id_username" placeholder="Enter your username" required>
+                <label for="id_username">Email:</label>
+                <input type="text" name="username" id="id_username" placeholder="Enter your Email" required>
                 <small class="form-text">
                     150 characters max. Letters, digits, and @/./+/-/_ only.
                 </small>
