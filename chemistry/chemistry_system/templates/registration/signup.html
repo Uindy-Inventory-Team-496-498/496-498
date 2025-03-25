@@ -13,16 +13,16 @@
             {% csrf_token %}
 
             <div class="form-group">
-                <label for="id_username">Email:</label>
-                <input type="text" name="username" id="id_username" placeholder="Enter your Email" required>
+                <label>Email:</label>
+                <input type="text" name="username" placeholder="Enter your Email" required>
                 <small class="form-text">
                     150 characters max. Letters, digits, and @/./+/-/_ only.
                 </small>
             </div>
 
             <div class="form-group">
-                <label for="id_password1">Password:</label>
-                <input type="password" name="password1" id="id_password1" placeholder="Enter your password" required>
+                <label>Password:</label>
+                <input type="password" name="password1" placeholder="Enter your password" required>
                 <ul class="form-text">
                     <li>Your password must contain at least 8 characters.</li>
                     <li>It can’t be too similar to your personal info.</li>
@@ -32,8 +32,8 @@
             </div>
 
             <div class="form-group">
-                <label for="id_password2">Confirm Password:</label>
-                <input type="password" name="password2" id="id_password2" placeholder="Re-enter your password" required>
+                <label>Confirm Password:</label>
+                <input type="password" name="password2" placeholder="Re-enter your password" required>
                 <small class="form-text">
                     Make sure both passwords match.
                 </small>
