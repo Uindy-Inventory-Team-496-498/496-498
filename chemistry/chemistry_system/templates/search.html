@@ -28,15 +28,20 @@
 </div>
 
 <div class="results-container">
-    <!-- Conditionally show headings based on query/results -->
+    <!-- Optional message from the view -->
+    {% if message %}
+        <p class="alert-message">{{ message }}</p>
+    {% endif %}
+
+    <!-- Dynamic Title and Messages -->
     {% if query and not results %}
         <h2 class="results-title">No Results Found</h2>
-        <p class="no-results-msg">No results found for '{{ query }}'.</p>
+        <p class="no-results">No results found for '{{ query }}'.</p>
     {% elif query %}
         <h2 class="results-title">Chemical Search Results</h2>
     {% else %}
         <h2 class="results-title">Search Chemical</h2>
-        <p class="no-results-msg">Enter a search query to find chemicals.</p>
+        <p class="no-results">Enter a search query to find chemicals.</p>
     {% endif %}
 
     <!-- If there are results, show the table -->
@@ -45,7 +50,7 @@
             Found {{ results|length }} result{{ results|pluralize }} for ({{ query }})
         </p>
 
-        <div class="table-responsive">
+        <div class="table-container">
             <table class="results-table">
                 <thead>
                     <tr>
@@ -63,18 +68,18 @@
                 </thead>
                 <tbody>
                     {% for item in results %}
-                    <tr>
-                        <td data-label="Bottle ID">{{ item.chemBottleIDNUM }}</td>
-                        <td data-label="Material">{{ item.chemAssociated.chemMaterial }}</td>
-                        <td data-label="Name">{{ item.chemAssociated.chemName }}</td>
-                        <td data-label="Cabinet">{{ item.chemLocationCabinet }}</td>
-                        <td data-label="Shelf">{{ item.chemLocationShelf }}</td>
-                        <td data-label="Amount">{{ item.chemAmountInBottle }}</td>
-                        <td data-label="Unit">{{ item.chemAssociated.chemAmountUnit }}</td>
-                        <td data-label="Concentration">{{ item.chemAssociated.chemConcentration }}</td>
-                        <td data-label="SDS">{{ item.chemAssociated.chemSDS }}</td>
-                        <td data-label="Instrument">{{ item.chemAssociated.chemInstrument }}</td>                        
-                    </tr>
+                        <tr>
+                            <td>{{ item.chemBottleIDNUM }}</td>
+                            <td>{{ item.chemAssociated.chemMaterial }}</td>
+                            <td>{{ item.chemAssociated.chemName }}</td>                           
+                            <td>{{ item.chemLocationCabinet }}</td>
+                            <td>{{ item.chemLocationShelf }}</td>
+                            <td>{{ item.chemAmountInBottle }}</td>
+                            <td>{{ item.chemAssociated.chemAmountUnit }}</td>
+                            <td>{{ item.chemAssociated.chemConcentration }}</td>
+                            <td>{{ item.chemAssociated.chemSDS }}</td>
+                            <td>{{ item.chemAssociated.chemInstrument }}</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -93,7 +98,7 @@
                         {% if page_num == results.number %}
                             <span class="pagination-link active">{{ page_num }}</span>
                         {% else %}
-                            <a href="?query={{ query }}&page={{ page_num }}"
+                            <a href="?query={{ query }}&page={{ page_num }}" 
                                class="pagination-link">{{ page_num }}</a>
                         {% endif %}
                     {% endif %}
@@ -108,6 +113,9 @@
     {% endif %}
 </div>
 
-<!-- Link to your enhanced live-search script -->
+<!-- Live Search JS -->
 <script src="{% static 'js/live-search.js' %}"></script>
+
+
+
 {% endblock %}
