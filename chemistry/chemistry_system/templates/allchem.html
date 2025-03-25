@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+    All Chemicals
+{% endblock %}
+
+{% block content %}
+
+<div class="md:px-1 lg:px-[1vw]">
+    <button class="btn lg:hidden mb-2" id="show-filter-btn">Show filters</button>
+
+    <section class="grid">
+        <c-utilities />
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-10 gap-x-4">
+        <!-- Filters Section -->
+        <section class="hidden lg:grid col-span-1 lg:col-span-2 w-full lg:w-auto" id="filters">
+            <c-filters />
+        </section>
+
+        <!-- Chemicals List Section -->
+        <section class="col-span-1 lg:col-span-8">
+            <c-chem-list />
+        </section>
+    </div>
+</div>
+
+<script>
+    let btn = document.getElementById('show-filter-btn');
+    btn.addEventListener('click', (e) => {
+        let filterSection = document.getElementById('filters');
+        if (filterSection.classList.contains('hidden')) {
+            filterSection.classList.remove('hidden');
+            filterSection.classList.add('grid');
+            filterSection.classList.add('col-span-1');
+            filterSection.classList.add('mb-4');
+            e.target.textContent = 'Hide filters';
+        } else {
+            filterSection.classList.add('hidden');
+            filterSection.classList.remove('grid');
+            filterSection.classList.remove('col-span-1');
+            filterSection.classList.remove('mb-4');
+            e.target.textContent = 'Show filters';
+        }
+    });
+</script>
+
+{% endblock %}
