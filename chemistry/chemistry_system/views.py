@@ -13,8 +13,8 @@ from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemi
 from .utils import logCall, generate_qr_pdf, populate_storage
 from .filters import ChemicalFilter
 
-from dal import autocomplete
-from PIL import Image, ImageDraw, ImageFont
+from dal import autocomplete # type: ignore
+from PIL import Image, ImageDraw, ImageFont # type: ignore
 from django.http import Http404
 
 def chem_display(request, table_name):

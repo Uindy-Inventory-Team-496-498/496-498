@@ -46,4 +46,7 @@ urlpatterns = [
     path('show_all_chemicals/', views.show_all_chemicals, name='show_all_chemicals'),
     path("chem_display/<str:table_name>/", views.chem_display, name="chem_display"),
     path('force-update-total-amount/', views.force_update_total_amount, name='force_update_total_amount'),
+
+    path("__reload__/", include("django_browser_reload.urls")),  # Add this line
+
 ]
