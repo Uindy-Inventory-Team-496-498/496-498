@@ -9,18 +9,32 @@
             <p><strong>Material:</strong> {{ chemical.chemMaterial }}</p>
             <p><strong>Concentration:</strong> {{ chemical.chemConcentration }}</p>
             <p><strong>Location:</strong> Room: {{ chemical.chemLocationRoom }}, Cabinet: {{ chemical.chemLocationCabinet }}, Shelf: {{ chemical.chemLocationShelf }}</p>
-            <p><strong>Total Amount:</strong> {{ chemical.chemAmountTotal }} {{ chemical.chemAmountUnit }}</p>
-            <p><strong>Expected Amount:</strong> {{ chemical.chemAmountExpected }} {{ chemical.chemAmountUnit }}</p>
-            <p><strong>Stock %:</strong> {{ chemical.chemAmountPercentage }}%</p>
-            <p><strong>SDS:</strong> <a href="{{ chemical.chemSDS }}" class="text-blue-500 underline" target="_blank">View SDS</a></p>
-            <p><strong>Notes:</strong> {{ chemical.chemNotes }}</p>
+            <p><strong>Total Amount:</strong> {{ chemical.chemAmountTotal }}  {{ chemical.chemAmountUnit }}</p>
+            <p><strong>Expected Amount:</strong> {{ chemical.chemAmountExpected }}  {{ chemical.chemAmountUnit }}</p>
+            <p><strong>Stock %:</strong> {{ chemical.chemAmountPercentage|floatformat:2 }}%</p>
+            <p><strong>SDS:</strong> {{ chemical.chemSDS }}</p>
+            <p>
+                <form action="{% url 'edit_chemical' 'allchemicalstable' chemical.chemID %}" method="get" style="display:inline;">
+                    <button type="submit" class="button-style">Edit</button>
+                </form>
+            </p>
+            <p>
+                <form method="POST" action="{% url 'delete_chemical' 'allchemicalstable' chemical.chemID %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete this chemical?')" class="button-style">Delete</button>
+                </form>
+            </p>
+            
         </div>
         {% endfor %}
+
+        <c-pagination />
     </div>
 
     <!-- Table for larger screens -->
     <div class="hidden sm:block">
         <div class="overflow-x-auto h-[calc(100vh-150px)]">
+            <c-pagination />
             <table class="table-auto w-full border-collapse border border-gray-300 shadow-lg">
                 <thead class="bg-gray-100">
                     <tr>
@@ -33,6 +47,8 @@
                         <th class="border border-gray-300 px-4 py-2 text-left">Stock %</th>
                         <th class="border border-gray-300 px-4 py-2 text-left">SDS</th>
                         <th class="border border-gray-300 px-4 py-2 text-left">Notes</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Edit</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,11 +58,24 @@
                         <td class="border border-gray-300 px-4 py-2">{{ chemical.chemMaterial }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ chemical.chemConcentration }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ chemical.chemLocationRoom }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountTotal }} {{ chemical.chemAmountUnit }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountExpected }} {{ chemical.chemAmountUnit }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountPercentage }}%</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountTotal }}  {{ chemical.chemAmountUnit }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountExpected }}  {{ chemical.chemAmountUnit }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountPercentage|floatformat:2 }}%</td>
                         <td class="border border-gray-300 px-4 py-2">{{ chemical.chemSDS }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ chemical.chemNotes }}</td>
+                        <td data-label="Edit">
+                            <!-- Edit Chemical Button -->
+                            <form action="{% url 'edit_chemical' 'allchemicalstable' chemical.chemID %}" method="get" style="display:inline;">
+                                <button type="submit" class="button-style">Edit</button>
+                            </form>
+                        </td>
+                        <td data-label="Delete">
+                            <!-- Delete Chemical Button -->
+                            <form method="POST" action="{% url 'delete_chemical' 'allchemicalstable' chemical.chemID %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" onclick="return confirm('Are you sure you want to delete this chemical?')" class="button-style">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                     {% endfor %}
 
@@ -54,7 +83,6 @@
                 </tbody>
             </table>
 
-            <c-pagination />
         </div>
     </div>
 

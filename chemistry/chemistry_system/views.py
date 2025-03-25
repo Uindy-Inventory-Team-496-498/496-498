@@ -10,28 +10,47 @@ from django.core.paginator import Paginator
 
 from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
-from .utils import update_total_amounts, logCall, generate_qr_pdf, populate_storage
+from .utils import logCall, generate_qr_pdf, populate_storage
 from .filters import ChemicalFilter
 
 from dal import autocomplete
 from PIL import Image, ImageDraw, ImageFont
 
-def index(request):
+def allchem(request):
     chemMaterials = request.GET.getlist("chemMaterial")
+    ChemLocationRoom = request.GET.getlist("chemLocationRoom")
+    entries_per_page = request.GET.get("entries_per_page", 10)  # Default to 10
     chemicals = allChemicalsTable.objects.all()
+
     if chemMaterials:
         chemicals = chemicals.filter(chemMaterial__in=chemMaterials)
-    paginator = Paginator(chemicals, 5)
+    if ChemLocationRoom:
+        chemicals = chemicals.filter(chemLocationRoom__in=ChemLocationRoom)
+
+    if entries_per_page == "all":
+        paginator = Paginator(chemicals, chemicals.count())  # Show all items
+    else:
+        paginator = Paginator(chemicals, int(entries_per_page))
 
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
+    # Fetch distinct values for filters
+    distinct_materials = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
+    distinct_locations = allChemicalsTable.objects.values_list('chemLocationRoom', flat=True).distinct()
 
+    context = {
+        "page_obj": page_obj,
+        "chemical_count": chemicals.count(),
+        "distinct_materials": distinct_materials,
+        "distinct_locations": distinct_locations,
+        "entries_per_page": entries_per_page,
+    }
 
-    context = {"page_obj": page_obj, "chemical_count": chemicals.count()}
     if 'HX-Request' in request.headers:
         return render(request, 'cotton/chem_list.html', context)
-    return render(request, "index.html", context)
+
+    return render(request, "allchem.html", context)
 
 def show_all_chemicals(request):
     context = {}
@@ -367,3 +386,11 @@ def run_populate_storage(request):
     populate_storage()
     messages.success(request, 'Database populated with dummy data successfully!')
     return redirect('currchemicals')
+
+@login_required
+def force_update_total_amount(request):
+    chemicals = allChemicalsTable.objects.all()
+    for chemical in chemicals:
+        chemical.update_total_amount()
+    messages.success(request, 'Total amounts updated for all chemicals successfully!')
+    return redirect('allchem')

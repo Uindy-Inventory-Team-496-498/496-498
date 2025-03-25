@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db.models import Sum  # Add this import
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 def get_model_by_name(model_name):
     model_mapping = {
@@ -65,7 +67,19 @@ class QRCodeData(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+# Signal to update total amount when a record is saved in currentlyInStorageTable
+@receiver(post_save, sender=currentlyInStorageTable)
+def update_total_amount_on_save(sender, instance, **kwargs):
+    if instance.chemAssociated:
+        instance.chemAssociated.update_total_amount()
+
+# Signal to update total amount when a record is deleted from currentlyInStorageTable
+@receiver(post_delete, sender=currentlyInStorageTable)
+def update_total_amount_on_delete(sender, instance, **kwargs):
+    if instance.chemAssociated:
+        instance.chemAssociated.update_total_amount()
+
 class Log(models.Model):
     user = models.CharField(max_length=255)
     action = models.CharField(max_length=255)

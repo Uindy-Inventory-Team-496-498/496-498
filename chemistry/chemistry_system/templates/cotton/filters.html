@@ -5,7 +5,7 @@
 
     <div class="flex justify-between items-center">
         <h2 class="text-lg font-bold">Filter</h2>
-        <a hx-get="{% url 'index' %}" 
+        <a hx-get="{% url 'allchem' %}" 
             hx-target="#chem-list" 
             hx-swap="outerHTML"
             hx-on::after-request="document.getElementById('filter-form').reset()"
@@ -16,30 +16,37 @@
 
     <div class="divider my-2"></div>
 
-    <h3 class="font-bold">Transmission</h3>
-
     <form id="filter-form" 
-    hx-get="{% url 'index' %}" 
+    hx-get="{% url 'allchem' %}" 
     hx-target="#chem-list" 
     hx-swap="outerHTML"
     hx-trigger="change from:input">
-    <div class="form-control">
-        <label class="cursor-pointer label justify-start">
-            <input type="checkbox" 
-                class="checkbox checkbox-info mr-2" 
-                name="chemMaterial"
-                value="Acid"/>
-            <span class="label-text">Acid</span>
-        </label>
+        <div class="form-control grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+            <div class="flex flex-col space-y-1">
+                <h3 class="font-bold">Material</h3>
+                {% for material in distinct_materials %}
+                <label class="cursor-pointer label justify-start">
+                    <input type="checkbox" 
+                        class="checkbox checkbox-info mr-2" 
+                        name="chemMaterial"
+                        value="{{ material }}"/>
+                    <span class="label-text">{{ material }}</span>
+                </label>
+                {% endfor %}
+            </div>
 
-        <label class="cursor-pointer label justify-start">
-            <input type="checkbox" 
-                class="checkbox checkbox-info mr-2" 
-                name="chemMaterial"
-                value="Inorganics"/>
-            <span class="label-text">Inorganics</span>
-        </label>
-    </div>
-</form>
-
+            <div class="flex flex-col space-y-1">
+                <h3 class="font-bold">Location</h3>
+                {% for location in distinct_locations %}
+                <label class="cursor-pointer label justify-start">
+                    <input type="checkbox" 
+                        class="checkbox checkbox-info mr-2" 
+                        name="chemLocationRoom"
+                        value="{{ location }}"/>
+                    <span class="label-text">{{ location }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+    </form>
 </div>

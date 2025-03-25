@@ -97,7 +97,7 @@ Log a Chemical
 
         let gotoHref = "/";
 
-document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
             const referrer = document.referrer;
             const returnForm = document.getElementById('return-form');
             const addForm = document.getElementById('add-form');
@@ -105,24 +105,19 @@ document.addEventListener("DOMContentLoaded", function () {
             let gotoHref = "/";
 
             if (referrer.includes("allchemicals")) {
-                gotoHref = "/allchemicalstable";
+                gotoHref = "/allchemicals";
+                addForm.action = "/add/allchemicalstable/";
+            } else if (referrer.includes("allchem")) {
+                gotoHref = "/allchem";
                 addForm.action = "/add/allchemicalstable/";
             } else if (referrer.includes("currchemicals")) {
-                gotoHref = "/currentlyinstoragetable";
+                gotoHref = "/currchemicals";
                 addForm.action = "/add/currentlyinstoragetable/";
             }
-            if (gotoHref === "/currentlyinstoragetable") {
-                returnForm.action = "/currchemicals";
-            } else if (gotoHref === "/allchemicalstable") {
-                returnForm.action = "/allchemicals";
-            } else {
-                returnForm.action = gotoHref;;
-            }
-            
 
             returnForm.action = gotoHref;
 
-    window.gotoHref = gotoHref;
+            window.gotoHref = gotoHref;
         });
 
         window.scanner = scanner;
