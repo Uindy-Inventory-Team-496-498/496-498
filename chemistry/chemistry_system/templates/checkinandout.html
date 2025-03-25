@@ -55,7 +55,7 @@ Log a Chemical
                 scanningEnabled = false;
 
                 // Fetch the chemical by its QR code (chem_id)
-                fetch(`/update-checkout-status/currentlyinstoragetable/${qrCodeValue}/`, {
+                fetch(`/update-checkout-status/individualChemicals/${qrCodeValue}/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

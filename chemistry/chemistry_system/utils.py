@@ -14,22 +14,9 @@ from django.utils.timezone import now
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import redirect
-from .models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
+from .models import allChemicals, individualChemicals, Log, get_model_by_name
 from .forms import CSVUploadForm
 from datetime import timedelta
-
-def update_total_amounts():
-    # Aggregate the total amounts for each chemical in currentlyInStorageTable
-    total_amounts = currentlyInStorageTable.objects.values('chemAssociated').annotate(total=Sum('chemAmountInBottle'))
-
-    # Create a dictionary for quick lookup
-    total_amounts_dict = {item['chemAssociated']: item['total'] for item in total_amounts}
-
-    # Update the total amounts in allChemicalsTable
-    chemicals = allChemicalsTable.objects.all()
-    for chemical in chemicals:
-        chemical.chemAmountTotal = total_amounts_dict.get(chemical.chemID, 0)
-        chemical.save()
 
 def logCall(user: str, action: str):
     try:
@@ -123,12 +110,12 @@ def generate_qr_pdf(request):
     return response
 
 def export_chemicals_csv(request):
-    model_name = request.GET.get('model_name', 'currentlyinstoragetable')
+    model_name = request.GET.get('model_name', 'individualChemicals')
     model_class, required_fields = get_model_by_name(model_name)
     
     if not model_class:
         messages.error(request, 'Invalid model name.')
-        return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
+        return redirect('currchemicals' if model_name == 'individualChemicals' else 'allchemicals')
 
     chemicals = model_class.objects.all()
     response = HttpResponse(content_type='text/csv')
@@ -155,7 +142,7 @@ def export_chemicals_csv(request):
 @require_POST
 def import_chemicals_csv(request):
     form = CSVUploadForm(request.POST, request.FILES)
-    model_name = request.POST.get('model_name', 'currentlyinstoragetable')
+    model_name = request.POST.get('model_name', 'individualChemicals')
     model_class, required_fields = get_model_by_name(model_name)
     
     if form.is_valid() and model_class:
@@ -171,9 +158,9 @@ def import_chemicals_csv(request):
                 
                 if 'chemAssociated' in defaults:
                     try:
-                        defaults['chemAssociated'] = allChemicalsTable.objects.get(pk=defaults['chemAssociated'])
-                    except allChemicalsTable.DoesNotExist:
-                        messages.error(request, f"Chemical with ID {defaults['chemAssociated']} does not exist in allChemicalsTable.")
+                        defaults['chemAssociated'] = allChemicals.objects.get(pk=defaults['chemAssociated'])
+                    except allChemicals.DoesNotExist:
+                        messages.error(request, f"Chemical with ID {defaults['chemAssociated']} does not exist in allChemicals.")
                         continue
                 
                 model_class.objects.update_or_create(
@@ -183,17 +170,17 @@ def import_chemicals_csv(request):
                 row_count += 1
             except KeyError as e:
                 messages.error(request, f"Missing field in CSV: {e}")
-                return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
+                return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect to the referring page
             except Exception as e:
                 messages.error(request, f"Error importing row: {e}")
-                return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
+                return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect to the referring page
         
         logCall(request.user.username, f"Imported {row_count} rows into {model_name}")
         messages.success(request, 'Chemicals imported successfully!')
     else:
         messages.error(request, 'Failed to import chemicals. Please check the file format.')
 
-    return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
+    return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect to the referring page
 
 def update_checkout_status(request, model_name, qrcode_value):
     try:
@@ -228,16 +215,16 @@ def update_checkout_status(request, model_name, qrcode_value):
 
 def populate_storage():
     # Clear existing data
-    currentlyInStorageTable.objects.all().delete()
+    individualChemicals.objects.all().delete()
 
     # Get all chemical records
-    all_chemicals = list(allChemicalsTable.objects.all())
+    all_chemicals = list(allChemicals.objects.all())
 
     # Generate dummy data
     bottle_id = 1
     for chem in all_chemicals:
         for _ in range(1):  # Create x bottles for each chemical
-            currentlyInStorageTable.objects.create(
+            individualChemicals.objects.create(
                 chemBottleIDNUM=bottle_id,
                 chemAssociated=chem,
                 chemLocationRoom=chem.chemLocationRoom,
