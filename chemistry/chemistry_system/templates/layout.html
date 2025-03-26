@@ -1,16 +1,10 @@
-{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet"> <!-- Tailwind + DaisyUI -->
-    <script src="https://unpkg.com/htmx.org@2.0.2" integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ" crossorigin="anonymous"></script>
-
-    <title>{% block title %}{% endblock %}</title>
-    {% load static %}
+  <meta charset="utf-8" />
+  <!-- For mobile responsiveness -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}{% endblock %}</title>
 
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,25 +28,7 @@
   <link rel="stylesheet" href="{% static 'site.css' %}" />
   {{ form.media }}
 </head>
-
-<body id="page-top">
-    <div class="navbar">
-        <a href="{% url 'home' %}" class="navbar-brand">Home</a>
-        <a href="{% url 'chem_display' 'allChemicals' %}" class="navbar-item">All Chemicals </a>
-        <a href="{% url 'chem_display' 'individualChemicals' %}" class="navbar-item">Individual Chemcials </a>
-        <a href="{% url 'currchemicals' %}" class="navbar-item">Individual Bottles Testing</a>
-        <a href="{% url 'allchemicals' %}" class="navbar-item">All Chemicals Testing</a>
-        <a href="{% url 'search' %}" class="navbar-item">Search</a>
-        <a href="{% url 'checkinandout' %}" class="navbar-item">Check Chemical In or Out</a>
-        <a href="{% url 'print_page' %}" class="navbar-item">Print</a>
-        <a href="{% url 'log' %}" class="navbar-item">Log of Actions</a>
-        <form method="post" action="{% url 'logout' %}" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" class="navbar-item"
-                style="background: none; border: none; padding: 0; cursor: pointer; color: white">
-                Logout
-            </button>
-        </form>
+<body>
 
 {% if user.is_authenticated %}
   <!-- Desktop Nav (≥768px) -->
