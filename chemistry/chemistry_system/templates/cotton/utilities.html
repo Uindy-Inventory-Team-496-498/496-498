@@ -27,12 +27,12 @@
 
         <form action="{% url 'force_update_total_amount' %}" method="post">
             {% csrf_token %}
-            <button type="submit" class="button-style">Force Update Totals</button>
+            <button type="submit" class="button-style">Update Totals for All Chem</button>
         </form>
 
         <form action="{% url 'run_populate_storage' %}" method="post" style="display:inline;">
             {% csrf_token %}
-            <button type="submit" class="button-style">Populate Database</button>
+            <button type="submit" class="button-style">Populate Individ Chem DB</button>
         </form>
     </div>
 </div>
