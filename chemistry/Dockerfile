@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y curl
 RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash - &&\
     apt-get install -y nodejs
 
-RUN npm install daisyui
+
 
 # Install pip requirements
 COPY requirements.txt .
@@ -40,8 +40,9 @@ WORKDIR /app/chemistry_system/static_src
 # Copy the package.json and package-lock.json files
 COPY chemistry_system/static_src/package.json chemistry_system/static_src/package-lock.json ./
 
-# Install Node.js dependencies
+# Install Node.js dependencies + DaisyUI
 RUN npm install
+RUN npm install daisyui
 
 # Build the Tailwind CSS
 RUN npm run build
