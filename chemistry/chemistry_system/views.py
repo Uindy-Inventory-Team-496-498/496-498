@@ -389,7 +389,7 @@ def log(request): # DONT MODIFY THIS FUNCTION
     
     
     paginator = Paginator(log_entries, 25)  # Show 10 logs per page
-    page_number = request.GET.get('page')
+    page_number = request.GET.get('page') # Get page number
     page_obj = paginator.get_page(page_number)  # Get the requested page
 
     return render(request, 'log.html', {'page_obj': page_obj, 'query': query})  
