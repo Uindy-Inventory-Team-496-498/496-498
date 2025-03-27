@@ -6,7 +6,7 @@
 
         <form action="{% url 'export_chemicals_csv' %}" method="get">
             <input type="hidden" name="model_name" value="allChemicals">
-            <button type="submit" class="button-style">Export as CSV</button>
+            <button type="submit" class="button-style">Export CSV</button>
         </form>
 
         <form action="{% url 'import_chemicals_csv' %}" method="post" enctype="multipart/form-data">

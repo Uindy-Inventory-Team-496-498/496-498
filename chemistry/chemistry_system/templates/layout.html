@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}{% endblock %}</title>
 
+  
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/htmx.org@2.0.2" integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ" crossorigin="anonymous"></script>
 
   {% load static %}
@@ -25,7 +25,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
   <!-- Main CSS -->
-  <link rel="stylesheet" href="{% static 'site.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/site.css' %}" />
+  <!-- Tailwind + DaisyUI -->
+  <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet"> 
+
   {{ form.media }}
 </head>
 <body>
