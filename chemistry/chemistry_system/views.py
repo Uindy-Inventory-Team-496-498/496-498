@@ -312,7 +312,7 @@ def add_chemical(request, model_name):
     return_value = ""
     if model_name.lower() == 'individualChemicals':
         form_class = CurrChemicalForm
-        return_value = "currchemicals"
+        return_value = "individualChemicals"
     elif model_name.lower() == 'allChemicals':
         form_class = AllChemicalForm
         return_value = "allchemicals"
