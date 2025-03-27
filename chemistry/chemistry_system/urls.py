@@ -24,11 +24,11 @@ urlpatterns = [
     path("search/", views.search_page, name="search"),
     path('live-search-api/', views.live_search_api, name='live_search_api'),
     path('checkinandout/', views.checkinandout, name='checkinandout'),
-    path('currchemicals/', views.currchemicals, name='currchemicals'),
+    path('currchemicals/', curr_list_view, name='currchemicals'),
     path('allchemicals/', views.allchemicals, name='allchemicals'),
     
     path('current_chemicals/', views.list_chemicals, {'model_name': 'individualChemicals'}, name='current_chemicals'),
-    path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
+    path('add/individualchemicals/<str:model_name>/', views.add_chemical, name='add_chemical'),
     path('edit_chemical/<str:model_name>/<int:pk>/', views.edit_chemical, name='edit_chemical'),
     path('delete_chemical/<str:model_name>/<int:pk>/', views.delete_chemical, name='delete_chemical'),
     path('scanner_add/', views.scanner_add, name='scanner_add'),
@@ -41,7 +41,6 @@ urlpatterns = [
     path('download-qr-pdf/', views.generate_qr_pdf_view, name='download_qr_pdf'), 
     path('log/', views.log, name='log'),
     path('run-populate-storage/', views.run_populate_storage, name='run_populate_storage'),  # Add the URL pattern
-    path('chemical-autocomplete/', ChemicalAutocomplete.as_view(), name='chemical-autocomplete'),
 
     path('show_all_chemicals/', views.show_all_chemicals, name='show_all_chemicals'),
     path("chem_display/<str:table_name>/", views.chem_display, name="chem_display"),

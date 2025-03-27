@@ -15,12 +15,12 @@ Log a Chemical
     <form id="add-form" action="" method="get" style="flex: 1;">
         <button type="submit">Manually Add</button>
     </form>
-
+    
     <h1>Scan from WebCam:</h1>
     <div id="video-container">
         <video id="qr-video" width="240" height="240"></video>
     </div>
-
+    
     <b>Device has camera: </b>
     <span id="cam-has-camera"></span>
     <br>
@@ -31,34 +31,38 @@ Log a Chemical
             <option value="user">User Facing</option>
         </select>
     </div>
-
+    
     <b>QR Code Scanned Result: </b>
     <span id="cam-qr-result">None</span>
-
+    
     <script type="module">
         import QrScanner from "{% static 'js/qr-scanner.min.js' %}";
-
+    
         const video = document.getElementById('qr-video');
         const camHasCamera = document.getElementById('cam-has-camera');
         const camList = document.getElementById('cam-list');
         const camQrResult = document.getElementById('cam-qr-result');
         let scanningEnabled = true;
         let lastQrCode = "";
-
+    
         async function handleQrCodeResult(label, qrCodeValue) {
             if (!scanningEnabled || qrCodeValue === lastQrCode) return;
-
+    
             lastQrCode = qrCodeValue;
             label.textContent = qrCodeValue;
             scanningEnabled = false;
+    
             try {
                 const response = await fetch(`/search_by_qr/?chem_id=${encodeURIComponent(qrCodeValue)}`);
+                
                 if (response.status === 404) {
-                    window.location.href = `/add${window.gotoHref}/?chem_id=${encodeURIComponent(qrCodeValue)}`;
+                    // Dynamically determine add URL based on previous page
+                    const addUrl = window.addActionPath || '/add/individualchemicals/';
+                    window.location.href = `${addUrl}?chem_id=${encodeURIComponent(qrCodeValue)}`;
                 } else if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-
+    
                 const data = await response.json();
                 if (data.chemName) {
                     alert(`Chemical with Bottle ID: ${data.chemBottleIDNUM} already exists!`);
@@ -71,7 +75,7 @@ Log a Chemical
                 }, 1000);
             }
         }
-
+    
         const scanner = new QrScanner(video, result => handleQrCodeResult(camQrResult, result.data), {
             onDecodeError: error => {
                 console.error("QR Code Decode Error:", error);
@@ -79,7 +83,7 @@ Log a Chemical
             highlightScanRegion: true,
             highlightCodeOutline: true,
         });
-
+    
         scanner.start().then(() => {
             QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
                 const option = document.createElement('option');
@@ -88,50 +92,62 @@ Log a Chemical
                 camList.add(option);
             }));
         });
-
+    
         QrScanner.hasCamera().then(hasCamera => camHasCamera.textContent = hasCamera);
-
+    
         camList.addEventListener('change', event => {
             scanner.setCamera(event.target.value);
         });
-
-        let gotoHref = "/";
-
+    
         document.addEventListener("DOMContentLoaded", function () {
             const referrer = document.referrer;
             const returnForm = document.getElementById('return-form');
             const addForm = document.getElementById('add-form');
-
-            let gotoHref = "/";
-
-            if (referrer.includes("allchemicals")) {
-                gotoHref = "/allchemicals";
-                addForm.action = "/add/allChemicals/";
+    
+            let gotoHref = "/"; // Default
+            let addActionPath = "/add/individualchemicals/"; // Default
+    
+            console.log("Referrer detected:", referrer);
+    
+            if (referrer.includes("currchemicals")) {
+                gotoHref = "/currchemicals/";
+                addActionPath = "/add/individualchemicals/";
+            } else if (referrer.includes("chem_display/individualChemicals")) {
+                gotoHref = "/chem_display/individualChemicals";
+                addActionPath = "/add/individualchemicals/";
             } else if (referrer.includes("chem_display")) {
                 gotoHref = "/chem_display/allChemicals";
-                addForm.action = "/add/allChemicals/";
-            } else if (referrer.includes("currchemicals")) {
-                gotoHref = "/currchemicals/individualChemicals";
-                addForm.action = "/add/individualChemicals/";
+                addActionPath = "/add/allchemicals/";
+            } else if (referrer.includes("allchemicals")) {
+                gotoHref = "/allchemicals";
+                addActionPath = "/add/allchemicals/";
+            } else {
+                console.warn("Unexpected referrer:", referrer);
             }
-
+    
             returnForm.action = gotoHref;
-
+            addForm.action = addActionPath;
+            
+            // Make addActionPath globally accessible
+            window.addActionPath = addActionPath;
             window.gotoHref = gotoHref;
+    
+            console.log("Add Action Path:", addActionPath);
+            console.log("Goto Href:", gotoHref);
         });
-
+    
         window.scanner = scanner;
     </script>
-
+    
     <style>
         div {
             margin-bottom: 16px;
         }
-
+    
         #video-container {
             line-height: 0;
         }
-
+    
         input[type="file"] {
             display: block;
             margin-bottom: 16px;

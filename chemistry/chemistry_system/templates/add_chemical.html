@@ -7,7 +7,7 @@
 {% block content %}
     <h2>Add a New Chemical</h2>
 
-    {% if model_name == "currentlyinstoragetable" %}
+    {% if model_name == "individualchemicals" %}
     <form action="{% url 'scan_barcode' %}" method="get" style="flex: 1;">
         <button type="submit" class="button-style">Scan Manufacturer Barcode</button>
     </form>
