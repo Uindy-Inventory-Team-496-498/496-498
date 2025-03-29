@@ -6,7 +6,7 @@
     <div class="flex justify-between items-center mb-4">
         <form method="get" class="flex items-center">
             <label for="entries_per_page" class="mr-2">Items per page:</label>
-            <select name="entries_per_page" id="entries_per_page" class="select select-bordered select-sm" onchange="this.form.submit()">
+            <select name="entries_per_page" id="entries_per_page" class="select select-bordered select-sm leading-tight" onchange="this.form.submit()">
                 <option value="10" {% if request.GET.entries_per_page == '10' %}selected{% endif %}>10</option>
                 <option value="25" {% if request.GET.entries_per_page == '25' %}selected{% endif %}>25</option>
                 <option value="50" {% if request.GET.entries_per_page == '50' %}selected{% endif %}>50</option>

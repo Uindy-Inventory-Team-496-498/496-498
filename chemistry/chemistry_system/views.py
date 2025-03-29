@@ -13,11 +13,59 @@ from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemi
 from .utils import logCall, generate_qr_pdf, populate_storage
 from .filters import ChemicalFilter
 
-from dal import autocomplete
-from PIL import Image, ImageDraw, ImageFont
+from dal import autocomplete # type: ignore
+from PIL import Image, ImageDraw, ImageFont # type: ignore
 from django.http import Http404
 
 def chem_display(request, table_name):
+    model_class = get_model_by_name(table_name)
+    if not model_class:
+        raise Http404(f"Table '{table_name}' does not exist.")
+    
+    model, _ = model_class  # Extract the model class
+    chemMaterials = request.GET.getlist("chemMaterial")
+    ChemLocationRoom = request.GET.getlist("chemLocationRoom")
+    entries_per_page = request.GET.get("entries_per_page", "10")  # Default to "10"
+    
+    try:
+        entries_per_page = int(entries_per_page) if entries_per_page != "all" else "all"
+    except ValueError:
+        entries_per_page = 10  # Fallback to default if invalid
+
+    chemicals = model.objects.all()
+
+    if chemMaterials:
+        chemicals = chemicals.filter(chemMaterial__in=chemMaterials)
+    if ChemLocationRoom:
+        chemicals = chemicals.filter(chemLocationRoom__in=ChemLocationRoom)
+
+    if entries_per_page == "all":
+        paginator = Paginator(chemicals, chemicals.count())  # Show all items
+    else:
+        paginator = Paginator(chemicals, entries_per_page)
+
+    page_number = request.GET.get("page", 1)
+    page_obj = paginator.get_page(page_number)
+
+    # Fetch distinct values for filters
+    distinct_materials = model.objects.values_list('chemMaterial', flat=True).distinct()
+    distinct_locations = model.objects.values_list('chemLocationRoom', flat=True).distinct()
+
+    context = {
+        "page_obj": page_obj,
+        "chemical_count": chemicals.count(),
+        "distinct_materials": distinct_materials,
+        "distinct_locations": distinct_locations,
+        "entries_per_page": entries_per_page,
+        "table_name": table_name,  # Pass table_name to the context
+    }
+
+    if 'HX-Request' in request.headers:
+        return render(request, 'cotton/chem_list.html', context)
+
+    return render(request, "chem_display.html", context)
+
+def allchem(request, table_name):
     model_class = get_model_by_name(table_name)
     if not model_class:
         raise Http404(f"Table '{table_name}' does not exist.")
@@ -264,7 +312,7 @@ def add_chemical(request, model_name):
     return_value = ""
     if model_name.lower() == 'individualChemicals':
         form_class = CurrChemicalForm
-        return_value = "currchemicals"
+        return_value = "individualChemicals"
     elif model_name.lower() == 'allChemicals':
         form_class = AllChemicalForm
         return_value = "allchemicals"

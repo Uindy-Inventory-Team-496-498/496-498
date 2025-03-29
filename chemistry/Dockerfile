@@ -20,6 +20,12 @@ RUN apt-get update && apt-get install -y \
 
 RUN apt-get update && apt-get install -y netcat-openbsd
 
+RUN apt-get update && apt-get install -y curl 
+RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash - &&\
+    apt-get install -y nodejs
+
+
+
 # Install pip requirements
 COPY requirements.txt .
 RUN python -m pip install --no-cache-dir --upgrade pip && \
@@ -27,6 +33,24 @@ RUN python -m pip install --no-cache-dir --upgrade pip && \
 
 WORKDIR /app
 COPY . /app
+
+# Set the working directory for Tailwind CSS
+WORKDIR /app/chemistry_system/static_src
+
+# Copy the package.json and package-lock.json files
+COPY chemistry_system/static_src/package.json chemistry_system/static_src/package-lock.json ./
+
+# Install Node.js dependencies + DaisyUI
+RUN npm install
+RUN npm install daisyui
+
+# Build the Tailwind CSS
+RUN npm run build
+
+WORKDIR /app
+RUN SECRET_KEY=nothing python manage.py tailwind install --no-input; 
+RUN SECRET_KEY=nothing python manage.py tailwind build --no-input; 
+RUN SECRET_KEY=nothing python manage.py collectstatic --no-input;
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app

@@ -43,8 +43,12 @@ INSTALLED_APPS = [
     'dal',
     'dal_select2',
     'django_filters',
-    'django_cotton'
+    'django_cotton',
+    'tailwind',
+    'django_browser_reload'
 ]
+
+TAILWIND_APP_NAME = 'chemistry_system'
 
 
 MIDDLEWARE = [
@@ -55,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
 ]
 
 ROOT_URLCONF = 'web_project.urls'
@@ -123,6 +128,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -130,6 +138,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATIC_ROOT = BASE_DIR / 'static_collected'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'chemistry_system/static',  # Static files in the chemistry_system app
+    BASE_DIR / 'chemistry_system/static_src',  # Tailwind CSS files
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
