@@ -1,14 +1,12 @@
-<div class="border rounded-lg px-3 pt-3"
+<div id="filter-list" class="border rounded-lg px-3 pt-3"
     hx-target="#chem-list" 
     hx-swap="outerHTML show:top"
-    hx-include="#filter-form">
+    hx-include="#filter-form"
+    hx-include="#filter-list">
 
     <div class="flex justify-between items-center">
         <h2 class="text-lg font-bold">Filter</h2>
         <a hx-get="{% url 'chem_display' table_name %}?entries_per_page={{ entries_per_page }}" 
-            hx-target="#chem-list" 
-            hx-swap="outerHTML"
-            hx-include="none"
             hx-on::after-request="document.getElementById('filter-form').reset()" 
             class="text-blue-500 hover:text-blue-700 hover:underline text-xs cursor-pointer">
             Clear all filters
@@ -19,8 +17,6 @@
 
     <form id="filter-form" 
     hx-get="{% url 'chem_display' table_name %}" 
-    hx-target="#chem-list" 
-    hx-swap="outerHTML"
     hx-trigger="change from:input">
         <!-- Hidden input to persist entries_per_page -->
         <input type="hidden" name="entries_per_page" value="{{ entries_per_page }}">
@@ -28,26 +24,30 @@
         <div class="form-control grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
             <div class="flex flex-col space-y-1">
                 <h3 class="font-bold">Material</h3>
-                {% for material in distinct_materials %}
+                {% for material, counts in material_counts_dict.items %}
                 <label class="cursor-pointer label justify-start">
                     <input type="checkbox" 
                         class="checkbox checkbox-info mr-2" 
                         name="chemMaterial"
                         value="{{ material }}"/>
-                    <span class="label-text">{{ material }}</span>
+                    <span class="label-text">
+                        {{ material }} ({{ counts }})
+                    </span>
                 </label>
                 {% endfor %}
             </div>
 
             <div class="flex flex-col space-y-1">
                 <h3 class="font-bold">Location</h3>
-                {% for location in distinct_locations %}
+                {% for location, counts in location_counts_dict.items %}
                 <label class="cursor-pointer label justify-start">
                     <input type="checkbox" 
                         class="checkbox checkbox-info mr-2" 
                         name="chemLocationRoom"
                         value="{{ location }}"/>
-                    <span class="label-text">{{ location }}</span>
+                    <span class="label-text">
+                        {{ location }} ({{ counts }})
+                    </span>
                 </label>
                 {% endfor %}
             </div>

@@ -35,18 +35,17 @@ urlpatterns = [
     path('add/<str:model_name>/', views.add_chemical, name='add_chemical'),
     path('export_chemicals_csv/', export_chemicals_csv, name='export_chemicals_csv'),  
     path('import_chemicals_csv/', import_chemicals_csv, name='import_chemicals_csv'),  
-    path('update-checkout-status/<str:model_name>/<str:qrcode_value>/', update_checkout_status, name='update_checkout_status'),  # Update the URL pattern
+    path('update-checkout-status/<str:model_name>/<str:qrcode_value>/', update_checkout_status, name='update_checkout_status'),  
     path('delete_all_chemicals/', views.delete_all_chemicals, name='delete_all_chemicals'),
     path('print/', views.print_page, name='print_page'),
     path('download-qr-pdf/', views.generate_qr_pdf_view, name='download_qr_pdf'), 
     path('log/', views.log, name='log'),
-    path('run-populate-storage/', views.run_populate_storage, name='run_populate_storage'),  # Add the URL pattern
+    path('run-populate-storage/', views.run_populate_storage, name='run_populate_storage'),  
     path('chemical-autocomplete/', ChemicalAutocomplete.as_view(), name='chemical-autocomplete'),
 
-    path('show_all_chemicals/', views.show_all_chemicals, name='show_all_chemicals'),
     path("chem_display/<str:table_name>/", views.chem_display, name="chem_display"),
     path('force-update-total-amount/', views.force_update_total_amount, name='force_update_total_amount'),
 
-    path("__reload__/", include("django_browser_reload.urls")),  # Add this line
+    path("__reload__/", include("django_browser_reload.urls")),  
 
 ]

@@ -1,5 +1,5 @@
 from django.views.generic import ListView
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db import models  # Ensure this import exists
 
 from chemistry_system.models import allChemicals, individualChemicals, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
@@ -15,7 +16,7 @@ from .filters import ChemicalFilter
 
 from dal import autocomplete # type: ignore
 from PIL import Image, ImageDraw, ImageFont # type: ignore
-from django.http import Http404
+
 
 def chem_display(request, table_name):
     model_class = get_model_by_name(table_name)
@@ -39,53 +40,13 @@ def chem_display(request, table_name):
     if ChemLocationRoom:
         chemicals = chemicals.filter(chemLocationRoom__in=ChemLocationRoom)
 
-    if entries_per_page == "all":
-        paginator = Paginator(chemicals, chemicals.count())  # Show all items
-    else:
-        paginator = Paginator(chemicals, entries_per_page)
+    # Calculate counts for each filter option based on the filtered queryset
+    material_counts = chemicals.values('chemMaterial').annotate(count=models.Count('chemMaterial'))
+    location_counts = chemicals.values('chemLocationRoom').annotate(count=models.Count('chemLocationRoom'))
 
-    page_number = request.GET.get("page", 1)
-    page_obj = paginator.get_page(page_number)
-
-    # Fetch distinct values for filters
-    distinct_materials = model.objects.values_list('chemMaterial', flat=True).distinct()
-    distinct_locations = model.objects.values_list('chemLocationRoom', flat=True).distinct()
-
-    context = {
-        "page_obj": page_obj,
-        "chemical_count": chemicals.count(),
-        "distinct_materials": distinct_materials,
-        "distinct_locations": distinct_locations,
-        "entries_per_page": entries_per_page,
-        "table_name": table_name,  # Pass table_name to the context
-    }
-
-    if 'HX-Request' in request.headers:
-        return render(request, 'cotton/chem_list.html', context)
-
-    return render(request, "chem_display.html", context)
-
-def allchem(request, table_name):
-    model_class = get_model_by_name(table_name)
-    if not model_class:
-        raise Http404(f"Table '{table_name}' does not exist.")
-    
-    model, _ = model_class  # Extract the model class
-    chemMaterials = request.GET.getlist("chemMaterial")
-    ChemLocationRoom = request.GET.getlist("chemLocationRoom")
-    entries_per_page = request.GET.get("entries_per_page", "10")  # Default to "10"
-    
-    try:
-        entries_per_page = int(entries_per_page) if entries_per_page != "all" else "all"
-    except ValueError:
-        entries_per_page = 10  # Fallback to default if invalid
-
-    chemicals = model.objects.all()
-
-    if chemMaterials:
-        chemicals = chemicals.filter(chemMaterial__in=chemMaterials)
-    if ChemLocationRoom:
-        chemicals = chemicals.filter(chemLocationRoom__in=ChemLocationRoom)
+    # Convert counts to dictionaries for easier access in the template
+    material_counts_dict = {item['chemMaterial']: item['count'] for item in material_counts}
+    location_counts_dict = {item['chemLocationRoom']: item['count'] for item in location_counts}
 
     if entries_per_page == "all":
         paginator = Paginator(chemicals, chemicals.count())  # Show all items
@@ -98,7 +59,8 @@ def allchem(request, table_name):
     # Fetch distinct values for filters
     distinct_materials = model.objects.values_list('chemMaterial', flat=True).distinct()
     distinct_locations = model.objects.values_list('chemLocationRoom', flat=True).distinct()
-
+    print(material_counts_dict)
+    print(location_counts_dict)
     context = {
         "page_obj": page_obj,
         "chemical_count": chemicals.count(),
@@ -106,30 +68,18 @@ def allchem(request, table_name):
         "distinct_locations": distinct_locations,
         "entries_per_page": entries_per_page,
         "table_name": table_name,  # Pass table_name to the context
+        "material_counts": material_counts,
+        "material_counts_dict": material_counts_dict,
+        "location_counts": location_counts,
+        "location_counts_dict": location_counts_dict,
     }
 
     if 'HX-Request' in request.headers:
-        return render(request, 'cotton/chem_list.html', context)
+        chem_list_html = render(request, 'cotton/chem_list.html', context).content.decode('utf-8')
+        filters_html = render(request, 'cotton/filters.html', context).content.decode('utf-8')
+        return HttpResponse(chem_list_html + filters_html)
 
     return render(request, "chem_display.html", context)
-
-def show_all_chemicals(request):
-    context = {}
-
-    filtered_chemicals = ChemicalFilter(
-        request.GET, 
-        queryset=allChemicals.objects.all()
-    )
-
-    context['filtered_chemicals'] = filtered_chemicals
-
-    paginated_filtered_chemicals = Paginator(filtered_chemicals.qs, 5)
-    page_number = request.GET.get('page')
-    page_obj = paginated_filtered_chemicals.get_page(page_number)
-
-    context['page_obj'] = page_obj
-
-    return render(request, 'show_all_chemicals.html', context)
 
 class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
