@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from PIL import Image, ImageDraw, ImageFont
 from django.http import HttpResponse
-from .models import get_model_by_name, currentlyInStorageTable
+from .models import get_model_by_name, individualChemicals
 
 
 
@@ -20,14 +20,14 @@ import random
 import os
 import pytz
 
-from chemistry_system.models import allChemicalsTable, currentlyInStorageTable, Log, get_model_by_name
+from chemistry_system.models import allChemicals, individualChemicals, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm
 from .utils import update_total_amounts, logCall, generate_qr_pdf, populate_storage
 from dal import autocomplete
 
 class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = allChemicalsTable.objects.all()
+        qs = allChemicals.objects.all()
 
         if self.q:
             qs = qs.filter(
@@ -43,7 +43,7 @@ class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
     
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
-    model = currentlyInStorageTable
+    model = individualChemicals
 
     def get_context_data(self, **kwargs):
         context = super(ChemListView, self).get_context_data(**kwargs)
@@ -64,7 +64,7 @@ def currchemicals(request):
         q_objects = Q()
         for field in fields:
             q_objects |= Q(**{f"{field}__icontains": query})
-        chemical_list_db = currentlyInStorageTable.objects.filter(q_objects)
+        chemical_list_db = individualChemicals.objects.filter(q_objects)
         #chemical_list_db = currentlyInStorageTable.objects.filter(
             #prev working version:
             #Q(chemAssociated__chemName__icontains=query) |
@@ -78,10 +78,10 @@ def currchemicals(request):
         if not chemical_list_db.exists():
             message = "No results found."
     else:
-        chemical_list_db = currentlyInStorageTable.objects.all()
+        chemical_list_db = individualChemicals.objects.all()
 
-    chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
-    chemical_locations = currentlyInStorageTable.objects.values_list('chemLocationRoom', flat=True).distinct()
+    chemical_types = allChemicals.objects.values_list('chemMaterial', flat=True).distinct()
+    chemical_locations = individualChemicals.objects.values_list('chemLocationRoom', flat=True).distinct()
 
     # Get the number of entries per page from the request, default to 10
     entries_per_page = request.GET.get('entries_per_page', 10)
@@ -112,9 +112,9 @@ def currchemicals(request):
 @login_required
 def allchemicals(request):
     update_total_amounts()  # Update total amounts before rendering
-    chemical_list_db = allChemicalsTable.objects.all()
-    chemical_types = allChemicalsTable.objects.values_list('chemMaterial', flat=True).distinct()
-    chemical_locations = allChemicalsTable.objects.values_list('chemLocationRoom', flat=True).distinct()
+    chemical_list_db = allChemicals.objects.all()
+    chemical_types = allChemicals.objects.values_list('chemMaterial', flat=True).distinct()
+    chemical_locations = allChemicals.objects.values_list('chemLocationRoom', flat=True).distinct()
 
     # Get the number of entries per page from the request, default to 10
     entries_per_page = request.GET.get('entries_per_page', 10)
@@ -163,18 +163,18 @@ def qr_code_scan(request):
 @login_required
 def search_page(request):
     query = request.GET.get('query', '').strip()
-    results = currentlyInStorageTable.objects.none()
+    results = individualChemicals.objects.none()
     message = None
 
     if query:
         if query.isdigit():
             # If user typed only digits, match bottle ID EXACTLY (no name match).
-            results = currentlyInStorageTable.objects.filter(
+            results = individualChemicals.objects.filter(
                 chemBottleIDNUM__iexact=query
             )
         else:
             # If query is non-numeric, match names by partial or startswith, etc.
-            results = currentlyInStorageTable.objects.filter(
+            results = individualChemicals.objects.filter(
                 chemAssociated__chemName__icontains=query
             )
 
@@ -206,12 +206,12 @@ def live_search_api(request):
     # If the user typed only digits, do exact match on ID; otherwise do 'starts with' on chemAssociated__chemName.
     if query.isdigit():
         # We want ID == query OR name starts with query (in case you still want name matches).
-        matches = currentlyInStorageTable.objects.filter(
+        matches = individualChemicals.objects.filter(
             Q(chemAssociated__chemName__istartswith=query) | Q(chemBottleIDNUM__iexact=query)
         )
     else:
         # If it's non-numeric, match only names that start with the query.
-        matches = currentlyInStorageTable.objects.filter(
+        matches = individualChemicals.objects.filter(
             Q(chemAssociated__chemName__istartswith=query)
         )
     
@@ -224,10 +224,10 @@ def live_search_api(request):
 @login_required
 def add_chemical(request, model_name):
     return_value = ""
-    if model_name.lower() == 'currentlyinstoragetable':
+    if model_name.lower() == 'individualChemicals':
         form_class = CurrChemicalForm
         return_value = "currchemicals"
-    elif model_name.lower() == 'allchemicalstable':
+    elif model_name.lower() == 'allchemicals':
         form_class = AllChemicalForm
         return_value = "allchemicals"
     else:
@@ -291,7 +291,7 @@ def delete_chemical(request, model_name, pk):
 @login_required
 def delete_all_chemicals(request):
     if request.method == 'POST':
-        model_name = request.POST.get('model_name', 'currentlyinstoragetable')
+        model_name = request.POST.get('model_name', 'individualChemicals')
         model_class, _ = get_model_by_name(model_name)
         
         if model_class:
@@ -302,7 +302,7 @@ def delete_all_chemicals(request):
         else:
             messages.error(request, 'Invalid model name.')
 
-        return redirect('currchemicals' if model_name == 'currentlyinstoragetable' else 'allchemicals')
+        return redirect('currchemicals' if model_name == 'individualChemicals' else 'allchemicals')
     return render(request, 'confirm_delete_all.html')
 
 @login_required

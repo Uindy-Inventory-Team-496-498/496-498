@@ -5,12 +5,12 @@ from django.db.models import Sum  # Add this import
 
 def get_model_by_name(model_name):
     model_mapping = {
-        'currentlyinstoragetable': (currentlyInStorageTable, [
+        'individualchemicals': (individualChemicals, [
             'chemBottleIDNUM', 'chemAssociated__chemName', 'chemAssociated__chemMaterial',
             'chemAmountInBottle', 'chemLocationRoom', 'chemLocationCabinet', 'chemLocationShelf',
             'chemCheckedOutBy__username', 'chemCheckedOutDate'
         ]),
-        'allchemicalstable': (allChemicalsTable, [
+        'allchemicals': (allChemicals, [
             'chemID', 'chemMaterial', 'chemName', 'chemConcentration', 
             'chemAmountUnit', 'chemLocationRoom', 
             'chemLocationCabinet', 'chemLocationShelf', 'chemSDS', 'chemNotes', 
@@ -19,7 +19,7 @@ def get_model_by_name(model_name):
     }
     return model_mapping.get(model_name.lower())
 
-class allChemicalsTable(models.Model):
+class allChemicals(models.Model):
     chemID = models.IntegerField(primary_key=True)
     chemMaterial = models.CharField(max_length=255) 
     chemName = models.CharField(max_length=255)
@@ -39,7 +39,7 @@ class allChemicalsTable(models.Model):
         return self.chemName
 
     def update_total_amount(self):
-        total_amount = currentlyInStorageTable.objects.filter(chemAssociated=self).aggregate(Sum('chemAmountInBottle'))['chemAmountInBottle__sum'] or 0
+        total_amount = individualChemicals.objects.filter(chemAssociated=self).aggregate(Sum('chemAmountInBottle'))['chemAmountInBottle__sum'] or 0
         self.chemAmountTotal = total_amount
         if self.chemAmountExpected > 0:
             self.chemAmountPercentage = (total_amount / self.chemAmountExpected) * 100
@@ -47,9 +47,9 @@ class allChemicalsTable(models.Model):
             self.chemAmountPercentage = 0
         self.save()
         
-class currentlyInStorageTable(models.Model):
+class individualChemicals(models.Model):
     chemBottleIDNUM = models.IntegerField(primary_key=True)
-    chemAssociated = models.ForeignKey(allChemicalsTable, null=True, blank=True, on_delete=models.CASCADE, default=1)
+    chemAssociated = models.ForeignKey(allChemicals, null=True, blank=True, on_delete=models.CASCADE, default=1)
     chemLocationRoom = models.CharField(max_length=255, default="None")
     chemLocationCabinet = models.CharField(max_length=255, default="None")
     chemLocationShelf = models.CharField(max_length=255, default="None")
