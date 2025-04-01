@@ -21,7 +21,7 @@
         <!-- Hidden input to persist entries_per_page -->
         <input type="hidden" name="entries_per_page" value="{{ entries_per_page }}">
 
-        <div class="form-control grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div class="form-control grid grid-cols-1 gap-4"> <!-- Changed grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 to grid-cols-1 -->
             <div class="flex flex-col space-y-1">
                 <h3 class="font-bold">Material</h3>
                 {% for material, counts in material_counts_dict.items %}
@@ -30,13 +30,13 @@
                         class="checkbox checkbox-info mr-2" 
                         name="chemMaterial"
                         value="{{ material }}"/>
-                    <span class="label-text">
+                    <span class="label-text text-sm"> <!-- Use a smaller font size for better readability -->
                         {{ material }} ({{ counts }})
                     </span>
                 </label>
                 {% endfor %}
             </div>
-
+        
             <div class="flex flex-col space-y-1">
                 <h3 class="font-bold">Location</h3>
                 {% for location, counts in location_counts_dict.items %}
@@ -45,7 +45,7 @@
                         class="checkbox checkbox-info mr-2" 
                         name="chemLocationRoom"
                         value="{{ location }}"/>
-                    <span class="label-text">
+                    <span class="label-text text-sm">
                         {{ location }} ({{ counts }})
                     </span>
                 </label>

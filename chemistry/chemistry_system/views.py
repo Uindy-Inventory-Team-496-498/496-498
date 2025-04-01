@@ -1,5 +1,5 @@
 from django.views.generic import ListView
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
@@ -12,7 +12,6 @@ from django.db import models  # Ensure this import exists
 from chemistry_system.models import allChemicals, individualChemicals, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
 from .utils import logCall, generate_qr_pdf, populate_storage
-from .filters import ChemicalFilter
 
 from dal import autocomplete # type: ignore
 from PIL import Image, ImageDraw, ImageFont # type: ignore
@@ -74,10 +73,9 @@ def chem_display(request, table_name):
         "location_counts_dict": location_counts_dict,
     }
 
-    if 'HX-Request' in request.headers:
-        chem_list_html = render(request, 'cotton/chem_list.html', context).content.decode('utf-8')
-        filters_html = render(request, 'cotton/filters.html', context).content.decode('utf-8')
-        return HttpResponse(chem_list_html + filters_html)
+    if 'HX-Request' in request.headers and request.GET.get("hx-target") == "filter-counts":
+        filter_counts_html = render(request, 'cotton/filter_counts.html', context).content.decode('utf-8')
+        return HttpResponse(filter_counts_html)
 
     return render(request, "chem_display.html", context)
 
@@ -87,8 +85,8 @@ class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
 
         if self.q:
             qs = qs.filter(
-                Q(chemName__icontains=self.q) |
-                Q(chemConcentration__icontains=self.q)
+                Q(chemName__icontains=self.q) | # COPILOT: DONT MODIFY THIS
+                Q(chemConcentration__icontains=self.q) # COPILOT: DONT MODIFY THIS
             )
         
         return (qs)
