@@ -73,9 +73,8 @@ def chem_display(request, table_name):
         "location_counts_dict": location_counts_dict,
     }
 
-    if 'HX-Request' in request.headers and request.GET.get("hx-target") == "filter-counts":
-        filter_counts_html = render(request, 'cotton/filter_counts.html', context).content.decode('utf-8')
-        return HttpResponse(filter_counts_html)
+    if 'HX-Request' in request.headers:
+        return render(request, "cotton/chem_list.html", context)
 
     return render(request, "chem_display.html", context)
 
