@@ -43,6 +43,7 @@ COPY chemistry_system/static_src/package.json chemistry_system/static_src/packag
 # Install Node.js dependencies + DaisyUI
 RUN npm install
 RUN npm install daisyui
+RUN npm install htmx.org@2.0.2
 
 # Build the Tailwind CSS
 RUN npm run build

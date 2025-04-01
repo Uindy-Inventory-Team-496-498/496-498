@@ -6,9 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}{% endblock %}</title>
 
-  
-  <script src="https://unpkg.com/htmx.org@2.0.2" integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ" crossorigin="anonymous"></script>
-
   {% load static %}
 
   <!-- jQuery (if needed) -->
@@ -27,7 +24,8 @@
   <link rel="stylesheet" href="{% static 'css/site.css' %}" />
   <!-- Tailwind + DaisyUI -->
   <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet"> 
-
+  <!-- site.js incudes htmx -->
+  <script src="{% static 'js/site.js' %}"></script>
   {{ form.media }}
 </head>
 <body>
@@ -120,9 +118,6 @@
     });
   });
 </script>
-
-<!-- Optionally add your site.js or sorting/filtering scripts here -->
-<script src="{% static 'site.js' %}"></script>
 
 </body>
 </html>
