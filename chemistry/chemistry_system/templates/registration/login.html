@@ -6,13 +6,10 @@
 {% block content %}
 <div class="auth-container">
     <div class="auth-box">
-        <!-- University Logo -->
-        <img src="{% static 'images/uindy-logo.png' %}" alt="UIndy Logo" class="logo">
-        
-        <!-- System Name -->
+        <div class="logo-container">
+            <img src="{% static 'images/uindy-logo.png' %}" alt="UIndy Logo" class="logo">
+        </div>
         <h3 class="system-name">Chemistry Inventory</h3>
-
-        <!-- Small Subheading: Log In -->
         <p class="subheading">Log In</p>
         
         <!-- Error message if credentials are invalid -->
