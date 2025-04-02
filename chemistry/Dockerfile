@@ -44,7 +44,11 @@ COPY chemistry_system/static_src/package.json chemistry_system/static_src/packag
 RUN npm install
 RUN npm install daisyui
 RUN npm install htmx.org@2.0.2
+# Ensure the target directory exists
+RUN mkdir -p /app/chemistry_system/static/js/
 
+# Copy the htmx.min.js file to the target directory
+RUN cp /app/chemistry_system/static/node_modules/htmx.org/dist/htmx.min.js /app/chemistry_system/static/js/
 # Build the Tailwind CSS
 RUN npm run build
 
