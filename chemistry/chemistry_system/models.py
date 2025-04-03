@@ -1,9 +1,10 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
 from django.db.models import Sum  # Add this import
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
+from django.conf import settings
+
 
 def get_model_by_name(model_name):
     model_mapping = {
@@ -60,7 +61,7 @@ class individualChemicals(models.Model):
     chemLocationShelf = models.CharField(max_length=255, default="None")
     chemAmountInBottle = models.CharField(max_length=255, default="0")
     chemCheckedOut = models.BooleanField(default=False)
-    chemCheckedOutBy = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    chemCheckedOutBy = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     chemCheckedOutDate = models.DateTimeField(null=True, blank=True)
 
     class Meta:

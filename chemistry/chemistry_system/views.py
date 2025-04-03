@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 
 from chemistry_system.models import allChemicals, individualChemicals, Log, get_model_by_name
-from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
+from .forms import get_dynamic_form, CurrChemicalForm, AllChemicalForm
 from .utils import logCall, generate_qr_pdf, populate_storage
 from .filters import ChemicalFilter
 
@@ -175,6 +175,7 @@ def allchemicals(request):
     })
 
 def login_view(request):
+    from accounts.forms import CustomLoginForm  # Import inside the function to avoid circular imports
     if request.method == 'POST':
         form = CustomLoginForm(request, data=request.POST)
         if form.is_valid():

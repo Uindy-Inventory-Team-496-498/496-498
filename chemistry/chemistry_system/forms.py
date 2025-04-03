@@ -1,11 +1,7 @@
 from dal import autocomplete
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
 from chemistry_system.models import individualChemicals, allChemicals, get_model_by_name
 
-class CustomLoginForm(AuthenticationForm):
-    username = forms.CharField(label='Username', max_length=150)
-    password = forms.CharField(label='Password', widget=forms.PasswordInput)
 
 def get_dynamic_form(model_name):
     model_info = get_model_by_name(model_name)

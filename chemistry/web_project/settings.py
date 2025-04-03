@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'accounts.middleware.ApprovalRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'web_project.urls'
@@ -140,3 +141,5 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
 ALLOWED_HOSTS = ['*']
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
