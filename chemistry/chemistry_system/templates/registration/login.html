@@ -6,13 +6,10 @@
 {% block content %}
 <div class="auth-container">
     <div class="auth-box">
-        <!-- University Logo -->
-        <img src="{% static 'images/uindy-logo.png' %}" alt="UIndy Logo" class="logo">
-        
-        <!-- System Name -->
+        <div class="logo-container">
+            <img src="{% static 'images/uindy-logo.png' %}" alt="UIndy Logo" class="logo">
+        </div>
         <h3 class="system-name">Chemistry Inventory</h3>
-
-        <!-- Small Subheading: Log In -->
         <p class="subheading">Log In</p>
         
         <!-- Error message if credentials are invalid -->
@@ -41,8 +38,8 @@
         </form>
 
         <div class="login-links">
-            <a href="{% url 'password_reset' %}">Forgot Password?</a>
-            <a href="{% url 'signup' %}">Register here</a>
+            <a href="{% url 'signup' %}" class="register-link">Register here</a>
+            <p class="forgot-password-msg">Forgot your password? Please contact the administration to reset it.</p>
         </div>
     </div>
 </div>

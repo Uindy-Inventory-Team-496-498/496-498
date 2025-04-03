@@ -1,9 +1,15 @@
 /* ========== GLOBAL & RESET ========== */
+html, body {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
 body {
   font-family: 'Montserrat', Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background: linear-gradient(120deg, #f4f4f9, #e8ebf2);
+  background: #f4f4f9; /* Light gray background */
   color: #333;
   transition: background 0.5s ease;
 }
@@ -67,22 +73,26 @@ input:focus, select:focus {
   margin-right: 20px;
 }
 .logout-container {
-  margin-left: auto;
+  margin-left: auto; /* Push the logout button to the right */
+  display: flex;
+  align-items: center;
 }
 .logout-button {
-  background: none;
-  border: none;
-  color: #f0f0f0;
-  cursor: pointer;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: background 0.2s;
+  width: auto; /* Adjust width to fit the text */
+  padding: 10px 20px; /* Add padding for better spacing */
+  background-color: #d9534f; /* Ensure consistent background color */
+  color: #fff; /* White text for contrast */
+  border: none; /* Remove border */
+  border-radius: 6px; /* Rounded corners */
+  font-size: 1rem; /* Adjust font size */
+  font-weight: bold; /* Make text bold */
+  text-align: center; /* Center-align text */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background 0.3s ease; /* Smooth hover effect */
 }
+
 .logout-button:hover {
-  background-color: rgba(255,255,255,0.1);
-  border-radius: 4px;
-  color: #fff;
+  background-color: #c9302c; /* Darker shade on hover */
 }
 
 /* Logout form if used */
@@ -93,20 +103,21 @@ input:focus, select:focus {
   margin: 20px 0;
 }
 .logout-button {
-  width: 90%;
-  background-color: #d9534f;
-  color: #fff;
-  border: none;
-  padding: 12px;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: bold;
-  text-align: center;
-  cursor: pointer;
-  transition: background 0.3s ease;
+  width: auto; /* Adjust width to fit the text */
+  padding: 10px 20px; /* Add padding for better spacing */
+  background-color: #d9534f; /* Ensure consistent background color */
+  color: #fff; /* White text for contrast */
+  border: none; /* Remove border */
+  border-radius: 6px; /* Rounded corners */
+  font-size: 1rem; /* Adjust font size */
+  font-weight: bold; /* Make text bold */
+  text-align: center; /* Center-align text */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background 0.3s ease; /* Smooth hover effect */
 }
+
 .logout-button:hover {
-  background-color: #c9302c;
+  background-color: #c9302c; /* Darker shade on hover */
 }
 
 /* ========== MOBILE NAV (<768px) ========== */
@@ -126,8 +137,18 @@ input:focus, select:focus {
     background-color: #882727;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center; /* Center the logo */
+    padding: 10px 15px;
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     z-index: 2000;
+    position: relative; /* Ensure the hamburger stays aligned */
+  }
+  label.mobile-hamburger {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
   }
   .mobile-hamburger {
     position: absolute;
@@ -163,6 +184,11 @@ input:focus, select:focus {
     transform: scaleX(0.9);
     box-shadow: 0 0 6px rgba(255,255,255,0.6);
   }
+  .uindy-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   .uindy-logo img {
     display: block;
     max-height: 24px;
@@ -171,6 +197,7 @@ input:focus, select:focus {
   }
   .body-content {
     margin-top: 56px;
+    background: #f4f4f9; /* Match the body background */
   }
   .mobile-nav-links {
     position: fixed;
@@ -239,27 +266,86 @@ input:focus, select:focus {
     justify-content: center;
   }
   .logout-button {
-    width: 80%;
-    padding: 10px;
-    background-color: #d9534f;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: bold;
-    text-align: center;
-    cursor: pointer;
-    transition: background 0.3s ease;
+    width: auto; /* Adjust width to fit the text */
+    padding: 10px 20px; /* Add padding for better spacing */
+    background-color: #d9534f; /* Ensure consistent background color */
+    color: #fff; /* White text for contrast */
+    border: none; /* Remove border */
+    border-radius: 6px; /* Rounded corners */
+    font-size: 1rem; /* Adjust font size */
+    font-weight: bold; /* Make text bold */
+    text-align: center; /* Center-align text */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background 0.3s ease; /* Smooth hover effect */
   }
+
   .logout-button:hover {
-    background-color: #c9302c;
+    background-color: #c9302c; /* Darker shade on hover */
+  }
+
+  /* Hamburger Menu Styling */
+  label.mobile-hamburger {
+    display: flex;
+    flex-direction: column;
+    width: 50px;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+
+  label.mobile-hamburger span {
+    background: #fff;
+    border-radius: 10px;
+    height: 5px;
+    margin: 6px 0;
+    transition: 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+  }
+
+  label.mobile-hamburger span:nth-of-type(1) {
+    width: 50%;
+  }
+
+  label.mobile-hamburger span:nth-of-type(2) {
+    width: 100%;
+  }
+
+  label.mobile-hamburger span:nth-of-type(3) {
+    width: 75%;
+  }
+
+  input[type="checkbox"] {
+    display: none;
+  }
+
+  input[type="checkbox"]:checked ~ span:nth-of-type(1) {
+    transform-origin: bottom;
+    transform: rotate(45deg) translate(8px, 0px);
+  }
+
+  input[type="checkbox"]:checked ~ span:nth-of-type(2) {
+    transform-origin: top;
+    transform: rotate(-45deg);
+  }
+
+  input[type="checkbox"]:checked ~ span:nth-of-type(3) {
+    transform-origin: bottom;
+    width: 50%;
+    transform: translate(30px, -11px) rotate(45deg);
+  }
+
+  .results-table tbody tr {
+    background: #fff; /* Ensure rows are white */
+    border: 1px solid #ddd; /* Keep borders if needed */
+    margin-bottom: 10px;
+    border-radius: 6px;
+    box-shadow: none; /* Remove shadow */
   }
 }
 
 /* ========== BODY CONTENT & UTILITY ========== */
 .body-content {
-  min-height: 80vh;
-  padding: 5px 15px;
+  flex: 1; /* Push the footer to the bottom */
+  padding: 20px;
+  background: #f4f4f9; /* Light gray background */
 }
 button, .search-button {
   display: inline-block;
@@ -281,16 +367,88 @@ button:active, .search-button:active {
   transform: translateY(1px);
 }
 
+/* Primary Button Style (Blue) */
+.button-style {
+    background-color: #115eab; /* Dodger Blue */
+    color: #fff; /* White text */
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-style:hover {
+    background-color: #0960b7; /* Slightly darker blue on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.button-style:active {
+    background-color: #0f5caa; /* Even darker blue on click */
+    transform: translateY(1px); /* Slight press effect */
+}
+
+/* Delete Button Style (Red) */
+.button-delete {
+    background-color: #FF4C4C; /* Bright Red */
+    color: #fff; /* White text */
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-delete:hover {
+    background-color: #FF3333; /* Slightly darker red on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.button-delete:active {
+    background-color: #CC0000; /* Even darker red on click */
+    transform: translateY(1px); /* Slight press effect */
+}
+
+/* Secondary Button Style (Gray) */
+.button-secondary {
+    background-color: #6C757D; /* Neutral Gray */
+    color: #fff; /* White text */
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-secondary:hover {
+    background-color: #5A6268; /* Slightly darker gray on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.button-secondary:active {
+    background-color: #4E555B; /* Even darker gray on click */
+    transform: translateY(1px); /* Slight press effect */
+}
+
 /* ========== TABLES ========== */
 table {
   width: 90%;
   margin: 20px auto;
   border-collapse: collapse;
   background-color: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  border-radius: 5px;
+  border-radius: 5px; /* Keep rounded corners if needed */
   overflow: hidden;
 }
+
 th, td {
   text-align: left;
   padding: 12px;
@@ -324,12 +482,13 @@ tbody tr:hover {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: 6px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 .results-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #fff;
+  background: none; /* Remove any background from the table */
+  box-shadow: none; /* Remove shadow */
+  border-radius: 6px;
 }
 .results-table th,
 .results-table td {
@@ -372,10 +531,24 @@ tbody tr:hover {
   }
 }
 @media (max-width: 600px) {
-  .table-responsive {
-    display: block;
-    overflow-x: auto;
+  .results-table tbody tr {
+    background: #fff; /* Ensure rows are white */
+    border: 1px solid #ddd; /* Keep borders if needed */
+    margin-bottom: 10px;
+    border-radius: 6px;
+    box-shadow: none; /* Remove shadow */
   }
+
+  .results-table {
+    background: none; /* Remove any background from the table */
+    box-shadow: none; /* Remove shadow from the table */
+  }
+
+  .table-container {
+    background: none; /* Remove any background from the container */
+    box-shadow: none; /* Remove shadow from the container */
+  }
+
   .results-table,
   .results-table thead,
   .results-table tbody,
@@ -388,13 +561,23 @@ tbody tr:hover {
     display: none;
   }
   .results-table tbody tr {
-    border: 1px solid #ddd;
+    background: #fff; /* Ensure rows are white */
+    border: 1px solid #ddd; /* Keep borders if needed */
     margin-bottom: 10px;
-    padding: 10px;
     border-radius: 6px;
-    background: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: none; /* Remove shadow */
   }
+
+  .results-table {
+    background: none; /* Remove any background from the table */
+    box-shadow: none; /* Remove shadow from the table */
+  }
+
+  .table-container {
+    background: none; /* Remove any background from the container */
+    box-shadow: none; /* Remove shadow from the container */
+  }
+
   .results-table tbody tr td {
     display: flex;
     justify-content: space-between;
@@ -409,6 +592,7 @@ tbody tr:hover {
 }
 
 /* ========== AUTH FORMS ========== */
+/* Center the auth-box in the viewport */
 .auth-container {
   display: flex;
   justify-content: center;
@@ -417,20 +601,32 @@ tbody tr:hover {
   padding: 20px;
   box-sizing: border-box;
 }
+
+/* Center the logo inside the auth-box */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px; /* Add spacing below the logo */
+}
+
+.logo {
+  width: 130px; /* Adjust the size of the logo */
+  max-width: 100%;
+  height: auto;
+}
+
+/* Center the text and form inside the auth-box */
 .auth-box {
   width: 100%;
   max-width: 400px;
   padding: 30px 25px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Center-align all text */
 }
-.logo {
-  width: 130px;
-  margin-bottom: 15px;
-  max-width: 60%;
-}
+
 .auth-box input {
   width: calc(100% - 20px);
   padding: 12px;
@@ -448,6 +644,7 @@ tbody tr:hover {
 .button-group {
   display: flex;
   justify-content: space-between;
+  gap: 10px; /* Add spacing between the buttons */
   margin-top: 10px;
 }
 .back-button, .next-button {
@@ -456,7 +653,7 @@ tbody tr:hover {
   border-radius: 6px;
   font-size: 16px;
   cursor: pointer;
-  width: 48%;
+  width: 48%; /* Ensure buttons take equal width */
   font-weight: bold;
   transition: 0.3s;
 }
@@ -488,6 +685,10 @@ tbody tr:hover {
 .login-links a:hover {
   text-decoration: underline;
   color: #b5293a;
+}
+.register-link {
+    display: block; /* Makes the link appear on its own line */
+    margin-bottom: 10px; /* Adds space below the link */
 }
 .form-group {
   text-align: left;
@@ -688,7 +889,10 @@ hr {
 }
 footer {
   text-align: center;
-  margin: 20px 0;
+  background-color: #f4f4f4; /* Light gray background */
+  color: #333; /* Dark text color */
+  padding: 10px 0;
+  font-size: 0.9rem;
 }
 .alert-message {
   margin: 10px auto;
@@ -723,13 +927,16 @@ footer {
   width: 95%;
   margin: 0 auto 20px;
   overflow-x: auto;
+  background: none; /* Remove any background from the container */
+  box-shadow: none; /* Remove shadow */
 }
 .results-table {
   width: 100%;
   border-collapse: collapse;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   border-radius: 6px;
   overflow: hidden;
+  background: none; /* Remove any background from the table */
+  box-shadow: none; /* Remove shadow */
 }
 
 /* Ensure filter options remain side by side on smaller screens */
@@ -749,4 +956,98 @@ footer {
     .form-control {
         grid-template-columns: repeat(3, 1fr); /* Three columns on large screens */
     }
+}
+
+/* Styling for error messages */
+.error-message {
+  color: #d9534f; 
+  background-color: #f8d7da; /* Light red background */
+  border: 1px solid #f5c6cb; /* Border to match the background */
+  padding: 10px 15px; 
+  border-radius: 6px; 
+  font-size: 1rem; /* Adjust font size */
+  font-weight: bold; /* Make the text bold */
+  text-align: center; /* Center-align the text */
+  margin-bottom: 15px; 
+}
+
+/* ========== COLLAPSIBLE SECTIONS ========== */
+.collapsible-section {
+  margin-bottom: 15px;
+}
+
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+}
+
+.collapsible-header span {
+  font-weight: bold;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.toggle-arrow {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.collapsible-content {
+  display: none; /* Initially hidden */
+  padding: 10px 0;
+}
+
+.collapsible-content a {
+  display: flex;
+  align-items: center;
+  padding: 5px 15px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.collapsible-content a i {
+  margin-right: 10px;
+  font-size: 1rem;
+}
+
+.collapsible-content a:hover {
+  color: #ffcc00;
+}
+
+.collapsible-section.open .collapsible-content {
+  display: block; /* Show content when section is open */
+}
+
+.collapsible-section.open .toggle-arrow {
+  transform: rotate(180deg); /* Rotate the arrow when open */
+}
+
+/* Footer Styling */
+.site-footer {
+  background-color: #882727; /* Match the site's primary color */
+  color: #fff; /* White text for contrast */
+  text-align: center;
+  padding: 15px 0;
+  font-size: 0.9rem;
+  position: relative; /* Default position */
+  bottom: 0;
+  width: 100%;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for separation */
+}
+
+.site-footer p {
+  margin: 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
 }
