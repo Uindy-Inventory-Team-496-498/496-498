@@ -614,6 +614,10 @@ tbody tr:hover {
   text-decoration: underline;
   color: #b5293a;
 }
+.register-link {
+    display: block; /* Makes the link appear on its own line */
+    margin-bottom: 10px; /* Adds space below the link */
+}
 .form-group {
   text-align: left;
   margin-bottom: 15px;
