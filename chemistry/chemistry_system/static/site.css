@@ -367,6 +367,78 @@ button:active, .search-button:active {
   transform: translateY(1px);
 }
 
+/* Primary Button Style (Blue) */
+.button-style {
+    background-color: #115eab; /* Dodger Blue */
+    color: #fff; /* White text */
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-style:hover {
+    background-color: #0960b7; /* Slightly darker blue on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.button-style:active {
+    background-color: #0f5caa; /* Even darker blue on click */
+    transform: translateY(1px); /* Slight press effect */
+}
+
+/* Delete Button Style (Red) */
+.button-delete {
+    background-color: #FF4C4C; /* Bright Red */
+    color: #fff; /* White text */
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-delete:hover {
+    background-color: #FF3333; /* Slightly darker red on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.button-delete:active {
+    background-color: #CC0000; /* Even darker red on click */
+    transform: translateY(1px); /* Slight press effect */
+}
+
+/* Secondary Button Style (Gray) */
+.button-secondary {
+    background-color: #6C757D; /* Neutral Gray */
+    color: #fff; /* White text */
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-secondary:hover {
+    background-color: #5A6268; /* Slightly darker gray on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.button-secondary:active {
+    background-color: #4E555B; /* Even darker gray on click */
+    transform: translateY(1px); /* Slight press effect */
+}
+
 /* ========== TABLES ========== */
 table {
   width: 90%;
