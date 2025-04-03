@@ -1,4 +1,4 @@
-<div id="filter-list" class="border rounded-lg px-3 pt-3"
+<div id="filter-list" class="border rounded-lg px-3 pt-3 w-full max-w-screen-lg mx-auto"
     hx-target="#chem-list" 
     hx-swap="outerHTML show:top"
     hx-include="#filter-form"
@@ -15,14 +15,15 @@
 
     <div class="divider my-2"></div>
 
-    <div class= "grid grid-cols-10 gap-x-4">
-        <section class="col-span-1">
-            <c-filter-form /> 
+    <div class="grid grid-cols-1 lg:grid-cols-10 gap-x-4">
+        <!-- Filters Section -->
+        <section class="hidden lg:grid col-span-1 lg:col-span-8 w-full lg:w-auto" id="filters">
+            <c-filter-form />
         </section>
 
-        <section class="col-span-1">
-            ( <c-filter-counts />)
+        <!-- Chemicals List Section -->
+        <section class="col-span-1 lg:col-span-2">
+            <c-filter-counts />
         </section>
     </div>
-    
 </div>

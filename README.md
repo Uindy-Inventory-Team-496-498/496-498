@@ -31,7 +31,7 @@ See current volumes:
 
 On your host machine
 ```docker exec -it django_web bash```
-
+docker exec -it --user root django_web bash
 The commands below are inside the web container
 
 Make migrations:  
@@ -51,6 +51,14 @@ Restart the container:
 ```docker-compose restart web```
 
 ## Misc Django commands
+
+<https://django-tailwind.readthedocs.io/en/4.0.1/usage.html>
+python manage.py tailwind install
+
+python manage.py tailwind build
+
+python manage.py tailwind start
+
 
 For loading from a fixture:
 ```python manage.py loaddata chemistry_system/fixtures/chemistry_system_fixtures.json```

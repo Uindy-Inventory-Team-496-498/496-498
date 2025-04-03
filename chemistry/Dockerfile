@@ -18,29 +18,24 @@ RUN apt-get update && apt-get install -y \
     default-mysql-client \
     netcat-openbsd \
     curl && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs --no-install-recommends && \
+    curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && \
+    apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user
-RUN useradd --create-home appuser
-
-# Set the working directory for the application
-WORKDIR /app
-
-# Copy requirements and install Python dependencies
-COPY --chown=appuser:appuser requirements.txt .
+# Install pip requirements
+COPY requirements.txt .
 RUN python -m pip install --no-cache-dir --upgrade pip && \
     python -m pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
-COPY --chown=appuser:appuser . /app
+# Set the working directory for the application
+WORKDIR /app
+COPY . /app
 
 # Set the working directory for Tailwind CSS
 WORKDIR /app/chemistry_system/static_src
 
 # Copy the package.json and package-lock.json files
-COPY --chown=appuser:appuser chemistry_system/static_src/package.json chemistry_system/static_src/package-lock.json ./
+COPY chemistry_system/static_src/package.json chemistry_system/static_src/package-lock.json ./
 
 # Install Node.js dependencies locally
 RUN npm install
@@ -48,12 +43,14 @@ RUN npm install
 # Return to the application root directory
 WORKDIR /app
 
-# Run Django-Tailwind commands
-RUN SECRET_KEY=nothing python manage.py tailwind install --no-input
-RUN SECRET_KEY=nothing python manage.py tailwind build --no-input
-RUN SECRET_KEY=nothing python manage.py collectstatic --no-input
+# Run Django-Tailwind commands to install and build Tailwind CSS
+RUN SECRET_KEY=nothing python manage.py tailwind install --no-input && \
+    SECRET_KEY=nothing python manage.py tailwind build --no-input && \
+    SECRET_KEY=nothing python manage.py collectstatic --no-input
 
-# Switch to the non-root user
+# Create a non-root user with an explicit UID and add permission to access the /app folder
+RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser:appuser /app
+RUN chmod -R u+w /app/chemistry_system/static /app/chemistry_system/static_src
 USER appuser
 
 # Entrypoint to run migrations and start the server
