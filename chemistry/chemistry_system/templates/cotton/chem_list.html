@@ -1,4 +1,8 @@
-<div id="chem-list" class="px-0 sm:px-2 lg:px-4">
+<div id="chem-list" class="px-0 sm:px-2 lg:px-4"
+    hx-get="{% url 'chem_display' table_name %}?entries_per_page={{ entries_per_page }}"
+    hx-trigger="load"
+    hx-target="#filter-counts"
+    hx-swap="outerHTML">
     <h1 class="text-2xl font-bold mb-4"></h1>
 
     <!-- Responsive grid for smaller screens -->

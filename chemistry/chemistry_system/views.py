@@ -16,7 +16,7 @@ from .utils import logCall, generate_qr_pdf, populate_storage
 from dal import autocomplete # type: ignore
 from PIL import Image, ImageDraw, ImageFont # type: ignore
 
-
+@login_required
 def chem_display(request, table_name):
     model_class = get_model_by_name(table_name)
     if not model_class:
@@ -55,27 +55,27 @@ def chem_display(request, table_name):
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
-    # Fetch distinct values for filters
-    distinct_materials = model.objects.values_list('chemMaterial', flat=True).distinct()
-    distinct_locations = model.objects.values_list('chemLocationRoom', flat=True).distinct()
     print(material_counts_dict)
     print(location_counts_dict)
     context = {
         "page_obj": page_obj,
         "chemical_count": chemicals.count(),
-        "distinct_materials": distinct_materials,
-        "distinct_locations": distinct_locations,
         "entries_per_page": entries_per_page,
         "table_name": table_name,  # Pass table_name to the context
-        "material_counts": material_counts,
         "material_counts_dict": material_counts_dict,
-        "location_counts": location_counts,
         "location_counts_dict": location_counts_dict,
+        "selected_materials": chemMaterials,  # Pass selected materials
+        "selected_locations": ChemLocationRoom,  # Pass selected locations
     }
 
     if 'HX-Request' in request.headers:
-        return render(request, "cotton/chem_list.html", context)
-
+        if request.htmx.target == "chem-list":
+            print(request.htmx.target)
+            return render(request, "cotton/chem_list.html", context)
+        elif request.htmx.target == "filter-counts":
+            print(request.htmx.target)
+            return render(request, "cotton/filter_counts.html", context)
+        
     return render(request, "chem_display.html", context)
 
 class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):

@@ -18,40 +18,43 @@ RUN apt-get update && apt-get install -y \
     default-mysql-client \
     netcat-openbsd \
     curl && \
-    curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && \
-    apt-get install -y nodejs && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Install pip requirements
-COPY requirements.txt .
+# Create a non-root user
+RUN useradd --create-home appuser
+
+# Set the working directory for the application
+WORKDIR /app
+
+# Copy requirements and install Python dependencies
+COPY --chown=appuser:appuser requirements.txt .
 RUN python -m pip install --no-cache-dir --upgrade pip && \
     python -m pip install --no-cache-dir -r requirements.txt
 
-WORKDIR /app
-COPY . /app
+# Copy the application code
+COPY --chown=appuser:appuser . /app
 
 # Set the working directory for Tailwind CSS
 WORKDIR /app/chemistry_system/static_src
 
 # Copy the package.json and package-lock.json files
-COPY chemistry_system/static_src/package.json chemistry_system/static_src/package-lock.json ./
+COPY --chown=appuser:appuser chemistry_system/static_src/package.json chemistry_system/static_src/package-lock.json ./
 
-# Install Node.js dependencies + DaisyUI
-RUN npm install && \
-    npm install daisyui && \
-    npm install htmx.org@2.0.2
+# Install Node.js dependencies locally
+RUN npm install
 
-# Build the Tailwind CSS
-RUN npm run build
-
+# Return to the application root directory
 WORKDIR /app
-RUN SECRET_KEY=nothing python manage.py tailwind install --no-input && \
-    SECRET_KEY=nothing python manage.py tailwind build --no-input && \
-    SECRET_KEY=nothing python manage.py collectstatic --no-input
 
-# Creates a non-root user with an explicit UID and adds permission to access the /app folder
-RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+# Run Django-Tailwind commands
+RUN SECRET_KEY=nothing python manage.py tailwind install --no-input
+RUN SECRET_KEY=nothing python manage.py tailwind build --no-input
+RUN SECRET_KEY=nothing python manage.py collectstatic --no-input
+
+# Switch to the non-root user
 USER appuser
 
-# Entrypoint to run migrations and load fixture data
+# Entrypoint to run migrations and start the server
 CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && gunicorn --bind 0.0.0.0:8000 web_project.wsgi"]

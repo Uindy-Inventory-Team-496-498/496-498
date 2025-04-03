@@ -7,34 +7,21 @@
 
 module.exports = {
     content: [
-        // Templates within the chemistry_system app
         '../templates/**/*.html',
-
-        // Main templates directory of the project (if applicable)
+        '../templates/**/cotton/*.html',
         '../../templates/**/*.html',
-
-        // Templates in other Django apps
         '../../**/templates/**/*.html',
-
-        // Uncomment the following lines if you use Tailwind classes in JavaScript or Python
-        // '../../**/*.js',
-        // '../../**/*.py',
     ],
     theme: {
         extend: {},
     },
     plugins: [
-        /**
-         * '@tailwindcss/forms' is the forms plugin that provides a minimal styling
-         * for forms. If you don't like it or have own styling for forms,
-         * comment the line below to disable '@tailwindcss/forms'.
-         */
         require('@tailwindcss/forms'),
         require('@tailwindcss/typography'),
         require('@tailwindcss/aspect-ratio'),
-        require('daisyui'), // Add DaisyUI plugin
+        require('daisyui'),
     ],
     daisyui: {
-        themes: ["light", "dark"], // Optional: Configure DaisyUI themes
+        themes: ["light", "dark"],
     },
-}
+};
