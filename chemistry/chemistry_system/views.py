@@ -16,8 +16,6 @@ from .utils import logCall, generate_qr_pdf, populate_storage
 from dal import autocomplete # type: ignore
 from PIL import Image, ImageDraw, ImageFont # type: ignore
 
-filters = {"chemMaterials": [], "chemLocationRoom": []}
-
 @login_required
 def chem_display(request, table_name):
     model_class = get_model_by_name(table_name)
@@ -30,8 +28,7 @@ def chem_display(request, table_name):
     chemLocationRoom = request.GET.getlist("chemLocationRoom")
     
     entries_per_page = request.GET.get("entries_per_page", "10")  # Default to "10"
-    print("HERE")
-    print(filters)
+    
     try:
         entries_per_page = int(entries_per_page) if entries_per_page != "all" else "all"
     except ValueError:
@@ -41,18 +38,16 @@ def chem_display(request, table_name):
 
     if chemMaterials:
         chemicals = chemicals.filter(chemMaterial__in=chemMaterials)
-        filters['chemMaterials'] = chemMaterials
     if chemLocationRoom:
         chemicals = chemicals.filter(chemLocationRoom__in=chemLocationRoom)
-        filters['chemLocationRoom'] = chemLocationRoom
 
     # Calculate counts for each filter option based on the filtered queryset
     material_counts = chemicals.values('chemMaterial').annotate(count=models.Count('chemMaterial'))
     location_counts = chemicals.values('chemLocationRoom').annotate(count=models.Count('chemLocationRoom'))
 
     # Convert counts to dictionaries for easier access in the template
-    material_counts_dict = {item['chemMaterial']: item['count'] for item in material_counts}
-    location_counts_dict = {item['chemLocationRoom']: item['count'] for item in location_counts}
+    material_dict = {item['chemMaterial']: item['count'] for item in material_counts}
+    location_dict = {item['chemLocationRoom']: item['count'] for item in location_counts}
 
     if entries_per_page == "all":
         paginator = Paginator(chemicals, chemicals.count())  # Show all items
@@ -67,57 +62,14 @@ def chem_display(request, table_name):
         "chemical_count": chemicals.count(),
         "entries_per_page": entries_per_page,
         "table_name": table_name,  # Pass table_name to the context
-        "material_counts_dict": material_counts_dict,
-        "location_counts_dict": location_counts_dict,
-        "selected_materials": chemMaterials,  # Pass selected materials
-        "selected_locations": chemLocationRoom,  # Pass selected locations
+        "material_dict": material_dict,
+        "location_dict": location_dict,
     }
 
     if 'HX-Request' in request.headers:
         if request.htmx.target == "chem-list":
             print("-------------------------" + request.htmx.target  + "-------------------------")
-            print(material_counts_dict)
-            print(location_counts_dict)
             return render(request, "cotton/chem_list.html", context)
-        elif request.htmx.target == "filter-counts":
-            print("-------------------------" + request.htmx.target + "-------------------------")
-            print(filters)
-            print(material_counts_dict)
-            print(location_counts_dict)
-            if filters['chemMaterials'] != []:
-                chemicals = chemicals.filter(chemMaterial__in=filters['chemMaterials'])
-            if filters['chemLocationRoom'] != []:
-                chemicals = chemicals.filter(chemLocationRoom__in=filters['chemLocationRoom'])
-            print(chemicals)
-            # Calculate counts for each filter option based on the filtered queryset
-            material_counts = chemicals.values('chemMaterial').annotate(count=models.Count('chemMaterial'))
-            location_counts = chemicals.values('chemLocationRoom').annotate(count=models.Count('chemLocationRoom'))
-            print(material_counts)
-            print(location_counts)
-            # Convert counts to dictionaries for easier access in the template
-            material_counts_dict_filtered = {item['chemMaterial']: item['count'] for item in material_counts}
-            location_counts_dict_filtered = {item['chemLocationRoom']: item['count'] for item in location_counts}  
-            print(material_counts_dict_filtered)
-            print(location_counts_dict_filtered)
-            print("HERE")
-            for key, value in material_counts_dict.items(): 
-                if key in material_counts_dict_filtered:
-                    material_counts_dict[key] = material_counts_dict_filtered[key]
-                else:
-                    material_counts_dict[key] = 0
-            print("HERE")
-            for key, value in location_counts_dict.items(): 
-                if key in location_counts_dict_filtered:
-                    location_counts_dict[key] = location_counts_dict_filtered[key]
-                else:
-                    location_counts_dict[key] = 0         
-            print(material_counts_dict)
-            print(location_counts_dict)
-            context["material_counts_dict"] = material_counts_dict
-            context["location_counts_dict"] = location_counts_dict
-            filters["chemMaterials"] = []
-            filters["chemLocationRoom"] = []
-            return render(request, "cotton/filter_counts.html", context)
         
     return render(request, "chem_display.html", context)
 

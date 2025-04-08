@@ -7,21 +7,21 @@
 
 {% block content %}
 
-<div class="sm:px-1 px-[1vw]">
-    <button class="btn lg:hidden mb-2" id="show-filter-btn">Show filters</button>
+<div class="md:px-1 lg:px-[1vw]">
+    <button class="btn sm:grid hidden mb-2" id="show-filter-btn">Show filters</button>
 
     <section class="grid">
         <c-utilities />
     </section>
 
-    <div class="grid grid-cols-10 gap-x-4">
+    <div class="grid sm:grid-cols-10 grid-cols-10 gap-x-4">
         <!-- Filters Section -->
         <section class="grid col-span-2 w-auto" id="filters">
             <c-filters />
         </section>
 
         <!-- Chemicals List Section -->
-        <section class="grid col-span-8">
+        <section class="sm:col-span-1 col-span-8">
             {% if table_name == "individualChemicals" %}
                 <c-chem-list-indiv />
             {% elif table_name == "allChemicals" %}
