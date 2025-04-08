@@ -254,7 +254,7 @@ def add_chemical(request, model_name):
     return_value = ""
     if model_name.lower() == 'individualChemicals':
         form_class = CurrChemicalForm
-        return_value = "individualChemicals"
+        return_value = "individualchemicals"
     elif model_name.lower() == 'allChemicals':
         form_class = AllChemicalForm
         return_value = "allchemicals"
@@ -286,18 +286,19 @@ def edit_chemical(request, model_name, pk):
     
     chemical = get_object_or_404(model, pk=pk)
     DynamicChemicalForm = get_dynamic_form(model_name)
-    
+    referrer = request.GET.get('referrer', '/')
+
     if request.method == 'POST':
         form = DynamicChemicalForm(request.POST, instance=chemical)
         if form.is_valid():
             logCall(request.user.username, f"Updated chemical with ID {pk}")
             form.save()
             messages.success(request, 'Chemical updated successfully!')
-            return redirect('currchemicals')
+            return redirect(referrer)
     else:
         form = DynamicChemicalForm(instance=chemical)
-    
-    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical, 'model_name': model_name})
+
+    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical, 'model_name': model_name, 'referrer': referrer} )
 
 @login_required
 def delete_chemical(request, model_name, pk):
@@ -312,7 +313,7 @@ def delete_chemical(request, model_name, pk):
         chemical.delete()
         logCall(request.user.username, f"Deleted chemical with ID {pk}")
         messages.success(request, 'Chemical deleted successfully!')
-        return redirect('currchemicals')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
     
     return render(request, 'confirm_delete.html', {'chemical': chemical})
 
@@ -330,7 +331,7 @@ def delete_all_chemicals(request):
         else:
             messages.error(request, 'Invalid model name.')
 
-        return redirect('currchemicals' if model_name == 'individualChemicals' else 'allchemicals')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
     return render(request, 'confirm_delete_all.html')
 
 @login_required

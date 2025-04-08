@@ -102,22 +102,10 @@ Log a Chemical
             const returnForm = document.getElementById('return-form');
             const addForm = document.getElementById('add-form');
 
-            let gotoHref = "/";
+            returnForm.action = referrer || "/";
+            addForm.action = `${referrer || "/"}/add`;
 
-            if (referrer.includes("allchemicals")) {
-                gotoHref = "/allchemicals";
-                addForm.action = "/add/allChemicals/";
-            } else if (referrer.includes("chem_display")) {
-                gotoHref = "/chem_display/allChemicals";
-                addForm.action = "/add/allChemicals/";
-            } else if (referrer.includes("currchemicals")) {
-                gotoHref = "/currchemicals/individualChemicals";
-                addForm.action = "/add/individualChemicals/";
-            }
-
-            returnForm.action = gotoHref;
-
-            window.gotoHref = gotoHref;
+            window.gotoHref = referrer || "/";
         });
 
         window.scanner = scanner;

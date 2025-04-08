@@ -15,6 +15,7 @@
             <p><strong>SDS:</strong> {{ chemical.chemSDS }}</p>
             <p>
                 <form action="{% url 'edit_chemical' table_name chemical.chemID %}" method="get" style="display:inline;">
+                    <input type="hidden" name="referrer" value="{{ request.path }}">
                     <button type="submit" class="button-style">Edit</button>
                 </form>
             </p>
@@ -66,6 +67,7 @@
                         <td data-label="Edit">
                             <!-- Edit Chemical Button -->
                             <form action="{% url 'edit_chemical' table_name chemical.chemID %}" method="get" style="display:inline;">
+                                <input type="hidden" name="referrer" value="{{ request.path }}">
                                 <button type="submit" class="button-style">Edit</button>
                             </form>
                         </td>

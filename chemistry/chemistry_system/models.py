@@ -89,8 +89,13 @@ def update_total_amount_on_save(sender, instance, **kwargs):
 # Signal to update total amount when a record is deleted from individualChemicals
 @receiver(post_delete, sender=individualChemicals)
 def update_total_amount_on_delete(sender, instance, **kwargs):
-    if instance.chemAssociated:
-        instance.chemAssociated.update_total_amount()
+    if instance.chemAssociated_id:  # Check if the foreign key ID exists
+        try:
+            associated_chemical = allChemicals.objects.get(pk=instance.chemAssociated_id)
+            associated_chemical.update_total_amount()
+        except allChemicals.DoesNotExist:
+            # The associated allChemicals instance no longer exists, so we can safely ignore this.
+            pass
 
 class Log(models.Model):
     user = models.CharField(max_length=255)
