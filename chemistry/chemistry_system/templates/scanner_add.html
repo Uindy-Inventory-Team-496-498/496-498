@@ -8,12 +8,12 @@ Log a Chemical
 {% load static %}
 
 <body>
-    <form id="return-form" action="" method="get" style="flex: 1;">
-        <button type="submit" class="button-style">Return to Database</button>
+    <form action="{% url 'chem_display' 'individualChemicals' %}" method="get">
+        <button type="submit" class="button-style">Return To Database</button>
     </form>
 
-    <form id="add-form" action="" method="get" style="flex: 1;">
-        <button type="submit">Manually Add</button>
+    <form action="{% url 'add_chemical' 'individualChemicals' %}" method="get">
+        <button type="submit" class="button-style">Manually Add</button>
     </form>
 
     <h1>Scan from WebCam:</h1>
@@ -52,17 +52,7 @@ Log a Chemical
             label.textContent = qrCodeValue;
             scanningEnabled = false;
             try {
-                const response = await fetch(`/search_by_qr/?chem_id=${encodeURIComponent(qrCodeValue)}`);
-                if (response.status === 404) {
-                    window.location.href = `/add${window.gotoHref}/?chem_id=${encodeURIComponent(qrCodeValue)}`;
-                } else if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const data = await response.json();
-                if (data.chemName) {
-                    alert(`Chemical with Bottle ID: ${data.chemBottleIDNUM} already exists!`);
-                }
+                window.location.href = `/add/individualChemicals/?chem_id=${encodeURIComponent(qrCodeValue)}`;
             } catch (error) {
                 alert(`Error: ${error.message}`);
             } finally {
@@ -95,30 +85,8 @@ Log a Chemical
             scanner.setCamera(event.target.value);
         });
 
-        let gotoHref = "/";
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const referrer = document.referrer;
-            const returnForm = document.getElementById('return-form');
-            const addForm = document.getElementById('add-form');
-
-            let gotoHref = "/";
-
-            if (referrer.includes("allchemicals")) {
-                gotoHref = "/allchemicals";
-                addForm.action = "/add/allChemicals/";
-            } else if (referrer.includes("chem_display")) {
-                gotoHref = "/chem_display/allChemicals";
-                addForm.action = "/add/allChemicals/";
-            } else if (referrer.includes("currchemicals")) {
-                gotoHref = "/currchemicals/individualChemicals";
-                addForm.action = "/add/individualChemicals/";
-            }
-
-            returnForm.action = gotoHref;
-
-            window.gotoHref = gotoHref;
-        });
+       
 
         window.scanner = scanner;
     </script>

@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.urls import reverse
 
 from chemistry_system.models import allChemicals, individualChemicals, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
@@ -259,15 +260,13 @@ def live_search_api(request):
     ]
     return JsonResponse(data, safe=False)
 
+
 @login_required
 def add_chemical(request, model_name):
-    return_value = ""
-    if model_name.lower() == 'individualChemicals':
+    if model_name.lower() == 'individualchemicals':
         form_class = CurrChemicalForm
-        return_value = "currchemicals"
-    elif model_name.lower() == 'allChemicals':
+    elif model_name.lower() == 'allchemicals':
         form_class = AllChemicalForm
-        return_value = "allchemicals"
     else:
         form_class = get_dynamic_form(model_name)
 
@@ -277,7 +276,7 @@ def add_chemical(request, model_name):
             form.save()
             logCall(request.user.username, f"Added chemical to {model_name}")
             messages.success(request, 'Chemical added successfully!')
-            return redirect(return_value)
+            return redirect(reverse('chem_display', args=[model_name]))
     else:
         form = form_class()
 
