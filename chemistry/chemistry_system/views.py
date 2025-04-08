@@ -1,3 +1,5 @@
+import json
+import re
 from django.views.generic import ListView
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -355,7 +357,112 @@ def list_chemicals(request, model_name):
 
 @login_required
 def checkinandout(request):
-    return render(request, 'checkinandout.html')    
+    if 'HX-Request' in request.headers:
+        return render(request, 'cotton/amount_ui.html')
+    return render(request, 'checkinandout.html')  
+
+@login_required
+def update_chemical_amount(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            chem_id = data.get('chem_id')
+            used_amount = data.get('amount')
+            
+            match = re.match(r'([\d.]+)\s*([a-zA-Z]+)?', used_amount)
+            
+            if not match:
+                return JsonResponse({
+                    'success': False,
+                    'message': "Invalid amount format. Please enter a number followed by units (e.g., 5 mL)."
+                }, status=400)
+                
+            amount_value = float(match.group(1))
+            amount_unit = match.group(2) if match.group(2) else ""
+            
+            model_class, _ = get_model_by_name('individualChemicals')
+            if model_class is None:
+                raise ValueError("Model not found")
+                
+            chemical = model_class.objects.get(chemBottleIDNUM=chem_id)
+            
+            current_amount_str = chemical.chemAmountInBottle 
+            current_match = re.match(r'([\d.]+)\s*([a-zA-Z]+)?', current_amount_str)
+            
+            if not current_match:
+                return JsonResponse({
+                    'success': False,
+                    'message': f"Current amount format is invalid: {current_amount_str}"
+                }, status=400)
+                
+            current_value = float(current_match.group(1))
+            current_unit = current_match.group(2) if current_match.group(2) else ""
+            
+            # Validate units
+            if amount_unit.lower() != current_unit.lower():
+                return JsonResponse({
+                    'success': False,
+                    'message': f"Units don't match. Chemical has {current_unit}, but you entered {amount_unit}."
+                }, status=400)
+                
+            new_value = current_value - amount_value
+            
+            # Validate the new amount isn't negative
+            if new_value < 0:
+                return JsonResponse({
+                    'success': False,
+                    'message': f"Used amount ({amount_value} {amount_unit}) exceeds available amount ({current_value} {current_unit})."
+                }, status=400)
+                
+            # Update the amount
+            new_amount_str = f"{new_value} {current_unit}"
+            chemical.chemAmountInBottle = new_amount_str
+            chemical.save()
+            logCall(request.user.username, f"Updated amount for chemical {chem_id}: used {used_amount}, remaining {new_amount_str}")
+            
+            return JsonResponse({
+                'success': True,
+                'message': f"Chemical checked in. Used: {used_amount}, Remaining: {new_amount_str}"
+            })
+            
+        except model_class.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': f"Chemical with ID {chem_id} not found"
+            }, status=404)
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+    
+    return JsonResponse({
+        'success': False,
+        'message': "Method not allowed"
+    }, status=405)
+
+@login_required
+def get_chemical_details(request, qrcode_value):
+    try:
+        model_class, _ = get_model_by_name('individualChemicals')
+        if model_class is None:
+            raise ValueError("Model not found")
+        
+        chemical = model_class.objects.get(chemBottleIDNUM=qrcode_value)
+        
+        return JsonResponse({
+            'success': True,
+            'totalAmount': chemical.chemAmountInBottle,
+            'name': getattr(chemical, 'chemName', ''),
+            'id': chemical.chemBottleIDNUM
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
 
 @login_required
 def print_page(request):

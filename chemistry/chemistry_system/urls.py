@@ -42,6 +42,8 @@ urlpatterns = [
     path('log/', views.log, name='log'),
     path('run-populate-storage/', views.run_populate_storage, name='run_populate_storage'),  # Add the URL pattern
     path('chemical-autocomplete/', ChemicalAutocomplete.as_view(), name='chemical-autocomplete'),
+    path('update-chemical-amount/', views.update_chemical_amount, name='update_chemical_amount'),
+    path('get-chemical-details/<str:qrcode_value>/', views.get_chemical_details, name='get_chemical_details'),
 
     path('show_all_chemicals/', views.show_all_chemicals, name='show_all_chemicals'),
     path("chem_display/<str:table_name>/", views.chem_display, name="chem_display"),
