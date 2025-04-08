@@ -22,7 +22,7 @@ def get_model_by_name(model_name):
     return model_mapping.get(model_name.lower())  # Ensure case-insensitive lookup
 
 class allChemicals(models.Model):
-    chemID = models.IntegerField(primary_key=True)
+    chemID = models.AutoField(primary_key=True)
     chemMaterial = models.CharField(max_length=255) 
     chemName = models.CharField(max_length=255)
     chemLocationRoom = models.CharField(max_length=255, default="None")

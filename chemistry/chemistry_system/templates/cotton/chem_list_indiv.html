@@ -5,6 +5,7 @@
     <div class="grid gap-4 sm:hidden">
         {% for chemical in page_obj %}
         <div class="border border-gray-300 p-4 rounded-lg shadow">
+            <p><strong>ID:</strong> {{ chemical.chemBottleIDNUM }}</p>
             <p><strong>Name:</strong> {{ chemical.chemName }}</p>
             <p><strong>Material:</strong> {{ chemical.chemMaterial }}</p>
             <p><strong>Concentration:</strong> {{ chemical.chemConcentration }}</p>
