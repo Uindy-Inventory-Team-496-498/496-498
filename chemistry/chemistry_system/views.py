@@ -321,9 +321,12 @@ def delete_chemical(request, model_name, pk):
         chemical.delete()
         logCall(request.user.username, f"Deleted chemical with ID {pk}")
         messages.success(request, 'Chemical deleted successfully!')
-        return redirect('currchemicals')
-    
-    return render(request, 'confirm_delete.html', {'chemical': chemical})
+        if model_name == 'individualChemicals':
+            return redirect('/chem_display/individualChemicals/')
+        elif model_name == 'allChemicals':
+            return redirect('/chem_display/allChemicals/')
+        else:
+            return redirect('/')
 
 @login_required
 def delete_all_chemicals(request):
