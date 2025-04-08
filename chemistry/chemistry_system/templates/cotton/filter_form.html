@@ -7,16 +7,19 @@ hx-trigger="change from:input">
     <input type="hidden" name="entries_per_page" value="{{ entries_per_page }}">
 
     <div class="form-control grid grid-cols-1 gap-4"> 
-        <div class="flex flex-col space-y-1">
+        <div class="grid grid-cols-2 space-y-1">
             <h3 class="font-bold">Material</h3>
             {% for material, counts in material_counts_dict.items %}
-            <label class="cursor-pointer label justify-start">
+            <label class="cursor-pointer label col-span-1 w-auto">
                 <input type="checkbox" 
                     class="checkbox checkbox-info mr-2" 
                     name="chemMaterial"
                     value="{{ material }}"/>
-                <span class="label-text text-sm"> <!-- Use a smaller font size for better readability -->
-                    {{ material }} 
+            </label>
+            {% endfor %}
+            {% for material, counts in material_counts_dict.items %}
+                <span class="label-text text-sm col-span-1"> <!-- Use a smaller font size for better readability -->
+                    {{ material }} <c-filter-c />
                 </span>
             </label>
             {% endfor %}
