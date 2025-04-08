@@ -57,6 +57,9 @@ def chem_display(request, table_name):
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
+    target_id = "chem-list" if table_name == "allChemicals" else "chem-list-indiv"
+    target_html = "chem_list" if table_name == "allChemicals" else "chem_list_indiv"
+
     context = {
         "page_obj": page_obj,
         "chemical_count": chemicals.count(),
@@ -64,12 +67,13 @@ def chem_display(request, table_name):
         "table_name": table_name,  # Pass table_name to the context
         "material_dict": material_dict,
         "location_dict": location_dict,
+        "target_id": target_id
     }
 
     if 'HX-Request' in request.headers:
-        if request.htmx.target == "chem-list":
-            print("-------------------------" + request.htmx.target  + "-------------------------")
-            return render(request, "cotton/chem_list.html", context)
+        print("-------------------------" + request.htmx.target  + "-------------------------")
+        if request.htmx.target == target_id:
+            return render(request, f"cotton/{target_html}.html", context)
         
     return render(request, "chem_display.html", context)
 

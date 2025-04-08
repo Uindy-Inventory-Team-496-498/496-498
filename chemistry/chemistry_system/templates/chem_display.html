@@ -14,14 +14,14 @@
         <c-utilities />
     </section>
 
-    <div class="grid grid-cols-1 lg:grid-cols-10 gap-x-4">
+    <div class="grid grid-cols-10 gap-x-4">
         <!-- Filters Section -->
-        <section class="hidden lg:grid col-span-1 lg:col-span-2 w-full lg:w-auto" id="filters">
+        <section class="hidden lg:grid col-span-2 md:col-span-2 w-full lg:w-auto" id="filters">
             <c-filters />
         </section>
 
         <!-- Chemicals List Section -->
-        <section class="col-span-1 lg:col-span-8">
+        <section class="sm:col-span-1 md:col-span-8">
             {% if table_name == "individualChemicals" %}
                 <c-chem-list-indiv />
             {% elif table_name == "allChemicals" %}
