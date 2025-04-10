@@ -8,11 +8,13 @@ Log a Chemical
 {% load static %}
 
 <body>
-    <form id="return-form" action="" method="get" style="flex: 1;">
+    <!-- Return to Database Button -->
+    <form id="return-form" action="{% url 'chem_display' model_name %}" method="get" style="flex: 1;">
         <button type="submit" class="button-style">Return to Database</button>
     </form>
-
-    <form id="add-form" action="" method="get" style="flex: 1;">
+    
+    <!-- Manually Add Button -->
+    <form id="add-form" action="{% url 'add_chemical' model_name %}" method="get" style="flex: 1;">
         <button type="submit">Manually Add</button>
     </form>
 
@@ -43,24 +45,23 @@ Log a Chemical
         const camList = document.getElementById('cam-list');
         const camQrResult = document.getElementById('cam-qr-result');
         let scanningEnabled = true;
-        let lastQrCode = "";
 
+        // Handle QR Code Result
         async function handleQrCodeResult(label, qrCodeValue) {
-            if (!scanningEnabled || qrCodeValue === lastQrCode) return;
+            if (!scanningEnabled) return;
 
-            lastQrCode = qrCodeValue;
             label.textContent = qrCodeValue;
             scanningEnabled = false;
+
             try {
                 const response = await fetch(`/search_by_qr/?chem_id=${encodeURIComponent(qrCodeValue)}`);
                 if (response.status === 404) {
-                    window.location.href = `/add${window.gotoHref}/?chem_id=${encodeURIComponent(qrCodeValue)}`;
+                    alert("Chemical not found. Redirecting to add page...");
+                    window.location.href = `{% url 'add_chemical' model_name %}?chem_id=${encodeURIComponent(qrCodeValue)}`;
                 } else if (!response.ok) {
                     throw new Error('Network response was not ok');
-                }
-
-                const data = await response.json();
-                if (data.chemName) {
+                } else {
+                    const data = await response.json();
                     alert(`Chemical with Bottle ID: ${data.chemBottleIDNUM} already exists!`);
                 }
             } catch (error) {
@@ -72,10 +73,8 @@ Log a Chemical
             }
         }
 
+        // Initialize QR Scanner
         const scanner = new QrScanner(video, result => handleQrCodeResult(camQrResult, result.data), {
-            onDecodeError: error => {
-                console.error("QR Code Decode Error:", error);
-            },
             highlightScanRegion: true,
             highlightCodeOutline: true,
         });
@@ -95,20 +94,10 @@ Log a Chemical
             scanner.setCamera(event.target.value);
         });
 
-        let gotoHref = "/";
-
-        document.addEventListener("DOMContentLoaded", function () {
-            const referrer = document.referrer;
-            const returnForm = document.getElementById('return-form');
-            const addForm = document.getElementById('add-form');
-
-            returnForm.action = referrer || "/";
-            addForm.action = `${referrer || "/"}/add`;
-
-            window.gotoHref = referrer || "/";
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            scanner.stop();
         });
-
-        window.scanner = scanner;
     </script>
 
     <style>

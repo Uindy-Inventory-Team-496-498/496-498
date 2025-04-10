@@ -255,31 +255,25 @@ def live_search_api(request):
 
 @login_required
 def add_chemical(request, model_name):
-    return_value = ""
-    if model_name.lower() == 'individualChemicals':
-        form_class = CurrChemicalForm
-        return_value = "individualchemicals"
-    elif model_name.lower() == 'allChemicals':
-        form_class = AllChemicalForm
-        return_value = "allchemicals"
-    else:
-        form_class = get_dynamic_form(model_name)
-
+    form_class = get_dynamic_form(model_name)
+    referrer = request.GET.get('referrer', f'/chem_display/{model_name}')
+    
     if request.method == 'POST':
         form = form_class(request.POST)
         if form.is_valid():
-            form.save()
+            chemical = form.save()
             logCall(request.user.username, f"Added chemical to {model_name}")
             messages.success(request, 'Chemical added successfully!')
-            return redirect(return_value)
+            # Redirect to the display page for the added chemical
+            return redirect(f"/chem_display/{model_name}")
     else:
         form = form_class()
 
-    return render(request, 'add_chemical.html', {'form': form, 'model_name': model_name})
-
+    return render(request, 'add_chemical.html', {'form': form, 'model_name': model_name, 'referrer': referrer})
 @login_required
-def scanner_add(request):
-    return render(request, 'scanner_add.html')
+def scanner_add(request, model_name):
+    referrer = request.META.get('HTTP_REFERER', '/')
+    return render(request, 'scanner_add.html', {'model_name': model_name, 'referrer': referrer})
 
 @login_required
 def edit_chemical(request, model_name, pk):
