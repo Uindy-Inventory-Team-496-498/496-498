@@ -1,4 +1,4 @@
-let currentSortColumn = '';
+var currentSortColumn = '';
 let currentSortOrder = 'default';
 
 function sortList(tableBodyId, column) {
@@ -102,7 +102,7 @@ function filterList() {
     rows.forEach(row => {
         const rowType = row.getAttribute('data-type');
         const rowLocation = row.getAttribute('data-location');
-        let rowSDS = row.getAttribute('data-sds');
+        const rowSDS = row.getAttribute('data-sds');
         if (rowSDS === '') rowSDS = 'none';
 
         const typeMatches = selectedTypes.length === 0 || selectedTypes.includes(rowType);
@@ -142,22 +142,77 @@ function selectAll(category) {
 function updateSelectAllCheckbox(category) {
     const checkboxes = document.querySelectorAll(`.${category}-choice`);
     const selectAllCheckbox = document.getElementById(`select-all-${category}`);
+    console.log(selectAllCheckbox); // Check if the element exists
+   // Handle missing or disabled "Select All" checkbox
+   if (!selectAllCheckbox) {
+    console.warn(`Select-all checkbox for category "${category}" not found.`);
+    return;
+    }
+    if (selectAllCheckbox.disabled) {
+    console.warn(`Select-all checkbox for category "${category}" is disabled.`);
+    return;
+    }
+
+    // Determine if all or none of the checkboxes are selected
     const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
     const allUnchecked = Array.from(checkboxes).every(checkbox => !checkbox.checked);
-    selectAllCheckbox.checked = allChecked;
-    selectAllCheckbox.indeterminate = !allChecked && !allUnchecked;
+
+    // Update the "Select All" checkbox state
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = !allChecked && !allUnchecked;
+    } else {
+        console.warn(`Select-all checkbox for category "${category}" not found.`);
+    }
+}
+
+
+function saveFilters() {
+    const filters = {
+        type: Array.from(document.querySelectorAll('.type-choice:checked')).map(cb => cb.value),
+        location: Array.from(document.querySelectorAll('.location-choice:checked')).map(cb => cb.value),
+        sds: Array.from(document.querySelectorAll('.sds-choice:checked')).map(cb => cb.value),
+    };
+    localStorage.setItem('chemDisplayFilters', JSON.stringify(filters));
+}
+
+
+
+function loadFilters() {
+    const filters = JSON.parse(localStorage.getItem('chemDisplayFilters'));
+    if (filters) {
+        document.querySelectorAll('.type-choice').forEach(cb => {
+            cb.checked = filters.type.includes(cb.value);
+        });
+        document.querySelectorAll('.location-choice').forEach(cb => {
+            cb.checked = filters.location.includes(cb.value);
+        });
+        document.querySelectorAll('.sds-choice').forEach(cb => {
+            cb.checked = filters.sds.includes(cb.value);
+        });
+        filterList(); // Apply the filters to update the table
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.type-choice, .location-choice, .sds-choice').forEach(checkbox => {
-        checkbox.checked = true;
+
+    // Load saved filters
+    loadFilters();
+
+     // Add event listeners to save filters when they change
+    document.querySelectorAll('.type-choice, .location-choice, .sds-choice').forEach(cb => {
+        cb.addEventListener('change', saveFilters);
+        cb.addEventListener('change', filterList);
+    });
+
+    // Add event listeners for "Select All" checkboxes
+    document.querySelectorAll('.select-all').forEach(checkbox => {
         checkbox.addEventListener('change', () => {
-            filterList();
-            updateSelectAllCheckbox(checkbox.classList[0].split('-')[0]);
+            selectAll(checkbox.getAttribute('data-category'));
+            saveFilters(); // Save filters when "Select All" changes
         });
     });
-    document.querySelectorAll('.select-all').forEach(checkbox => {
-        checkbox.addEventListener('change', () => selectAll(checkbox.getAttribute('data-category')));
-    });
+
+    // Apply initial filtering
     filterList();
 });

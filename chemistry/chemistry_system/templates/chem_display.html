@@ -2,7 +2,11 @@
 {% load static %}
 
 {% block title %}
-    All Chemicals
+    {% if table_name == "individualChemicals" %}
+        Individual Chemicals
+    {% elif table_name == "allChemicals" %}
+        All Chemicals
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -14,17 +18,233 @@
         <c-utilities />
     </section>
 
+    <script src="{% static 'site.js' %}"></script>
+
     <div class="grid grid-cols-1 lg:grid-cols-10 gap-x-4">
         <!-- Filters Section -->
         <section class="hidden lg:grid col-span-1 lg:col-span-2 w-full lg:w-auto" id="filters">
-            <c-filters />
+            {% if table_name == "individualChemicals" %}
+                <!-- Filters for individualChemicals with unified appearance -->
+                <div class="filter-container">
+                    <h3 class="font-bold">Chemical Type:</h3>
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" id="select-all-type" class="select-all checkbox checkbox-primary mr-2" data-category="type" checked onchange="selectAll('type')">
+                        <label for="select-all-type" class="cursor-pointer">Select All</label>
+                    </div>
+                    {% for chem_type in chemical_types %}
+                        <label class="cursor-pointer label justify-start">
+                            <input type="checkbox" 
+                                class="checkbox checkbox-info mr-2 type-choice" 
+                                value="{{ chem_type|lower }}" 
+                                checked 
+                                onchange="filterList()">
+                            <span class="label-text">{{ chem_type }}</span>
+                        </label>
+                            
+                    {% empty %}
+                        <p>No chemical materials available.</p>
+                    {% endfor %}
+                </div>
+
+                <div class="filter-container">
+                    <h3 class="font-bold">Location:</h3>
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" id="select-all-location" class="select-all checkbox checkbox-primary mr-2" data-category="location" checked onchange="selectAll('location')">
+                        <label for="select-all-location" class="cursor-pointer">Select All</label>
+                    </div>
+                    {% for location in chemical_locations %}
+                        <label class="cursor-pointer label justify-start">
+                            <input type="checkbox" 
+                                class="checkbox checkbox-info mr-2 location-choice" 
+                                value="{{ location|lower }}" 
+                                checked 
+                                onchange="filterList()">
+                            <span class="label-text">{{ location }}</span>
+                        </label>
+                    {% empty %}
+                        <p>No locations available.</p>
+                    {% endfor %}
+                </div>
+
+
+                <div class="filter-container">
+                    <h3 class="font-bold">SDS</h3>
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" id="select-all-sds" class="select-all checkbox checkbox-primary mr-2" data-category="sds"  {% if chemSDS|length == 0 %}disabled{% endif %} checked onchange="selectAll('sds')">
+                        <label for="select-all-sds" class="cursor-pointer">Select All</label>
+                    </div>
+                    {% for sds in chemSDS %}
+                        <label class="cursor-pointer label justify-start">
+                            <input type="checkbox" 
+                                class="checkbox checkbox-info mr-2 sds-choice" 
+                                value="{{ sds|lower }}" 
+                                checked 
+                                onchange="filterList()">
+                            <span class="label-text">{{ sds }}</span>
+                        </label>
+                    {% empty %}
+                        <p>No SDS available.</p>
+                    {% endfor %}
+                </div>
+                <br>
+               
+                <br>
+            
+
+
+            {% elif table_name == "allChemicals" %}
+                <!-- Default filters for allChemicals -->
+                <c-filters />
+            {% endif %}
         </section>
+
+        
 
         <!-- Chemicals List Section -->
         <section class="col-span-1 lg:col-span-8">
             {% if table_name == "individualChemicals" %}
-                <c-chem-list-indiv />
+                <!-- Table for individualChemicals -->
+                <div class="pagination">
+                    <form method="get" class="entries-per-page-form">
+                        <label for="entries_per_page">Entries per page:</label>
+                        <select name="entries_per_page" id="entries_per_page" onchange="this.form.submit()">
+                            <option value="10" {% if entries_per_page == 10 %}selected{% endif %}>10</option>
+                            <option value="25" {% if entries_per_page == 25 %}selected{% endif %}>25</option>
+                            <option value="50" {% if entries_per_page == 50 %}selected{% endif %}>50</option>
+                            <option value="100" {% if entries_per_page == 100 %}selected{% endif %}>100</option>
+                            <option value="all" {% if entries_per_page == total_entries %}selected{% endif %}>All</option>
+                        </select>
+                    </form>
+                    <p>Total entries: {{ total_entries }}</p>
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1&entries_per_page={{ entries_per_page }}" class="pagination-link">First</a>
+                        <a href="?page={{ page_obj.previous_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Previous</a>
+                    {% endif %}
+                
+                    {% with surrounding_links=5 %}
+                        {% for page_num in page_obj.paginator.page_range %}
+                            {% if page_num >= page_obj.number|add:"-5" and page_num <= page_obj.number|add:"5" %}
+                                {% if page_num == page_obj.number %}
+                                    <span class="pagination-link active">{{ page_num }}</span>
+                                {% else %}
+                                    <a href="?page={{ page_num }}&entries_per_page={{ entries_per_page }}" class="pagination-link">{{ page_num }}</a>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+                
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}&entries_per_page={{ request.GET.entries_per_page|default:entries_per_page }}" class="pagination-link">Next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Last</a>
+                    {% endif %}
+                </div>
+
+                <table class="chemical_list_db">
+                    <thead>
+                        <tr>
+                            <th class="column-id" onclick="sortList('chemical-table-body', 'id')">
+                                <div class="header-container">ID <span id="sort-arrow-id"></span></div>
+                            </th>
+                            <th class="column-material" onclick="sortList('chemical-table-body', 'material')">
+                                <div class="header-container">Material <span id="sort-arrow-material"></span></div>
+                            </th>
+                            <th class="column-name" onclick="sortList('chemical-table-body', 'name')">
+                                <div class="header-container">Name <span id="sort-arrow-name"></span></div>
+                            </th>
+                            <th class="column-room" onclick="sortList('chemical-table-body', 'room')">
+                                <div class="header-container">Room <span id="sort-arrow-room"></span></div>
+                            </th>
+                            <th class="column-cabinet" onclick="sortList('chemical-table-body', 'cabinet')">
+                                <div class="header-container">Cabinet <span id="sort-arrow-cabinet"></span></div>
+                            </th>
+                            <th class="column-shelf" onclick="sortList('chemical-table-body', 'shelf')">
+                                <div class="header-container">Shelf <span id="sort-arrow-shelf"></span></div>
+                            </th>
+                            <th class="column-amount" onclick="sortList('chemical-table-body', 'amount')">
+                                <div class="header-container">Amount <span id="sort-arrow-amount"></span></div>
+                            </th>
+                            <th class="column-unit" onclick="sortList('chemical-table-body', 'unit')">
+                                <div class="header-container">Unit <span id="sort-arrow-unit"></span></div>
+                            </th>
+                            <th class="column-concentration" onclick="sortList('chemical-table-body', 'concentration')">
+                                <div class="header-container">Concentration <span id="sort-arrow-concentration"></span></div>
+                            </th>
+                            <th class="column-sds" onclick="sortList('chemical-table-body', 'sds')">
+                                <div class="header-container">SDS <span id="sort-arrow-sds"></span></div>
+                            </th>
+                            <th class="column-notes" onclick="sortList('chemical-table-body', 'notes')">
+                                <div class="header-container">Notes <span id="sort-arrow-notes"></span></div>
+                            </th>
+                            <th class="column-instrument" onclick="sortList('chemical-table-body', 'instrument')">
+                                <div class="header-container">Instrument <span id="sort-arrow-instrument"></span></div>
+                            </th>
+                            <th class="column-checked-out-by" onclick="sortList('chemical-table-body', 'checked-out-by')">
+                                <div class="header-container">Checked By <span id="sort-arrow-checked-out-by"></span></div>
+                            </th>
+                            <th class="column-checked-out-date" onclick="sortList('chemical-table-body', 'checked-out-date')">
+                                <div class="header-container">Checked Date <span id="sort-arrow-checked-out-date"></span></div>
+                            </th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chemical-table-body">
+                        {% for chemical in page_obj %}
+                        <tr class="chemical-row" data-type="{{ chemical.chemAssociated.chemMaterial|lower }}" data-location="{{ chemical.chemLocationRoom|default_if_none:'none'|lower }}" data-sds="{{ chemical.chemAssociated.chemSDS }}">
+                            <td class="column-id">{{ chemical.chemBottleIDNUM }}</td>
+                            <td class="column-material">{{ chemical.chemAssociated.chemMaterial }}</td>
+                            <td class="column-name">{{ chemical.chemAssociated.chemName }}</td>
+                            <td class="column-room">{{ chemical.chemLocationRoom }}</td>
+                            <td class="column-cabinet">{{ chemical.chemLocationCabinet }}</td>
+                            <td class="column-shelf">{{ chemical.chemLocationShelf }}</td>
+                            <td class="column-amount">{{ chemical.chemAmountInBottle }}</td>
+                            <td class="column-unit">{{ chemical.chemAssociated.chemAmountUnit }}</td>
+                            <td class="column-concentration">{{ chemical.chemAssociated.chemConcentration }}</td>
+                            <td class="column-sds">{{ chemical.chemAssociated.chemSDS }}</td>
+                            <td class="column-notes">{{ chemical.chemAssociated.chemNotes }}</td>
+                            <td class="column-instrument">{{ chemical.chemAssociated.chemInstrument }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <form method="get" class="entries-per-page-form">
+                        <label for="entries_per_page">Entries per page:</label>
+                        <select name="entries_per_page" id="entries_per_page" onchange="this.form.submit()">
+                            <option value="10" {% if entries_per_page == 10 %}selected{% endif %}>10</option>
+                            <option value="25" {% if entries_per_page == 25 %}selected{% endif %}>25</option>
+                            <option value="50" {% if entries_per_page == 50 %}selected{% endif %}>50</option>
+                            <option value="100" {% if entries_per_page == 100 %}selected{% endif %}>100</option>
+                            <option value="all" {% if entries_per_page == total_entries %}selected{% endif %}>All</option>
+                        </select>
+                    </form>
+                    <p>Total entries: {{ total_entries }}</p>
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1&entries_per_page={{ entries_per_page }}" class="pagination-link">First</a>
+                        <a href="?page={{ page_obj.previous_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Previous</a>
+                    {% endif %}
+                
+                    {% with surrounding_links=5 %}
+                        {% for page_num in page_obj.paginator.page_range %}
+                            {% if page_num >= page_obj.number|add:"-5" and page_num <= page_obj.number|add:"5" %}
+                                {% if page_num == page_obj.number %}
+                                    <span class="pagination-link active">{{ page_num }}</span>
+                                {% else %}
+                                    <a href="?page={{ page_num }}&entries_per_page={{ entries_per_page }}" class="pagination-link">{{ page_num }}</a>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+                
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Last</a>
+                    {% endif %}
+                </div>
+                
+                </table>
             {% elif table_name == "allChemicals" %}
+                <!-- Default table for allChemicals -->
                 <c-chem-list />
             {% endif %}
         </section>
@@ -32,6 +252,7 @@
 </div>
 
 <script>
+    // Toggle filters visibility for mobile view
     let btn = document.getElementById('show-filter-btn');
     btn.addEventListener('click', (e) => {
         let filterSection = document.getElementById('filters');
@@ -50,5 +271,11 @@
         }
     });
 </script>
+
+<!-- {% if table_name == "individualChemicals" %}
+<script>
+       
+</script>
+{% endif %} -->
 
 {% endblock %}

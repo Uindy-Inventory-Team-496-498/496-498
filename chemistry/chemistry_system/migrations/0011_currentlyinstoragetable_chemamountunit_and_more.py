@@ -11,27 +11,27 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='currentlyinstoragetable',
+            model_name='individualchemicals',
             name='chemAmountUnit',
             field=models.CharField(max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='currentlyinstoragetable',
+            model_name='individualchemicals',
             name='chemConcentration',
             field=models.CharField(max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='currentlyinstoragetable',
+            model_name='individualchemicals',
             name='chemInstrument',
             field=models.CharField(max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='currentlyinstoragetable',
+            model_name='individualchemicals',
             name='chemNotes',
             field=models.CharField(max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='currentlyinstoragetable',
+            model_name='individualchemicals',
             name='chemSDS',
             field=models.CharField(max_length=20, null=True),
         ),

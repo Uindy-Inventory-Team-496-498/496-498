@@ -2,28 +2,21 @@ from django.views.generic import ListView
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
-from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from django.core.paginator import Paginator
-from PIL import Image, ImageDraw, ImageFont
-from django.http import HttpResponse
-from .models import get_model_by_name, individualChemicals
-
-
-
-import qrcode
-import io
-import random
-import os
-import pytz
 
 from chemistry_system.models import allChemicals, individualChemicals, Log, get_model_by_name
-from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm
-from .utils import update_total_amounts, logCall, generate_qr_pdf, populate_storage
+from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
+from .utils import logCall, generate_qr_pdf, populate_storage
+from .filters import ChemicalFilter
+
 from dal import autocomplete
+from PIL import Image, ImageDraw, ImageFont
+from django.http import Http404
+
 
 class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
@@ -80,7 +73,8 @@ def currchemicals(request):
     else:
         chemical_list_db = individualChemicals.objects.all()
 
-    chemical_types = allChemicals.objects.values_list('chemMaterial', flat=True).distinct()
+    chemical_types = individualChemicals.objects.values_list('chemAssociated__chemMaterial', flat=True).distinct()
+    print(list(chemical_types))  # Add this line to log the data
     chemical_locations = individualChemicals.objects.values_list('chemLocationRoom', flat=True).distinct()
 
     # Get the number of entries per page from the request, default to 10
@@ -111,7 +105,7 @@ def currchemicals(request):
 
 @login_required
 def allchemicals(request):
-    update_total_amounts()  # Update total amounts before rendering
+    force_update_total_amount()  # Update total amounts before rendering
     chemical_list_db = allChemicals.objects.all()
     chemical_types = allChemicals.objects.values_list('chemMaterial', flat=True).distinct()
     chemical_locations = allChemicals.objects.values_list('chemLocationRoom', flat=True).distinct()
@@ -330,23 +324,131 @@ def generate_qr_pdf_view(request):
     return generate_qr_pdf(request)
 
 
+def chem_display(request, table_name):
+    model_class = get_model_by_name(table_name)
+    if not model_class:
+        raise Http404(f"Table '{table_name}' does not exist.")
+    
+    model, _ = model_class  # Extract the model class
+    query = request.GET.get('query', '').strip()
+
+    entries_per_page = request.GET.get("entries_per_page", "10")  # Default to "10"
+    message = None
+
+     # Fetch distinct materials and locations
+    if table_name == "individualChemicals":
+        chemical_types = model.objects.values_list('chemAssociated__chemMaterial', flat=True).distinct()
+        chemical_locations = model.objects.values_list('chemLocationRoom', flat=True).distinct()
+        chemSDS = model.objects.values_list('chemAssociated__chemSDS', flat=True).distinct()
+
+
+    elif table_name == "allChemicals":
+        chemical_types = model.objects.values_list('chemMaterial', flat=True).distinct()
+        chemical_locations = model.objects.values_list('chemLocationRoom', flat=True).distinct()
+        chemSDS = model.objects.values_list('chemSDS', flat=True).distinct()
+
+    else:
+        chemical_types = []
+        chemical_locations = []
+        chemSDS = []
+
+    # Base queryset
+    chemicals = model.objects.all()
+
+    # Search functionality
+    if query:
+        q_objects = Q()
+        if table_name == "individualChemicals":
+            fields = [
+                'chemAssociated__chemName', 'chemBottleIDNUM', 'chemAssociated__chemMaterial',
+                'chemLocationRoom', 'chemLocationCabinet', 'chemLocationShelf',
+                'chemAmountInBottle', 'chemAssociated__chemAmountUnit', 'chemAssociated__chemConcentration',
+                'chemAssociated__chemSDS', 'chemAssociated__chemNotes', 'chemAssociated__chemInstrument',
+                'chemCheckedOutBy__username', 'chemCheckedOutDate'
+            ]
+        elif table_name == "allChemicals":
+            fields = [
+                'chemName', 'chemMaterial', 'chemLocationRoom', 'chemLocationCabinet',
+                'chemLocationShelf', 'chemAmountTotal', 'chemAmountUnit', 'chemConcentration',
+                'chemSDS', 'chemNotes', 'chemInstrument'
+            ]
+        for field in fields:
+            q_objects |= Q(**{f"{field}__icontains": query})
+        chemicals = chemicals.filter(q_objects)
+        if not chemicals.exists():
+            message = f"No results found for '{query}'."
+
+    # Pagination
+    paginator = Paginator(chemicals, entries_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "page_obj": page_obj,
+        "chemical_count": chemicals.count(),
+        "chemical_types": chemical_types,
+        "chemical_locations": chemical_locations,
+        "chemSDS": chemSDS,
+        "entries_per_page": entries_per_page,
+        "table_name": table_name,
+        "query": query,
+        "message": message,
+    }
+
+    return render(request, "chem_display.html", context)
+
 @login_required
-def log(request):
+def run_populate_storage(request):
+    populate_storage()
+    messages.success(request, 'Database populated with dummy data successfully!')
+    return redirect('currchemicals')
+
+@login_required
+def force_update_total_amount(request):
+    chemicals = allChemicals.objects.all()
+    for chemical in chemicals:
+        chemical.update_total_amount()
+    messages.success(request, 'Total amounts updated for all chemicals successfully!')
+    return redirect('chem_display')
+
+
+
+def show_all_chemicals(request):
+    context = {}
+
+    filtered_chemicals = ChemicalFilter(
+        request.GET, 
+        queryset=allChemicals.objects.all()
+    )
+
+    context['filtered_chemicals'] = filtered_chemicals
+
+    paginated_filtered_chemicals = Paginator(filtered_chemicals.qs, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginated_filtered_chemicals.get_page(page_number)
+
+    context['page_obj'] = page_obj
+
+    return render(request, 'show_all_chemicals.html', context)
+
+
+@login_required
+def log(request): # DONT MODIFY THIS FUNCTION
     query = request.GET.get('search', '')
     query_date = request.GET.get('date', '')
     log_entries = Log.objects.all().order_by('-date')  # Fetch logs ordered by date
     if query_date:
         print("WORKING")
         log_entries = log_entries.filter(
-            date__icontains=query_date  # Search by date (if needed)
+            date__icontains=query_date  ## DONT MODIFY THIS LINE
         )
     if query:
         log_entries = log_entries.filter(
-            user__icontains=query  # Case-insensitive search for user
+            user__icontains=query  # DONT MODIFY THIS LINE
         ) | log_entries.filter(
-            action__icontains=query  # Case-insensitive search for action
+            action__icontains=query  # DONT MODIFY THIS LINE
         ) | log_entries.filter(
-            date__icontains=query  # Search by date (if needed)
+            date__icontains=query  # DONT MODIFY THIS LINE
         )
     
     
@@ -355,9 +457,3 @@ def log(request):
     page_obj = paginator.get_page(page_number)  # Get the requested page
 
     return render(request, 'log.html', {'page_obj': page_obj, 'query': query})  
-
-@login_required
-def run_populate_storage(request):
-    populate_storage()
-    messages.success(request, 'Database populated with dummy data successfully!')
-    return redirect('currchemicals')
