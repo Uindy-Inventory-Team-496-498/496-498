@@ -1,8 +1,4 @@
-<div id="chem-list" class="w-full"
-    hx-get="{% url 'chem_display' table_name %}?entries_per_page={{ entries_per_page }}"
-    hx-trigger="load"
-    hx-target="#filter-counts"
-    hx-swap="outerHTML">
+<div id="chem-list">
     <h1 class="text-2xl font-bold mb-4"></h1>
 
     <!-- Responsive grid for smaller screens -->
@@ -19,6 +15,7 @@
             <p><strong>SDS:</strong> {{ chemical.chemSDS }}</p>
             <p>
                 <form action="{% url 'edit_chemical' table_name chemical.chemID %}" method="get" style="display:inline;">
+                    <input type="hidden" name="referrer" value="{{ request.path }}">
                     <button type="submit" class="button-style">Edit</button>
                 </form>
             </p>
@@ -70,6 +67,7 @@
                         <td data-label="Edit">
                             <!-- Edit Chemical Button -->
                             <form action="{% url 'edit_chemical' table_name chemical.chemID %}" method="get" style="display:inline;">
+                                <input type="hidden" name="referrer" value="{{ request.path }}">
                                 <button type="submit" class="button-style">Edit</button>
                             </form>
                         </td>

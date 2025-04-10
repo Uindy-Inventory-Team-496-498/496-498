@@ -230,6 +230,6 @@ def populate_storage():
                 chemLocationRoom=chem.chemLocationRoom,
                 chemLocationCabinet=random.choice(['Cabinet A', 'Cabinet B', 'Cabinet C']),
                 chemLocationShelf=random.choice(['Shelf 1', 'Shelf 2', 'Shelf 3']),
-                chemAmountInBottle=f"{random.randint(1, 1000)} mL",
+                chemAmountInBottle=f"{random.randint(1, 1000)}",
             )
             bottle_id += 1

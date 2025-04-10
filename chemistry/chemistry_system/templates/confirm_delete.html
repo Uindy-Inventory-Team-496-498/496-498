@@ -11,6 +11,6 @@
     <form method="POST">
         {% csrf_token %}
         <button type="submit">Yes, delete</button>
-        <a href="{% url 'current_chemicals' model_name=model_name %}">Cancel</a>
+        <a href="{% url 'current_chemicals' model_name %}">Cancel</a>
     </form>
 {% endblock %}
