@@ -24,6 +24,43 @@
         <!-- Filters Section -->
         <section class="hidden lg:grid col-span-1 lg:col-span-2 w-full lg:w-auto" id="filters">
             {% if table_name == "individualChemicals" %}
+
+            <div class="search-container">
+                <!-- Search Form -->
+                <form action="{% url 'chem_display' 'individualChemicals' %}" method="get" class="search-form">
+                    <div class="search-box-container">
+                        <input
+                            type="text"
+                            name="query"
+                            id="search-input"
+                            placeholder="Enter chemical name or ID ..."
+                            class="search-input"
+                            value="{{ query|default_if_none:'' }}"
+                            autocomplete="off"
+                        >
+                         <!-- Include the entries_per_page parameter in the search form -->
+                         <input type="hidden" name="entries_per_page" value="{{ entries_per_page }}">
+                        <!-- Live search results container -->
+                        <div id="live-results" class="dropdown-menu"></div>
+            
+                        <button type="submit" class="search-button">Search</button>
+                    </div>
+                </form>
+            </div>
+            <script src="{% static 'js/live-search.js' %}"></script>
+            <div class="results-container">
+                <h1>Search Results for "{{ query }}"</h1>
+        
+                {% if message %}
+                    <p class="alert-message">{{ message }}</p>
+                {% elif page_obj and page_obj.paginator.count > 0 %}
+                    <p class="results-count">{{ total_matching_entries }} total matching entries</p>
+                {% else %}
+                    <p class="alert-message">No results found for "{{ query }}"</p>
+                {% endif %}
+            </div>
+
+
                 <!-- Filters for individualChemicals with unified appearance -->
                 <div class="filter-container">
                     <h3 class="font-bold">Chemical Type:</h3>
@@ -115,7 +152,7 @@
                             <option value="all" {% if entries_per_page == total_entries %}selected{% endif %}>All</option>
                         </select>
                     </form>
-                    <p>Total entries: {{ total_entries }}</p>
+                    <!-- <p>Total entries: {{ total_entries }}</p> -->
                     {% if page_obj.has_previous %}
                         <a href="?page=1&entries_per_page={{ entries_per_page }}" class="pagination-link">First</a>
                         <a href="?page={{ page_obj.previous_page_number }}&entries_per_page={{ entries_per_page }}" class="pagination-link">Previous</a>

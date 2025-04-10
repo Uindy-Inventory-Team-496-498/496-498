@@ -1,5 +1,5 @@
 var currentSortColumn = '';
-let currentSortOrder = 'default';
+var currentSortOrder = 'default';
 
 function sortList(tableBodyId, column) {
     const tableBody = document.getElementById(tableBodyId);

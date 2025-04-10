@@ -325,6 +325,7 @@ def generate_qr_pdf_view(request):
 
 
 def chem_display(request, table_name):
+    query = request.GET.get('query', '').strip()
     model_class = get_model_by_name(table_name)
     if not model_class:
         raise Http404(f"Table '{table_name}' does not exist.")
@@ -383,6 +384,9 @@ def chem_display(request, table_name):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+       # Calculate the total number of matching entries
+    total_matching_entries = chemicals.count()
+
     context = {
         "page_obj": page_obj,
         "chemical_count": chemicals.count(),
@@ -390,6 +394,7 @@ def chem_display(request, table_name):
         "chemical_locations": chemical_locations,
         "chemSDS": chemSDS,
         "entries_per_page": entries_per_page,
+        "total_matching_entries": total_matching_entries,
         "table_name": table_name,
         "query": query,
         "message": message,
