@@ -7,21 +7,20 @@
 
 {% block content %}
 
-<div class="md:px-1 lg:px-[1vw]">
-    <button class="btn lg:hidden mb-2" id="show-filter-btn">Show filters</button>
-
-    <section class="grid">
-        <c-utilities />
-    </section>
-
-    <div class="grid grid-cols-10 gap-x-4">
+<div class="md:px-1 lg:px-[10vw]">
+    <button class="btn mb-2" id="show-filter-btn">Show filters</button>
+    
+    <div class="grid grid-cols-4 gap-x-4">
+        <section class="grid">
+            <c-utilities />
+        </section>
         <!-- Filters Section -->
-        <section class="hidden lg:grid col-span-2 md:col-span-2 w-full lg:w-auto" id="filters">
+        <section class="hidden col-span-1" id="filters">
             <c-filters />
         </section>
 
         <!-- Chemicals List Section -->
-        <section class="sm:col-span-1 md:col-span-8">
+        <section class="col-span-3">
             {% if table_name == "individualChemicals" %}
                 <c-chem-list-indiv />
             {% elif table_name == "allChemicals" %}
@@ -40,13 +39,13 @@
             filterSection.classList.add('grid');
             filterSection.classList.add('col-span-1');
             filterSection.classList.add('mb-4');
-            e.target.textContent = 'Hide filters';
+            e.target.textContent = 'Hide filters'
         } else {
             filterSection.classList.add('hidden');
-            filterSection.classList.remove('grid');
-            filterSection.classList.remove('col-span-1');
-            filterSection.classList.remove('mb-4');
-            e.target.textContent = 'Show filters';
+            filterSection.classList.remove('grid');            
+            filterSection.classList.remove('col-span-1');            
+            filterSection.classList.remove('mb-4');            
+            e.target.textContent = 'Show filters'
         }
     });
 </script>
