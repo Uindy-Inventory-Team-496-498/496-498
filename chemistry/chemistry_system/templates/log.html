@@ -11,8 +11,8 @@
     <h3>Search by User/Action and/or Date</h3>
     <form method="get" action="{% url 'log' %}">
         <input type="text" name="search" placeholder="Search by user or action" value="{{ query }}">
-        <input type="date" name="date" value="{{ request.GET.date }}"> <!-- Date input -->
-        <button type="submit">Search</button>
+        <input type="date" name="date" value="{{ request.GET.date }}">
+        <button type="submit" class="search-button">Search</button>
     </form>
 
     <table border="1">

@@ -2,42 +2,36 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <!-- For mobile responsiveness -->
+  <!-- Responsive meta for phones -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}{% endblock %}</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/htmx.org@2.0.2" integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ" crossorigin="anonymous"></script>
-
   {% load static %}
 
-  <!-- jQuery (if needed) -->
+  <!-- Tailwind, DaisyUI, jQuery, etc. -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-  <!-- Optional Autocomplete / Select2 -->
   <script src="{% static 'autocomplete_light/autocomplete_light.js' %}"></script>
   <script src="{% static 'autocomplete_light/select2.js' %}"></script>
   <link rel="stylesheet" href="{% static 'autocomplete_light/select2.css' %}">
 
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Google Fonts & FontAwesome (optional) -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
-  <!-- Main CSS -->
+  <!-- Your main CSS -->
   <link rel="stylesheet" href="{% static 'site.css' %}" />
   {{ form.media }}
 </head>
-<body>
 
+<body>
 {% if user.is_authenticated %}
-  <!-- Desktop Nav (≥768px) -->
+  <!-- DESKTOP NAV (≥768px) -->
   <div class="navbar desktop-nav">
     <a href="{% url 'home' %}" class="navbar-brand">Home</a>
     <a href="{% url 'chem_display' 'allChemicals' %}">All Chemicals</a>
-    <a href="{% url 'chem_display' 'individualChemicals' %}">Individual Chemcials</a>
-    <a href="{% url 'allchemicals' %}">All Chemicals Old</a>
-    <a href="{% url 'currchemicals' %}">Individual Bottles Old</a>
+    <a href="{% url 'chem_display' 'individualChemicals' %}">Individual Chemicals</a>
     <a href="{% url 'search' %}">Search</a>
     <a href="{% url 'scan' %}">Scanner</a>
     <a href="{% url 'checkinandout' %}">Check In/Out</a>
@@ -51,9 +45,10 @@
     </div>
   </div>
 
-  <!-- Mobile Top Bar (<768px) -->
+  <!-- MOBILE TOP BAR (<768px) -->
   <div class="mobile-top-bar">
     <div id="hamburgerBtn" class="mobile-hamburger">
+      <!-- Three bars for hamburger -->
       <span class="bar"></span>
       <span class="bar"></span>
       <span class="bar"></span>
@@ -63,7 +58,7 @@
     </div>
   </div>
 
-  <!-- Mobile Drawer -->
+  <!-- MOBILE NAV DRAWER -->
   <div class="mobile-nav-links" id="mobileNav">
     <div class="drawer-profile">
       <div class="profile-text">
@@ -74,16 +69,22 @@
     <h3 style="color: #fff; margin: 0 0 8px;">Chemistry Inventory</h3>
     <hr style="border-color: rgba(255,255,255,0.3); margin: 10px 0;" />
 
+    <!-- Single link: HOME -->
+    <a href="{% url 'home' %}"><i class="fa fa-home"></i> Home</a>
+
+    <!-- Collapsible 'Data' group -->
     <div class="collapsible-section">
-      <div class="collapsible-header">
-        <span>Data</span>
-        <button class="toggle-arrow"><i class="fa fa-chevron-down"></i></button>
+      <div class="collapsible-header" role="button" aria-expanded="false" tabindex="0">
+        <span class="header-content">
+          <i class="fa fa-database"></i> Data
+        </span>
+        <button class="toggle-arrow" aria-label="Expand Data Section">
+          <i class="fa fa-chevron-down"></i>
+        </button>
       </div>
       <div class="collapsible-content">
         <a href="{% url 'chem_display' 'allChemicals' %}"><i class="fa fa-flask"></i> All Chemicals</a>
         <a href="{% url 'chem_display' 'individualChemicals' %}"><i class="fa fa-vial"></i> Individual Chemicals</a>
-        <a href="{% url 'allchemicals' %}"><i class="fa fa-archive"></i> All Chemicals Old</a>
-        <a href="{% url 'currchemicals' %}"><i class="fa fa-bottle-water"></i> Individual Bottles Old</a>
         <a href="{% url 'search' %}"><i class="fa fa-search"></i> Search</a>
       </div>
     </div>
@@ -93,7 +94,7 @@
     <a href="{% url 'print_page' %}"><i class="fa fa-print"></i> Print</a>
     <a href="{% url 'log' %}"><i class="fa fa-history"></i> Log</a>
 
-    <!-- Logout in middle -->
+    <!-- Logout -->
     <form method="post" action="{% url 'logout' %}" class="logout-form">
       {% csrf_token %}
       <button type="submit" class="logout-button">
@@ -104,6 +105,7 @@
   <div class="mobile-overlay" id="overlay"></div>
 {% endif %}
 
+<!-- MAIN CONTENT -->
 <div class="body-content">
   {% block content %}{% endblock %}
 </div>
@@ -112,32 +114,35 @@
   <p>&copy; 2025</p>
 </footer>
 
+<!-- Toggle logic -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const menuBtn = document.getElementById("hamburgerBtn");
+    const menuBtn   = document.getElementById("hamburgerBtn");
     const mobileNav = document.getElementById("mobileNav");
-    const overlay = document.getElementById("overlay");
+    const overlay   = document.getElementById("overlay");
 
+    // Toggles the menu open/close + overlay
     menuBtn.addEventListener("click", () => {
       mobileNav.classList.toggle("active-drawer");
       overlay.classList.toggle("show-overlay");
     });
+
+    // Clicking outside (on overlay) closes the menu
     overlay.addEventListener("click", () => {
       mobileNav.classList.remove("active-drawer");
       overlay.classList.remove("show-overlay");
     });
 
+    // Collapsible "Data" group
     document.querySelectorAll('.collapsible-header').forEach(header => {
       header.addEventListener('click', () => {
         const section = header.parentElement;
-        section.classList.toggle('open'); // Toggle the "open" class
+        section.classList.toggle('open');
       });
     });
   });
 </script>
 
-<!-- Optionally add your site.js or sorting/filtering scripts here -->
 <script src="{% static 'site.js' %}"></script>
-
 </body>
 </html>
