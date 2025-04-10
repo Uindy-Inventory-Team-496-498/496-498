@@ -16,8 +16,6 @@ from .utils import logCall, generate_qr_pdf, populate_storage
 from dal import autocomplete # type: ignore
 from PIL import Image, ImageDraw, ImageFont # type: ignore
 
-filters = {"chemMaterials": [], "chemLocationRoom": []}
-
 @login_required
 def chem_display(request, table_name):
     model_class = get_model_by_name(table_name)
@@ -30,8 +28,7 @@ def chem_display(request, table_name):
     chemLocationRoom = request.GET.getlist("chemLocationRoom")
     
     entries_per_page = request.GET.get("entries_per_page", "10")  # Default to "10"
-    print("HERE")
-    print(filters)
+    
     try:
         entries_per_page = int(entries_per_page) if entries_per_page != "all" else "all"
     except ValueError:
@@ -41,18 +38,16 @@ def chem_display(request, table_name):
 
     if chemMaterials:
         chemicals = chemicals.filter(chemMaterial__in=chemMaterials)
-        filters['chemMaterials'] = chemMaterials
     if chemLocationRoom:
         chemicals = chemicals.filter(chemLocationRoom__in=chemLocationRoom)
-        filters['chemLocationRoom'] = chemLocationRoom
 
     # Calculate counts for each filter option based on the filtered queryset
     material_counts = chemicals.values('chemMaterial').annotate(count=models.Count('chemMaterial'))
     location_counts = chemicals.values('chemLocationRoom').annotate(count=models.Count('chemLocationRoom'))
 
     # Convert counts to dictionaries for easier access in the template
-    material_counts_dict = {item['chemMaterial']: item['count'] for item in material_counts}
-    location_counts_dict = {item['chemLocationRoom']: item['count'] for item in location_counts}
+    material_dict = {item['chemMaterial']: item['count'] for item in material_counts}
+    location_dict = {item['chemLocationRoom']: item['count'] for item in location_counts}
 
     if entries_per_page == "all":
         paginator = Paginator(chemicals, chemicals.count())  # Show all items
@@ -62,62 +57,23 @@ def chem_display(request, table_name):
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
+    target_id = "chem-list" if table_name == "allChemicals" else "chem-list-indiv"
+    target_html = "chem_list" if table_name == "allChemicals" else "chem_list_indiv"
+
     context = {
         "page_obj": page_obj,
         "chemical_count": chemicals.count(),
         "entries_per_page": entries_per_page,
         "table_name": table_name,  # Pass table_name to the context
-        "material_counts_dict": material_counts_dict,
-        "location_counts_dict": location_counts_dict,
-        "selected_materials": chemMaterials,  # Pass selected materials
-        "selected_locations": chemLocationRoom,  # Pass selected locations
+        "material_dict": material_dict,
+        "location_dict": location_dict,
+        "target_id": target_id
     }
 
     if 'HX-Request' in request.headers:
-        if request.htmx.target == "chem-list":
-            print("-------------------------" + request.htmx.target  + "-------------------------")
-            print(material_counts_dict)
-            print(location_counts_dict)
-            return render(request, "cotton/chem_list.html", context)
-        elif request.htmx.target == "filter-counts":
-            print("-------------------------" + request.htmx.target + "-------------------------")
-            print(filters)
-            print(material_counts_dict)
-            print(location_counts_dict)
-            if filters['chemMaterials'] != []:
-                chemicals = chemicals.filter(chemMaterial__in=filters['chemMaterials'])
-            if filters['chemLocationRoom'] != []:
-                chemicals = chemicals.filter(chemLocationRoom__in=filters['chemLocationRoom'])
-            print(chemicals)
-            # Calculate counts for each filter option based on the filtered queryset
-            material_counts = chemicals.values('chemMaterial').annotate(count=models.Count('chemMaterial'))
-            location_counts = chemicals.values('chemLocationRoom').annotate(count=models.Count('chemLocationRoom'))
-            print(material_counts)
-            print(location_counts)
-            # Convert counts to dictionaries for easier access in the template
-            material_counts_dict_filtered = {item['chemMaterial']: item['count'] for item in material_counts}
-            location_counts_dict_filtered = {item['chemLocationRoom']: item['count'] for item in location_counts}  
-            print(material_counts_dict_filtered)
-            print(location_counts_dict_filtered)
-            print("HERE")
-            for key, value in material_counts_dict.items(): 
-                if key in material_counts_dict_filtered:
-                    material_counts_dict[key] = material_counts_dict_filtered[key]
-                else:
-                    material_counts_dict[key] = 0
-            print("HERE")
-            for key, value in location_counts_dict.items(): 
-                if key in location_counts_dict_filtered:
-                    location_counts_dict[key] = location_counts_dict_filtered[key]
-                else:
-                    location_counts_dict[key] = 0         
-            print(material_counts_dict)
-            print(location_counts_dict)
-            context["material_counts_dict"] = material_counts_dict
-            context["location_counts_dict"] = location_counts_dict
-            filters["chemMaterials"] = []
-            filters["chemLocationRoom"] = []
-            return render(request, "cotton/filter_counts.html", context)
+        print("-------------------------" + request.htmx.target  + "-------------------------")
+        if request.htmx.target == target_id:
+            return render(request, f"cotton/{target_html}.html", context)
         
     return render(request, "chem_display.html", context)
 
@@ -302,7 +258,7 @@ def add_chemical(request, model_name):
     return_value = ""
     if model_name.lower() == 'individualChemicals':
         form_class = CurrChemicalForm
-        return_value = "individualChemicals"
+        return_value = "individualchemicals"
     elif model_name.lower() == 'allChemicals':
         form_class = AllChemicalForm
         return_value = "allchemicals"
@@ -334,18 +290,19 @@ def edit_chemical(request, model_name, pk):
     
     chemical = get_object_or_404(model, pk=pk)
     DynamicChemicalForm = get_dynamic_form(model_name)
-    
+    referrer = request.GET.get('referrer', '/')
+
     if request.method == 'POST':
         form = DynamicChemicalForm(request.POST, instance=chemical)
         if form.is_valid():
             logCall(request.user.username, f"Updated chemical with ID {pk}")
             form.save()
             messages.success(request, 'Chemical updated successfully!')
-            return redirect('currchemicals')
+            return redirect(referrer)
     else:
         form = DynamicChemicalForm(instance=chemical)
-    
-    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical, 'model_name': model_name})
+
+    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical, 'model_name': model_name, 'referrer': referrer} )
 
 @login_required
 def delete_chemical(request, model_name, pk):
@@ -360,7 +317,7 @@ def delete_chemical(request, model_name, pk):
         chemical.delete()
         logCall(request.user.username, f"Deleted chemical with ID {pk}")
         messages.success(request, 'Chemical deleted successfully!')
-        return redirect('currchemicals')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
     
     return render(request, 'confirm_delete.html', {'chemical': chemical})
 
@@ -378,7 +335,7 @@ def delete_all_chemicals(request):
         else:
             messages.error(request, 'Invalid model name.')
 
-        return redirect('currchemicals' if model_name == 'individualChemicals' else 'allchemicals')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
     return render(request, 'confirm_delete_all.html')
 
 @login_required
