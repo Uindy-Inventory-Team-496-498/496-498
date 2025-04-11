@@ -5,50 +5,55 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Action Logs</h1>
+<div class="logs-container">
+    <h1 class="page-title">Action Logs</h1>
 
     <!-- Search Form -->
-    <h3>Search by User/Action and/or Date</h3>
-    <form method="get" action="{% url 'log' %}">
-        <input type="text" name="search" placeholder="Search by user or action" value="{{ query }}">
-        <input type="date" name="date" value="{{ request.GET.date }}">
+    <form method="get" action="{% url 'log' %}" class="search-form">
+        <input type="text" name="search" placeholder="Search by user or action" value="{{ query }}" class="search-input">
+        <input type="date" name="date" value="{{ request.GET.date }}" class="date-input">
         <button type="submit" class="search-button">Search</button>
     </form>
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>Action</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for log in page_obj %}
+    <!-- Logs Table -->
+    <div class="table-container">
+        <table class="results-table">
+            <thead>
                 <tr>
-                    <td>{{ log.user }}</td>
-                    <td>{{ log.action }}</td>
-                    <td>{{ log.date }}</td>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Date</th>
                 </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="3">No logs available.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for log in page_obj %}
+                    <tr>
+                        <td>{{ log.user }}</td>
+                        <td>{{ log.action }}</td>
+                        <td>{{ log.date }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">No logs available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
+    <!-- Pagination -->
     <div class="pagination">
         {% if page_obj.has_previous %}
-            <a href="?page=1&search={{ query }}&date={{ request.GET.date }}">First</a>
-            <a href="?page={{ page_obj.previous_page_number }}&search={{ query }}&date={{ request.GET.date }}">Previous</a>
+            <a href="?page=1&search={{ query }}&date={{ request.GET.date }}" class="pagination-link">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}&search={{ query }}&date={{ request.GET.date }}" class="pagination-link">Previous</a>
         {% endif %}
     
         <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
     
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}&search={{ query }}&date={{ request.GET.date }}">Next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}&search={{ query }}&date={{ request.GET.date }}">Last</a>
+            <a href="?page={{ page_obj.next_page_number }}&search={{ query }}&date={{ request.GET.date }}" class="pagination-link">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&search={{ query }}&date={{ request.GET.date }}" class="pagination-link">Last</a>
         {% endif %}
     </div>
+</div>
 {% endblock %}
