@@ -66,17 +66,19 @@ function getSortValue(row, column) {
             return row.cells[10].textContent;
         case 'instrument':
             return row.cells[11].textContent;
-        case 'checked-out-by':
+        case 'manufacturer-barcode':
             return row.cells[12].textContent;
-        case 'checked-out-date':
+        case 'checked-out-by':
             return row.cells[13].textContent;
+        case 'checked-out-date':
+            return row.cells[14].textContent;
         default:
             return '';
     }
 }
 
 function updateSortArrows(column, order) {
-    const columns = ['id', 'material', 'name', 'room', 'cabinet', 'shelf', 'amount', 'unit', 'concentration', 'sds', 'notes', 'instrument', 'checked-out-by', 'checked-out-date'];
+    const columns = ['id', 'material', 'name', 'room', 'cabinet', 'shelf', 'amount', 'unit', 'concentration', 'sds', 'notes', 'instrument', 'manufacturer-barcode', 'checked-out-by', 'checked-out-date'];
     columns.forEach(col => {
         const arrow = document.getElementById(`sort-arrow-${col}`);
         if (col === column) {

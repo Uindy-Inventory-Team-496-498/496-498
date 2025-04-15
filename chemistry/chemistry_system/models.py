@@ -16,7 +16,7 @@ def get_model_by_name(model_name):
             'chemID', 'chemMaterial', 'chemName', 'chemConcentration', 
             'chemAmountUnit', 'chemLocationRoom', 
             'chemLocationCabinet', 'chemLocationShelf', 'chemSDS', 'chemNotes', 
-            'chemInstrument', 'chemAmountExpected'  
+            'chemInstrument', 'chemManufacturerBarcode'
         ]),
     }
     return model_mapping.get(model_name.lower())  # Ensure case-insensitive lookup
@@ -36,6 +36,7 @@ class allChemicals(models.Model):
     chemSDS = models.CharField(null = True, max_length=20)
     chemNotes = models.CharField(null = True, max_length=255)
     chemInstrument = models.CharField(null = True, max_length=255)
+    chemManufacturerBarcode = models.CharField(max_length=255, default="None")
 
     def __str__(self):
         return self.chemName
@@ -99,3 +100,10 @@ class Log(models.Model):
 
     def __str__(self):
         return self.action
+    
+class Barcode(models.Model):
+    code = models.CharField(max_length=100, unique=True)
+    image = models.ImageField(upload_to='media/barcodes/')
+
+    def __str__(self):
+        return self.code

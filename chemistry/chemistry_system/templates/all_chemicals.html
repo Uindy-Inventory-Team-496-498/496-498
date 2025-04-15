@@ -104,6 +104,8 @@
         <label for="notes">Notes</label>
         <input type="checkbox" class="column-toggle" value="instrument" checked onchange="toggleColumn(this)">
         <label for="instrument">Instrument</label>
+        <input type="checkbox" class="column-toggle" value="manufacturer-barcode" checked onchange="toggleColumn(this)">
+        <label for="manufacturer-barcode">Manufacturer Barcode</label>
     </div>
     <br>
 
@@ -187,6 +189,9 @@
                 <th class="column-instrument" onclick="sortList('chemical-table-body', 'instrument')">
                     <div class="header-container">Instrument <span id="sort-arrow-instrument"></span></div>
                 </th>
+                <th class="column-manufacturer-barcode" onclick="sortList('chemical-table-body', 'manufacturer-barcode')">
+                    <div class="header-container">Manufacturer Barcode <span id="sort-arrow-manufacturer-barcode"></span></div>
+                </th>
                 <th>Edit</th>
                 <th>Delete</th>
             </tr>
@@ -208,6 +213,7 @@
                 <td class="column-sds" data-label="SDS">{{ chemical.chemSDS }}</td>
                 <td class="column-notes" data-label="Notes">{{ chemical.chemNotes }}</td>
                 <td class="column-instrument" data-label="Instrument">{{ chemical.chemInstrument }}</td>
+                <td class="column-manufacturer-barcode" data-label="Manufacturer Barcode">{{ chemical.chemManufacturerBarcode }}</td>
                 <td data-label="Edit">
                     <!-- Edit Chemical Button -->
                     <form action="{% url 'edit_chemical' 'allChemicals' chemical.chemID %}" method="get" style="display:inline;">

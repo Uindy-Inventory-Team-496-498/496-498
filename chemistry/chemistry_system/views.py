@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django.views.generic import ListView
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -16,6 +17,14 @@ from .filters import ChemicalFilter
 from dal import autocomplete
 from PIL import Image, ImageDraw, ImageFont
 from django.http import Http404
+from django.http import HttpResponse
+from chemistry_system.models import Barcode
+import json
+import qrcode
+import io
+import random
+import os
+import pytz
 
 def chem_display(request, table_name):
     model_class = get_model_by_name(table_name)
@@ -88,16 +97,24 @@ class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
         qs = allChemicals.objects.all()
 
         if self.q:
-            qs = qs.filter(
-                Q(chemName__icontains=self.q) |
-                Q(chemConcentration__icontains=self.q)
-            )
-        
-        return (qs)
-    
+            if self.q.isnumeric():  # Allow lookup by chemID directly
+                qs = qs.filter(chemID=self.q)
+            else:
+                qs = qs.filter(
+                    Q(chemName__icontains=self.q) |
+                    Q(chemConcentration__icontains=self.q)
+                )
+
+        return qs
+
     def get_result_label(self, item):
         """Function that defines how the results appear in the dropdown"""
         return f"{item.chemName} ({item.chemConcentration})"
+
+    def get_result_value(self, item):
+        """Return the primary key (chemID) of the selected item"""
+        return item.chemID
+    
     
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
@@ -137,7 +154,7 @@ def currchemicals(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'currchemicals.html', {
+    return render(request, 'chem_display.html', {
         'chemical_list_db': page_obj,
         'chemical_types': chemical_types,
         'chemical_locations': chemical_locations,
@@ -197,6 +214,34 @@ def home(request):
 @login_required
 def qr_code_scan(request):
     return render(request, 'scan.html') # Only if you need to disable CSRF for testing
+
+@login_required 
+def scan_barcode(request):
+    return render(request, 'scan_barcode.html')
+
+@login_required
+def process_barcode(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            barcode_data = str(data.get('barcode', '')).strip()
+
+            if not barcode_data:
+                return JsonResponse({'status': 'Failure', 'message': 'No barcode received'}, status=400)
+
+            chemical = allChemicals.objects.filter(chemManufacturerBarcode=barcode_data).first()
+
+            if chemical:
+                # Redirect to Add Chemical page with chemical data in query params
+                return JsonResponse({
+                    'status': 'Success',
+                    'redirect_url': f"/add/individualchemicals/?chem_id={chemical.chemID}"
+                })
+
+            return JsonResponse({'status': 'Failure', 'message': 'Barcode not found'}, status=404)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'Failure', 'message': 'Invalid JSON'}, status=400)
 
 @login_required
 def search_page(request):
@@ -261,15 +306,43 @@ def live_search_api(request):
 
 @login_required
 def add_chemical(request, model_name):
-    return_value = ""
-    if model_name.lower() == 'individualChemicals':
+    """
+    Universal view for adding chemicals to different models
+    """
+    # Normalize model_name to handle case variations
+    model_name = model_name.lower()
+    
+    # Determine appropriate form and return value based on model name
+    if model_name == 'individualchemicals':
         form_class = CurrChemicalForm
-        return_value = "currchemicals"
-    elif model_name.lower() == 'allChemicals':
+        return_value = "current_chemicals"
+    elif model_name == 'allchemicals':
         form_class = AllChemicalForm
         return_value = "allchemicals"
     else:
         form_class = get_dynamic_form(model_name)
+        return_value = model_name.lower()
+
+    # If redirected from barcode scanner, attempt to prefill the form
+    initial_data = {}
+    if 'chem_id' in request.GET:
+        try:
+            chem_id = request.GET.get('chem_id')
+            chemical = allChemicals.objects.get(chemID=chem_id)
+
+            # Prefill the form fields with chemical data
+            initial_data = {
+                'chemName': chemical.chemName,
+                'chemMaterial': chemical.chemMaterial,
+                'chemLocationRoom': chemical.chemLocationRoom,
+                'chemLocationShelf': chemical.chemLocationShelf,
+                'chemLocationCabinet': chemical.chemLocationCabinet,
+            }
+            if model_name == 'individualchemicals':
+                initial_data['chemAmountInBottle'] = chemical.chemAmountTotal
+        except allChemicals.DoesNotExist:
+            messages.error(request, f"Chemical with ID {chem_id} not found.")
+            return redirect('scanner_add')  # Redirect to scanner add page
 
     if request.method == 'POST':
         form = form_class(request.POST)
@@ -279,7 +352,7 @@ def add_chemical(request, model_name):
             messages.success(request, 'Chemical added successfully!')
             return redirect(return_value)
     else:
-        form = form_class()
+        form = form_class(initial=initial_data)  # Pass prefilled data to form
 
     return render(request, 'add_chemical.html', {'form': form, 'model_name': model_name})
 
@@ -351,7 +424,8 @@ def list_chemicals(request, model_name):
         return render(request, '404.html', status=404)
     
     chemicals = model.objects.all()
-    return render(request, 'list_chemicals.html', {'chemicals': chemicals, 'model_name': model_name})
+    return redirect(reverse('chem_display', args=['individualChemicals']))
+    #return render(request, 'chem_display.html', {'chemicals': chemicals, 'model_name': model_name})
 
 @login_required
 def checkinandout(request):
@@ -361,8 +435,6 @@ def checkinandout(request):
 def print_page(request):
     """Render the page with the download button."""
     return render(request, 'print.html')
-
-    
 
 def generate_qr_pdf_view(request):
     return generate_qr_pdf(request)

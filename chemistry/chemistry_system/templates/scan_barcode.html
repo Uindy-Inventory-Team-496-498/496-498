@@ -1,0 +1,170 @@
+{% extends "layout.html" %}
+{% block title %}
+Scan Barcode Tester
+{% endblock %}
+{% block content %}
+
+<head>
+    <title>QuaggaJS Barcode Scanner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+        #camera {
+            position: relative;
+            width: 440px;
+            /* Fixed width */
+            height: 200px;
+        }
+
+        video,
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: solid black 2px;
+        }
+
+        canvas {
+            pointer-events: none;
+            /* Prevent interference */
+        }
+
+        #result {
+            margin-top: 15px;
+            padding: 10px;
+            border: 2px solid #333;
+            background-color: #f8f8f8;
+            font-size: 18px;
+            width: fit-content;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="camera">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="overlay"></canvas> <!-- Overlay for barcode box -->
+    </div>
+
+    <div id="result">Waiting for barcode...</div> <!-- Display result here -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
+    <script>
+        // Initialize scanner
+        Quagga.init({
+            inputStream: {
+                type: "LiveStream",
+                target: document.querySelector("#camera"),
+                constraints: {
+                    width: { min: 440 },
+                    height: { min: 200 },
+                    facingMode: "environment" // Use rear camera
+                }
+            },
+            decoder: {
+                readers: [
+                    "code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader",
+                    "code_39_vin_reader", "codabar_reader", "upc_reader", "upc_e_reader",
+                    "i2of5_reader", "2of5_reader"
+                ] // Supports multiple barcode types
+            },
+            locate: true,
+            frequency: 10 // Process every 10th frame to improve performance
+        }, function (err) {
+            if (err) {
+                console.error("QuaggaJS init error:", err);
+                return;
+            }
+            console.log("QuaggaJS initialized successfully.");
+            Quagga.start();
+        });
+
+        // Track if barcode is currently in frame
+        let barcodeInFrame = false;
+        let noBarcodeCounter = 0;
+        const NO_BARCODE_THRESHOLD = 15; // Number of consecutive frames without barcode
+
+        // Highlight detected barcode
+        Quagga.onProcessed(function (result) {
+            let canvas = document.getElementById("overlay");
+            let ctx = canvas.getContext("2d");
+
+            // Make sure canvas dimensions match the video
+            canvas.width = document.getElementById('video').offsetWidth;
+            canvas.height = document.getElementById('video').offsetHeight;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawings
+
+            // Check if any barcode is being detected
+            const hasBarcode = result && result.boxes && result.boxes.length > 0;
+
+            if (hasBarcode) {
+                barcodeInFrame = true;
+                noBarcodeCounter = 0; // Reset counter when we see a barcode
+
+                ctx.strokeStyle = "red"; // Box color
+                ctx.lineWidth = 3;
+                result.boxes.forEach(box => {
+                    if (box) {
+                        ctx.beginPath();
+                        ctx.moveTo(box[0].x, box[0].y);
+                        for (let i = 1; i < box.length; i++) {
+                            ctx.lineTo(box[i].x, box[i].y);
+                        }
+                        ctx.closePath();
+                        ctx.stroke();
+                    }
+                });
+            } else {
+                // Increment counter when no barcode is detected
+                noBarcodeCounter++;
+
+                // After several frames without a barcode, reset the message
+                if (noBarcodeCounter > NO_BARCODE_THRESHOLD && barcodeInFrame) {
+                    document.getElementById("result").innerHTML = "Waiting for barcode...";
+                    barcodeInFrame = false;
+                    lastDetectedBarcode = ""; // Also reset the last detected barcode
+                }
+            }
+        });
+
+        // Track the last detected barcode to avoid repeated processing
+        let lastDetectedBarcode = "";
+        let processingBarcode = false;
+
+        Quagga.onDetected(function (result) {
+            if (processingBarcode) return;
+
+            let barcode = result.codeResult.code.toString().trim();
+            if (barcode === lastDetectedBarcode) return;
+
+            lastDetectedBarcode = barcode;
+            processingBarcode = true;
+
+            fetch('/process_barcode/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ barcode: barcode })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'Success' && data.redirect_url) {
+                        window.location.href = data.redirect_url;  // Redirect with chemical data
+                    } else {
+                        document.getElementById("result").innerHTML = "<strong>Failure: " + data.message + "</strong>";
+                    }
+                    processingBarcode = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById("result").innerHTML = `<strong>Error: ${error.message}</strong>`;
+                    processingBarcode = false;
+                });
+        });
+    </script>
+</body>
+{% endblock %}
