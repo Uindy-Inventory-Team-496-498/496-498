@@ -387,7 +387,7 @@ def log(request): # DONT MODIFY THIS FUNCTION
 def run_populate_storage(request):
     populate_storage()
     messages.success(request, 'Database populated with dummy data successfully!')
-    return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect to the referring page
+    return redirect(request.META.get('HTTP_REFERER', '/'))  
 
 @login_required
 def force_update_total_amount(request):
@@ -395,4 +395,4 @@ def force_update_total_amount(request):
     for chemical in chemicals:
         chemical.update_total_amount()
     messages.success(request, 'Total amounts updated for all chemicals successfully!')
-    return redirect('chem_display')
+    return redirect(request.META.get('HTTP_REFERER', '/'))
