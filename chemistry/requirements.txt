@@ -10,4 +10,7 @@ pytz==2025.1
 django-cotton==0.9.32
 mysqlclient
 django-autocomplete-light
+django-htmx
 django-filter
+django-tailwind
+django-tailwind[reload]
