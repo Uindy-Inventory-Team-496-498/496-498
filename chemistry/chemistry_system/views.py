@@ -9,7 +9,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db import models  # Ensure this import exists
+from django.urls import reverse
+from django.db import models  
 
 from chemistry_system.models import allChemicals, individualChemicals, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
@@ -255,23 +256,24 @@ def live_search_api(request):
     ]
     return JsonResponse(data, safe=False)
 
+
 @login_required
 def add_chemical(request, model_name):
     form_class = get_dynamic_form(model_name)
     referrer = request.GET.get('referrer', f'/chem_display/{model_name}')
-    
+  
     if request.method == 'POST':
         form = form_class(request.POST)
         if form.is_valid():
             chemical = form.save()
             logCall(request.user.username, f"Added chemical to {model_name}")
             messages.success(request, 'Chemical added successfully!')
-            # Redirect to the display page for the added chemical
             return redirect(f"/chem_display/{model_name}")
     else:
         form = form_class()
 
     return render(request, 'add_chemical.html', {'form': form, 'model_name': model_name, 'referrer': referrer})
+  
 @login_required
 def scanner_add(request, model_name):
     referrer = request.META.get('HTTP_REFERER', '/')

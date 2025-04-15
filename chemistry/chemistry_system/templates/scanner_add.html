@@ -94,7 +94,7 @@ Log a Chemical
             scanner.setCamera(event.target.value);
         });
 
-        // Cleanup on page unload
+        window.scanner = scanner;
         window.addEventListener('beforeunload', () => {
             scanner.stop();
         });
