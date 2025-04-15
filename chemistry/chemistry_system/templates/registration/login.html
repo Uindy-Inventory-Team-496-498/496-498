@@ -1,9 +1,46 @@
-<!-- templates/registration/login.html -->
-<h2>Log In</h2>
-<form method="post">
-  {% csrf_token %}  
-  {{ form }}
-  <button type="submit">Log In</button>
-  <p>Don't have an account? <a href="{% url 'signup' %}">Register here</a></p>
-  <p>Forgot password? <a href="{% url 'password_reset' %}">Forgot Password</a></p>
-</form>
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="logo-container">
+            <img src="{% static 'images/uindy-logo.png' %}" alt="UIndy Logo" class="logo">
+        </div>
+        <h3 class="system-name">Chemistry Inventory</h3>
+        <p class="subheading">Log In</p>
+        
+        <!-- Error message if credentials are invalid -->
+        {% if form.errors %}
+        <div class="error-message">
+            Invalid username or password. Please try again.
+        </div>
+        {% endif %}
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="text" name="username" placeholder="UIndy Email Address" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="back-button">Back</button>
+                <button type="submit" class="next-button">Next</button>
+            </div>
+        </form>
+
+        <div class="login-links">
+            <a href="{% url 'signup' %}" class="register-link">Register here</a>
+            <p class="forgot-password-msg">Forgot your password? Please contact the administration to reset it.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
