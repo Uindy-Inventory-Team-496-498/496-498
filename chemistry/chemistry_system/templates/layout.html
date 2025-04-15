@@ -6,10 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}{% endblock %}</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/htmx.org@2.0.2" integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ" crossorigin="anonymous"></script>
-
   {% load static %}
 
   <!-- jQuery (if needed) -->
@@ -25,7 +21,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
   <!-- Main CSS -->
-  <link rel="stylesheet" href="{% static 'site.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/site.css' %}" />
+  <!-- Tailwind + DaisyUI -->
+  <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet"> 
+  
+  <!-- site.js incudes htmx -->
+  <script src="{% static 'js/site.js' %}"></script>
+  <script src="{% static 'js/htmx.min.js' %}"></script>
+
   {{ form.media }}
 </head>
 <body>
@@ -36,8 +39,7 @@
     <a href="{% url 'home' %}" class="navbar-brand">Home</a>
     <a href="{% url 'chem_display' 'allChemicals' %}">All Chemicals</a>
     <a href="{% url 'chem_display' 'individualChemicals' %}">Individual Chemcials</a>
-    <a href="{% url 'allchemicals' %}">All Chemicals Old</a>
-    <a href="{% url 'currchemicals' %}">Individual Bottles Old</a>
+
     <a href="{% url 'search' %}">Search</a>
     <a href="{% url 'scan' %}">Scanner</a>
     <a href="{% url 'checkinandout' %}">Check In/Out</a>
@@ -74,12 +76,18 @@
     <h3 style="color: #fff; margin: 0 0 8px;">Chemistry Inventory</h3>
     <hr style="border-color: rgba(255,255,255,0.3); margin: 10px 0;" />
 
-    <a href="{% url 'home' %}"><i class="fa fa-home"></i> Home</a>
-    <a href="{% url 'chem_display' 'allChemicals' %}"><i class="fa fa-flask"></i>All Chemicals</a>
-    <a href="{% url 'chem_display' 'individualChemicals' %}"><i class="fa fa-flask"></i>Individual Chemcials</a>
-    <a href="{% url 'allchemicals' %}"><i class="fa fa-flask"></i>All Chemicals Old</a>
-    <a href="{% url 'currchemicals' %}"><i class="fa fa-flask"></i>Individual Bottles Old</a>
-    <a href="{% url 'search' %}"><i class="fa fa-search"></i> Search</a>
+    <div class="collapsible-section">
+      <div class="collapsible-header">
+        <span>Data</span>
+        <button class="toggle-arrow"><i class="fa fa-chevron-down"></i></button>
+      </div>
+      <div class="collapsible-content">
+        <a href="{% url 'chem_display' 'allChemicals' %}"><i class="fa fa-flask"></i> All Chemicals</a>
+        <a href="{% url 'chem_display' 'individualChemicals' %}"><i class="fa fa-vial"></i> Individual Chemicals</a>
+        <a href="{% url 'search' %}"><i class="fa fa-search"></i> Search</a>
+      </div>
+    </div>
+
     <a href="{% url 'scan' %}"><i class="fa fa-qrcode"></i> Scanner</a>
     <a href="{% url 'checkinandout' %}"><i class="fa fa-exchange-alt"></i> Check In/Out</a>
     <a href="{% url 'print_page' %}"><i class="fa fa-print"></i> Print</a>
@@ -98,9 +106,11 @@
 
 <div class="body-content">
   {% block content %}{% endblock %}
-  <hr/>
-  <footer><p>&copy; 2025</p></footer>
 </div>
+
+<footer>
+  <p>&copy; 2025</p>
+</footer>
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -116,11 +126,15 @@
       mobileNav.classList.remove("active-drawer");
       overlay.classList.remove("show-overlay");
     });
+
+    document.querySelectorAll('.collapsible-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const section = header.parentElement;
+        section.classList.toggle('open'); // Toggle the "open" class
+      });
+    });
   });
 </script>
-
-<!-- Optionally add your site.js or sorting/filtering scripts here -->
-<script src="{% static 'site.js' %}"></script>
 
 </body>
 </html>

@@ -28,13 +28,13 @@ class allChemicals(models.Model):
     chemLocationRoom = models.CharField(max_length=255, default="None")
     chemLocationCabinet = models.CharField(max_length=255, default="None")
     chemLocationShelf = models.CharField(max_length=255, default="None")
-    chemAmountTotal = models.FloatField(default=0)
-    chemAmountExpected = models.FloatField(default=0) 
-    chemAmountPercentage = models.FloatField(default=0)
-    chemAmountUnit = models.CharField(null = True, max_length=255)
-    chemConcentration = models.CharField(null = True, max_length=255)
-    chemSDS = models.CharField(null = True, max_length=20)
-    chemNotes = models.CharField(null = True, max_length=255)
+    chemAmountTotal = models.FloatField(max_length=255, null=True, blank=True, default=0)
+    chemAmountExpected = models.FloatField(max_length=255, null=True, blank=True, default=0) 
+    chemAmountPercentage = models.FloatField(max_length=255, null=True, blank=True, default=0)
+    chemAmountUnit = models.CharField(max_length=255, null=True, blank=True)
+    chemConcentration = models.CharField(max_length=255, null=True, blank=True)
+    chemSDS = models.CharField(max_length=20, null=True, blank=True)
+    chemNotes = models.CharField(max_length=255, null=True, blank=True)
     chemInstrument = models.CharField(null = True, max_length=255)
 
     def __str__(self):
@@ -89,8 +89,13 @@ def update_total_amount_on_save(sender, instance, **kwargs):
 # Signal to update total amount when a record is deleted from individualChemicals
 @receiver(post_delete, sender=individualChemicals)
 def update_total_amount_on_delete(sender, instance, **kwargs):
-    if instance.chemAssociated:
-        instance.chemAssociated.update_total_amount()
+    if instance.chemAssociated_id:  # Check if the foreign key ID exists
+        try:
+            associated_chemical = allChemicals.objects.get(pk=instance.chemAssociated_id)
+            associated_chemical.update_total_amount()
+        except allChemicals.DoesNotExist:
+            # The associated allChemicals instance no longer exists, so we can safely ignore this.
+            pass
 
 class Log(models.Model):
     user = models.CharField(max_length=255)

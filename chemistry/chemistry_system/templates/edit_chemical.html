@@ -9,6 +9,7 @@
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}  
+        <input type="hidden" name="referrer" value="{{ referrer }}">
         <button type="submit">Save Changes</button>
     </form>
 {% endblock %}

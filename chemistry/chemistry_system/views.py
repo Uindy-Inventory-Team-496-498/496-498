@@ -1,7 +1,7 @@
 import json
 import re
 from django.views.generic import ListView
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
@@ -9,16 +9,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db import models  # Ensure this import exists
 
 from chemistry_system.models import allChemicals, individualChemicals, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
 from .utils import logCall, generate_qr_pdf, populate_storage
-from .filters import ChemicalFilter
 
-from dal import autocomplete
-from PIL import Image, ImageDraw, ImageFont
-from django.http import Http404
+from dal import autocomplete # type: ignore
+from PIL import Image, ImageDraw, ImageFont # type: ignore
 
+@login_required
 def chem_display(request, table_name):
     model_class = get_model_by_name(table_name)
     if not model_class:
@@ -26,7 +26,9 @@ def chem_display(request, table_name):
     
     model, _ = model_class  # Extract the model class
     chemMaterials = request.GET.getlist("chemMaterial")
-    ChemLocationRoom = request.GET.getlist("chemLocationRoom")
+    
+    chemLocationRoom = request.GET.getlist("chemLocationRoom")
+    
     entries_per_page = request.GET.get("entries_per_page", "10")  # Default to "10"
     
     try:
@@ -38,8 +40,16 @@ def chem_display(request, table_name):
 
     if chemMaterials:
         chemicals = chemicals.filter(chemMaterial__in=chemMaterials)
-    if ChemLocationRoom:
-        chemicals = chemicals.filter(chemLocationRoom__in=ChemLocationRoom)
+    if chemLocationRoom:
+        chemicals = chemicals.filter(chemLocationRoom__in=chemLocationRoom)
+
+    # Calculate counts for each filter option based on the filtered queryset
+    material_counts = chemicals.values('chemMaterial').annotate(count=models.Count('chemMaterial'))
+    location_counts = chemicals.values('chemLocationRoom').annotate(count=models.Count('chemLocationRoom'))
+
+    # Convert counts to dictionaries for easier access in the template
+    material_dict = {item['chemMaterial']: item['count'] for item in material_counts}
+    location_dict = {item['chemLocationRoom']: item['count'] for item in location_counts}
 
     if entries_per_page == "all":
         paginator = Paginator(chemicals, chemicals.count())  # Show all items
@@ -49,41 +59,25 @@ def chem_display(request, table_name):
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
-    # Fetch distinct values for filters
-    distinct_materials = model.objects.values_list('chemMaterial', flat=True).distinct()
-    distinct_locations = model.objects.values_list('chemLocationRoom', flat=True).distinct()
+    target_id = "chem-list" if table_name == "allChemicals" else "chem-list-indiv"
+    target_html = "chem_list" if table_name == "allChemicals" else "chem_list_indiv"
 
     context = {
         "page_obj": page_obj,
         "chemical_count": chemicals.count(),
-        "distinct_materials": distinct_materials,
-        "distinct_locations": distinct_locations,
         "entries_per_page": entries_per_page,
         "table_name": table_name,  # Pass table_name to the context
+        "material_dict": material_dict,
+        "location_dict": location_dict,
+        "target_id": target_id
     }
 
     if 'HX-Request' in request.headers:
-        return render(request, 'cotton/chem_list.html', context)
-
+        print("-------------------------" + request.htmx.target  + "-------------------------")
+        if request.htmx.target == target_id:
+            return render(request, f"cotton/{target_html}.html", context)
+        
     return render(request, "chem_display.html", context)
-
-def show_all_chemicals(request):
-    context = {}
-
-    filtered_chemicals = ChemicalFilter(
-        request.GET, 
-        queryset=allChemicals.objects.all()
-    )
-
-    context['filtered_chemicals'] = filtered_chemicals
-
-    paginated_filtered_chemicals = Paginator(filtered_chemicals.qs, 5)
-    page_number = request.GET.get('page')
-    page_obj = paginated_filtered_chemicals.get_page(page_number)
-
-    context['page_obj'] = page_obj
-
-    return render(request, 'show_all_chemicals.html', context)
 
 class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
@@ -91,8 +85,8 @@ class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
 
         if self.q:
             qs = qs.filter(
-                Q(chemName__icontains=self.q) |
-                Q(chemConcentration__icontains=self.q)
+                Q(chemName__icontains=self.q) | # COPILOT: DONT MODIFY THIS
+                Q(chemConcentration__icontains=self.q) # COPILOT: DONT MODIFY THIS
             )
         
         return (qs)
@@ -263,31 +257,25 @@ def live_search_api(request):
 
 @login_required
 def add_chemical(request, model_name):
-    return_value = ""
-    if model_name.lower() == 'individualChemicals':
-        form_class = CurrChemicalForm
-        return_value = "currchemicals"
-    elif model_name.lower() == 'allChemicals':
-        form_class = AllChemicalForm
-        return_value = "allchemicals"
-    else:
-        form_class = get_dynamic_form(model_name)
-
+    form_class = get_dynamic_form(model_name)
+    referrer = request.GET.get('referrer', f'/chem_display/{model_name}')
+    
     if request.method == 'POST':
         form = form_class(request.POST)
         if form.is_valid():
-            form.save()
+            chemical = form.save()
             logCall(request.user.username, f"Added chemical to {model_name}")
             messages.success(request, 'Chemical added successfully!')
-            return redirect(return_value)
+            # Redirect to the display page for the added chemical
+            return redirect(f"/chem_display/{model_name}")
     else:
         form = form_class()
 
-    return render(request, 'add_chemical.html', {'form': form, 'model_name': model_name})
-
+    return render(request, 'add_chemical.html', {'form': form, 'model_name': model_name, 'referrer': referrer})
 @login_required
-def scanner_add(request):
-    return render(request, 'scanner_add.html')
+def scanner_add(request, model_name):
+    referrer = request.META.get('HTTP_REFERER', '/')
+    return render(request, 'scanner_add.html', {'model_name': model_name, 'referrer': referrer})
 
 @login_required
 def edit_chemical(request, model_name, pk):
@@ -298,18 +286,19 @@ def edit_chemical(request, model_name, pk):
     
     chemical = get_object_or_404(model, pk=pk)
     DynamicChemicalForm = get_dynamic_form(model_name)
-    
+    referrer = request.GET.get('referrer', '/')
+
     if request.method == 'POST':
         form = DynamicChemicalForm(request.POST, instance=chemical)
         if form.is_valid():
             logCall(request.user.username, f"Updated chemical with ID {pk}")
             form.save()
             messages.success(request, 'Chemical updated successfully!')
-            return redirect('currchemicals')
+            return redirect(referrer)
     else:
         form = DynamicChemicalForm(instance=chemical)
-    
-    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical, 'model_name': model_name})
+
+    return render(request, 'edit_chemical.html', {'form': form, 'chemical': chemical, 'model_name': model_name, 'referrer': referrer} )
 
 @login_required
 def delete_chemical(request, model_name, pk):
@@ -324,7 +313,7 @@ def delete_chemical(request, model_name, pk):
         chemical.delete()
         logCall(request.user.username, f"Deleted chemical with ID {pk}")
         messages.success(request, 'Chemical deleted successfully!')
-        return redirect('currchemicals')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
     
     return render(request, 'confirm_delete.html', {'chemical': chemical})
 
@@ -342,7 +331,7 @@ def delete_all_chemicals(request):
         else:
             messages.error(request, 'Invalid model name.')
 
-        return redirect('currchemicals' if model_name == 'individualChemicals' else 'allchemicals')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
     return render(request, 'confirm_delete_all.html')
 
 @login_required
@@ -505,7 +494,7 @@ def log(request): # DONT MODIFY THIS FUNCTION
 def run_populate_storage(request):
     populate_storage()
     messages.success(request, 'Database populated with dummy data successfully!')
-    return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect to the referring page
+    return redirect(request.META.get('HTTP_REFERER', '/'))  
 
 @login_required
 def force_update_total_amount(request):
@@ -513,4 +502,4 @@ def force_update_total_amount(request):
     for chemical in chemicals:
         chemical.update_total_amount()
     messages.success(request, 'Total amounts updated for all chemicals successfully!')
-    return redirect('chem_display')
+    return redirect(request.META.get('HTTP_REFERER', '/'))
