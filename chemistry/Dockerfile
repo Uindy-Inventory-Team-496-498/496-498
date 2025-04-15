@@ -9,28 +9,49 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
-# Install required system packages for MySQL client
+# Install required system packages
 RUN apt-get update && apt-get install -y \
     default-libmysqlclient-dev \
     build-essential \
     pkg-config \
     gcc \
     default-mysql-client \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -y netcat-openbsd
+    netcat-openbsd \
+    curl && \
+    curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install pip requirements
 COPY requirements.txt .
 RUN python -m pip install --no-cache-dir --upgrade pip && \
     python -m pip install --no-cache-dir -r requirements.txt
 
+# Set the working directory for the application
 WORKDIR /app
 COPY . /app
 
-# Creates a non-root user with an explicit UID and adds permission to access the /app folder
-RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+# Set the working directory for Tailwind CSS
+WORKDIR /app/chemistry_system/static_src
+
+# Copy the package.json and package-lock.json files
+COPY chemistry_system/static_src/package.json chemistry_system/static_src/package-lock.json ./
+
+# Install Node.js dependencies locally
+RUN npm install
+
+# Return to the application root directory
+WORKDIR /app
+
+# Run Django-Tailwind commands to install and build Tailwind CSS
+RUN SECRET_KEY=nothing python manage.py tailwind install --no-input && \
+    SECRET_KEY=nothing python manage.py tailwind build --no-input && \
+    SECRET_KEY=nothing python manage.py collectstatic --no-input
+
+# Create a non-root user with an explicit UID and add permission to access the /app folder
+RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser:appuser /app
+RUN chmod -R u+w /app/chemistry_system/static /app/chemistry_system/static_src
 USER appuser
 
-# Entrypoint to run migrations and load fixture data
-CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python manage.py migrate && python manage.py loaddata chemistry_system/fixtures/chemistry_system_fixtures.json && gunicorn --bind 0.0.0.0:8000 web_project.wsgi"]
+# Entrypoint to run migrations and start the server
+CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && gunicorn --bind 0.0.0.0:8000 web_project.wsgi"]

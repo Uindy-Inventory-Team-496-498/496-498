@@ -1,4 +1,4 @@
-<div id="chem-list" class="px-0 sm:px-2 lg:px-4">
+<div id="chem-list-indiv" class="px-0 sm:px-2 lg:px-4">
     <h1 class="text-2xl font-bold mb-4"></h1>
 
     <!-- Responsive grid for smaller screens -->
@@ -10,12 +10,25 @@
             <p><strong>Material:</strong> {{ chemical.chemMaterial }}</p>
             <p><strong>Concentration:</strong> {{ chemical.chemConcentration }}</p>
             <p><strong>Location:</strong> Room: {{ chemical.chemLocationRoom }}, Cabinet: {{ chemical.chemLocationCabinet }}, Shelf: {{ chemical.chemLocationShelf }}</p>
-            <p><strong>Total Amount:</strong> {{ chemical.chemAmountTotal }}  {{ chemical.chemAmountUnit }}</p>
-            <p><strong>Expected Amount:</strong> {{ chemical.chemAmountExpected }}  {{ chemical.chemAmountUnit }}</p>
-            <p><strong>Stock %:</strong> {{ chemical.chemAmountPercentage|floatformat:2 }}%</p>
-            <p><strong>SDS:</strong> {{ chemical.chemSDS }}</p>
+            <p><strong>Amount:</strong> {{ chemical.chemAmountInBottle }}  {{ chemical.chemAssociated.chemAmountUnit }}</p>
+            <p><strong>SDS:</strong> {{ chemical.chemAssociated.chemSDS }}</p>
+            <p><strong>Checked by:</strong> 
+                {% if chemical.chemCheckedOutBy %}
+                    {{ chemical.chemCheckedOutBy.username }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </p>
+            <p><strong>Checked out:</strong> 
+                {% if chemical.chemCheckedOutDate %}
+                    {{ chemical.chemCheckedOutDate|date:"Y-m-d H:i" }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </p>
             <p>
                 <form action="{% url 'edit_chemical' table_name chemical.chemBottleIDNUM %}" method="get" style="display:inline;">
+                    <input type="hidden" name="referrer" value="{{ request.path }}">
                     <button type="submit" class="button-style">Edit</button>
                 </form>
             </p>
@@ -39,12 +52,13 @@
             <table class="table-auto w-full border-collapse border border-gray-300 shadow-lg">
                 <thead class="bg-gray-100">
                     <tr>
+                        <th class="border border-gray-300 px-4 py-2 text-left">ID</th>
                         <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
                         <th class="border border-gray-300 px-4 py-2 text-left">Material</th>
                         <th class="border border-gray-300 px-4 py-2 text-left">Concentration</th>
                         <th class="border border-gray-300 px-4 py-2 text-left">Location</th>
                         <th class="border border-gray-300 px-4 py-2 text-left">Amount</th>
-                        <th class="border border-gray-300 px-4 py-2 text-left">Notes</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">SDS</th>
                         <th class="border border-gray-300 px-4 py-2 text-left">Checked by</th>
                         <th class="border border-gray-300 px-4 py-2 text-left">Checked when</th>
                         <th class="border border-gray-300 px-4 py-2 text-left">Edit</th>
@@ -54,18 +68,19 @@
                 <tbody>
                     {% for chemical in page_obj %}
                     <tr class="hover:bg-gray-50">
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemBottleIDNUM }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAssociated.chemName }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAssociated.chemMaterial }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAssociated.chemConcentration }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ chemical.chemLocationRoom }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAmountInBottle }}  {{ chemical.chemAssociated.chemAmountUnit }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAssociated.chemNotes }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ chemical.chemAssociated.chemSDS }}</td>
                         <td class="border border-gray-300 px-4 py-2">
-                        {% if chemical.chemCheckedOutBy %}
-                            {{ chemical.chemCheckedOutBy.username }}
-                        {% else %}
-                            N/A
-                        {% endif %}
+                            {% if chemical.chemCheckedOutBy %}
+                                {{ chemical.chemCheckedOutBy.username }}
+                            {% else %}
+                                N/A
+                            {% endif %}
                         </td>
                         <td class="column-checked-out-date" data-label="Checked Out Date">
                             {% if chemical.chemCheckedOutDate %}
@@ -77,6 +92,7 @@
                         <td data-label="Edit">
                             <!-- Edit Chemical Button -->
                             <form action="{% url 'edit_chemical' table_name chemical.chemBottleIDNUM %}" method="get" style="display:inline;">
+                                <input type="hidden" name="referrer" value="{{ request.path }}">
                                 <button type="submit" class="button-style">Edit</button>
                             </form>
                         </td>
