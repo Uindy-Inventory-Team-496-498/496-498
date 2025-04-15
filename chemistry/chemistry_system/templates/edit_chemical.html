@@ -1,24 +1,15 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Edit Chemical
+    Add New Chemical
 {% endblock %}
 
 {% block content %}
-<div class="edit-chemical-container">
-    <h1 class="page-title">Edit Chemical</h1>
-
-    <form method="POST" class="edit-chemical-form">
+    <h1>Edit Chemical</h1>
+    <form method="POST">
         {% csrf_token %}
-
-        <div class="form-group">
-            {{ form.as_p }}
-        </div>
-
-        <div class="button-row">
-            <button type="submit" class="button-style">Save Changes</button>
-            <a href="{% url 'chem_display' 'allChemicals' %}" class="button-secondary">Cancel</a>
-        </div>
+        {{ form.as_p }}  
+        <input type="hidden" name="referrer" value="{{ referrer }}">
+        <button type="submit">Save Changes</button>
     </form>
-</div>
 {% endblock %}
