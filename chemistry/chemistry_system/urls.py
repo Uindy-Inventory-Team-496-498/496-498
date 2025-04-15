@@ -40,6 +40,8 @@ urlpatterns = [
     path('log/', views.log, name='log'),
     path('run-populate-storage/', views.run_populate_storage, name='run_populate_storage'),  
     path('chemical-autocomplete/', ChemicalAutocomplete.as_view(), name='chemical-autocomplete'),
+    path('update-chemical-amount/', views.update_chemical_amount, name='update_chemical_amount'),
+    path('get-chemical-details/<str:qrcode_value>/', views.get_chemical_details, name='get_chemical_details'),
 
     path("chem_display/<str:table_name>/", views.chem_display, name="chem_display"),
     path('force-update-total-amount/', views.force_update_total_amount, name='force_update_total_amount'),

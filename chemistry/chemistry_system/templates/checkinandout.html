@@ -9,39 +9,65 @@ Log a Chemical
 <meta name="csrf-token" content="{{ csrf_token }}">
 
 <body>
-    <h1>Scan from WebCam:</h1>
-    <div id="video-container">
-        <video id="qr-video" width="240" height="240"></video>
+    <!-- Amount UI Container -->
+    <section class="grid" id="amount-ui-container" style="display: none;">
+        <div class="auth-box" style="max-width: 500px; margin: 20px auto;">
+            <h3 style="color: #444; text-transform: uppercase; letter-spacing: 1px;">Enter Chemical Amount</h3>
+            <div class="amount-ui-container">
+                <div class="form-group">
+                    <label for="amount-input" class="amount-input-label">Please enter the amount used:</label>
+                    <input type="text" class="amount-input" name="amount-input" placeholder="Enter numeric value only" autocomplete="off">
+                    <p id="current-amount-info" class="form-text" style="font-weight: bold; margin-top: 10px;"></p>
+                    <p id="amount-error" style="color: #e74c3c; display: none; margin-top: 10px;"></p>
+                </div>
+            </div>
+            <button id="amount-submit-btn" class="next-button" style="margin-top: 15px;">Submit Amount</button>
+        </div>
+    </section>
+
+    <div class="auth-box" style="max-width: 800px; margin: 20px auto;">
+        <h3 style="color: #444; text-transform: uppercase; letter-spacing: 1px;">Scan Chemical QR Code</h3>
+        
+        <!-- Video container -->
+        <div id="video-container-wrapper" style="max-width: 200px; margin: 20px auto;">
+            <div id="video-container" style="border: solid 2px #ddd; border-radius: 8px; overflow: hidden; background-color: #000; width: 100%; aspect-ratio: 1/1; position: relative;">
+                <video id="qr-video" style="position: absolute; width: 100%; height: 100%; object-fit: cover;"></video>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="cam-list"><strong>Select Camera:</strong></label>
+            <select id="cam-list" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="environment" selected>Environment Facing (default)</option>
+                <option value="user">User Facing</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label><strong>Device has camera:</strong> <span id="cam-has-camera"></span></label>
+        </div>
+        
+        <div class="form-group">
+            <label><strong>QR Code Scanned:</strong> <span id="cam-qr-result">None</span></label>
+        </div>
+        
+        <div class="form-group">
+            <label><strong>Result:</strong> <span id="check-in-out-result"></span></label>
+        </div>
     </div>
-
-    <b>Device has camera: </b>
-    <span id="cam-has-camera"></span>
-    <br>
-    <div>
-        <b>Preferred camera:</b>
-        <select id="cam-list">
-            <option value="environment" selected>Environment Facing (default)</option>
-            <option value="user">User Facing</option>
-        </select>
-    </div>
-
-    <b>What the QR code scanned: </b>
-    <span id="cam-qr-result">None</span>
-
-    <br>
-    <b>Result:</b>
-    <span id="check-in-out-result"></span>
 
     <script type="module">
         import QrScanner from "{% static 'js/qr-scanner.min.js' %}";
 
+        let scanner; 
         const video = document.getElementById('qr-video');
         const camHasCamera = document.getElementById('cam-has-camera');
         const camList = document.getElementById('cam-list');
         const camQrResult = document.getElementById('cam-qr-result');
-        let scanningEnabled = true;
         let lastQrCode = "";
-
+        let chemicalUnit = ""; 
+        let chemicalAmount = 0; 
+        
         function getCSRFToken() {
             return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         }
@@ -49,12 +75,13 @@ Log a Chemical
         function setResult(label, result) {
             const qrCodeValue = result.data;
 
-            if (scanningEnabled && qrCodeValue !== lastQrCode) {
+            if (qrCodeValue !== lastQrCode) {
                 lastQrCode = qrCodeValue;
                 label.textContent = qrCodeValue;
-                scanningEnabled = false;
+                
+                scanner.pause();
 
-                // Fetch the chemical by its QR code (chem_id)
+                // Fetch the chemical by its QR code 
                 fetch(`/update-checkout-status/individualChemicals/${qrCodeValue}/`, {
                     method: 'POST',
                     headers: {
@@ -65,41 +92,93 @@ Log a Chemical
                         chem_id: qrCodeValue,
                     }),
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        const resultSpan = document.getElementById('check-in-out-result');
-                        if (data.success) {
-                            resultSpan.textContent = data.message;
-                            resultSpan.style.color = "green";
+                .then(response => response.json())
+                .then(data => {
+                    const resultSpan = document.getElementById('check-in-out-result');
+                    const amountUiContainer = document.getElementById('amount-ui-container');
+                    
+                    if (data.success !== false) { 
+                        resultSpan.textContent = data.message;
+                        resultSpan.style.color = "#27ae60"; 
+
+                        console.log("Success message:", data.message);
+                        console.log("Contains 'checked in':", data.message.toLowerCase().includes("checked in"));
+                        
+                        // Check for "checked in" 
+                        if (data.message.toLowerCase().includes("checked in")) {
+                            scanner.stop();
+                            
+                            // Fetch chemical details to get the unit and amount
+                            fetch(`/get-chemical-details/${qrCodeValue}/`)
+                            .then(response => response.json())
+                            .then(chemData => {
+                                if (chemData.success) {
+                                    const amountMatch = /^([\d.]+)\s*([a-zA-Z]+)$/.exec(chemData.totalAmount);
+                                    if (amountMatch) {
+                                        chemicalAmount = parseFloat(amountMatch[1]);
+                                        chemicalUnit = amountMatch[2];
+                                        
+                                        const currentAmountInfo = document.getElementById('current-amount-info');
+                                        if (currentAmountInfo) {
+                                            currentAmountInfo.textContent = `Current amount: ${chemicalAmount} ${chemicalUnit}`;
+                                        }
+                                    }
+                                    
+                                    if (amountUiContainer) {
+                                        const amountInput = document.querySelector('.amount-input');
+                                        if (amountInput) {
+                                            amountInput.placeholder = `Enter amount in ${chemicalUnit}`;
+                                        }
+                                        
+                                        amountUiContainer.style.display = "block";
+                                        amountUiContainer.scrollIntoView({ behavior: 'smooth' });
+                                    } else {
+                                        scanner.start(); 
+                                    }
+                                } else {
+                                    console.error("Could not get chemical details:", chemData.message);
+                                    resultSpan.textContent = "Could not get chemical details";
+                                    resultSpan.style.color = "#e74c3c";
+                                    scanner.start();
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error fetching chemical details:", error);
+                                scanner.start();
+                            });
                         } else {
-                            // Check for specific backend error message and display "Chemical not found"
-                            if (data.message.includes("not found")) {
-                                resultSpan.textContent = "Chemical not found in database";
-                            } else {
-                                resultSpan.textContent = data.message;
-                            }
-                            resultSpan.style.color = "red";
+                            scanner.start(); 
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error updating checkout status:', error);
-                        const resultSpan = document.getElementById('check-in-out-result');
-                        resultSpan.textContent = 'Failed to update checkout status';
-                        resultSpan.style.color = "red";
-                    });
+                    } else {
+                        if (data.message && data.message.includes("not found")) {
+                            resultSpan.textContent = "Chemical not found in database";
+                        } else {
+                            resultSpan.textContent = data.message || "Unknown error";
+                        }
+                        resultSpan.style.color = "#e74c3c";
+                        
+                        scanner.start();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating checkout status:', error);
+                    const resultSpan = document.getElementById('check-in-out-result');
+                    resultSpan.textContent = 'Failed to update checkout status';
+                    resultSpan.style.color = "#e74c3c"; 
+                    
+                    scanner.start();
+                });
             }
         }
 
-        const scanner = new QrScanner(video, result => setResult(camQrResult, result), {
-            onDecodeError: error => {
-                // Handle errors if any
-            },
+        scanner = new QrScanner(video, result => setResult(camQrResult, result), {
             highlightScanRegion: true,
             highlightCodeOutline: true,
+            maxScansPerSecond: 5,
+            preferredCamera: 'environment'
         });
 
         scanner.start().then(() => {
-            // List cameras after the scanner has started
             QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
                 const option = document.createElement('option');
                 option.value = camera.id;
@@ -108,38 +187,123 @@ Log a Chemical
             }));
         });
 
-        QrScanner.hasCamera().then(hasCamera => camHasCamera.textContent = hasCamera);
+        QrScanner.hasCamera().then(hasCamera => {
+            camHasCamera.textContent = hasCamera ? "Available" : "Not Available";
+            camHasCamera.style.color = hasCamera ? "#27ae60" : "#e74c3c"; 
+        });
 
-        // for debugging
-        window.scanner = scanner;
+        window.addEventListener('resize', () => {
+            if (scanner) {
+                scanner._updateOverlay();
+            }
+        });
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Optional: Handle additional settings for scan region if needed
-            const scanRegionSelect = document.getElementById('scan-region-highlight-style-select');
-            if (scanRegionSelect) {
-                scanRegionSelect.addEventListener('change', (e) => {
-                    videoContainer.className = e.target.value;
-                    scanner._updateOverlay(); // reposition the highlight because style 2 sets position: relative
+            const submitBtn = document.getElementById('amount-submit-btn');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function() {
+                    const amountInput = document.querySelector('.amount-input');
+                    const errorMessage = document.getElementById('amount-error');
+                    
+                    if (amountInput) {
+                        const amountValue = amountInput.value.trim();
+                        
+                        if (!amountValue) {
+                            errorMessage.textContent = 'Please enter an amount';
+                            errorMessage.style.display = 'block';
+                            return;
+                        }
+                        
+                        const amount = parseFloat(amountValue);
+                        
+                        if (isNaN(amount)) {
+                            errorMessage.textContent = 'Please enter a valid number';
+                            errorMessage.style.display = 'block';
+                            return;
+                        }
+                        
+                        if (amount <= 0) {
+                            errorMessage.textContent = 'Amount must be greater than zero';
+                            errorMessage.style.display = 'block';
+                            return;
+                        }
+                        
+                        if (amount > chemicalAmount) {
+                            errorMessage.textContent = `Used amount (${amount} ${chemicalUnit}) exceeds available amount (${chemicalAmount} ${chemicalUnit})`;
+                            errorMessage.style.display = 'block';
+                            return;
+                        }
+                        
+                        const formattedAmount = `${amount} ${chemicalUnit}`;
+                        
+                        // Send the amount data to the server
+                        fetch('/update-chemical-amount/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCSRFToken(),
+                            },
+                            body: JSON.stringify({
+                                chem_id: lastQrCode,
+                                amount: formattedAmount
+                            }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Amount update response:', data);
+                            
+                            const resultSpan = document.getElementById('check-in-out-result');
+                            
+                            if (data.success) {
+                                resultSpan.textContent = data.message;
+                                resultSpan.style.color = "#27ae60";
+                            } else {
+                                resultSpan.textContent = data.message || "Failed to update amount";
+                                resultSpan.style.color = "#e74c3c";
+                            }
+                            
+                            // Clear the input for next time
+                            amountInput.value = '';
+                            errorMessage.style.display = 'none';
+                            
+                            const amountUiContainer = document.getElementById('amount-ui-container');
+                            if (amountUiContainer) {
+                                amountUiContainer.style.display = "none";
+                            }
+                            
+                            scanner.start();
+                        })
+                        .catch(error => {
+                            console.error('Error updating amount:', error);
+                            
+                            const resultSpan = document.getElementById('check-in-out-result');
+                            resultSpan.textContent = "Error updating amount";
+                            resultSpan.style.color = "#e74c3c"; 
+                            
+                            const amountUiContainer = document.getElementById('amount-ui-container');
+                            if (amountUiContainer) {
+                                amountUiContainer.style.display = "none";
+                            }
+                            
+                            scanner.start();
+                        });
+                    }
                 });
             }
-
-            const showScanRegionCheckbox = document.getElementById('show-scan-region');
-            if (showScanRegionCheckbox) {
-                showScanRegionCheckbox.addEventListener('change', (e) => {
-                    const input = e.target;
-                    const label = input.parentNode;
-                    label.parentNode.insertBefore(scanner.$canvas, label.nextSibling);
-                    scanner.$canvas.style.display = input.checked ? 'block' : 'none';
-                });
-            }
-
-            const inversionModeSelect = document.getElementById('inversion-mode-select');
-            if (inversionModeSelect) {
-                inversionModeSelect.addEventListener('change', event => {
-                    scanner.setInversionMode(event.target.value);
-                });
-            }
-
+            
+            // Add utility function for testing
+            window.toggleAmountUI = function(show) {
+                const container = document.getElementById('amount-ui-container');
+                if (container) {
+                    container.style.display = show ? "block" : "none";
+                    if (show) {
+                        scanner.stop();
+                    } else {
+                        scanner.start();
+                    }
+                }
+            };
+            
             camList.addEventListener('change', event => {
                 scanner.setCamera(event.target.value);
             });
@@ -147,21 +311,135 @@ Log a Chemical
     </script>
 
     <style>
-        div {
-            margin-bottom: 16px;
+        #amount-ui-container {
+            max-width: 600px;
+            margin: 20px auto;
         }
-
-        #video-container {
-            line-height: 0;
+        
+        .amount-ui-container {
+            width: 100%;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
         }
-
-        hr {
-            margin-top: 32px;
-        }
-
-        input[type="file"] {
+        
+        .amount-input-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #444;
             display: block;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+        
+        .amount-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            color: #333;
+            background-color: #fff;
+        }
+        
+        .amount-input:focus {
+            border-color: #ae3d3d;
+            box-shadow: 0 0 5px rgba(174,61,61,0.3);
+            outline: none;
+        }
+        
+        .amount-input::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+        
+        .form-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 5px 0 0 2px;
+            line-height: 1.3em;
+            font-style: italic;
+        }
+        
+        #amount-submit-btn {
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+            color: #444;
+        }
+        
+        #check-in-out-result {
+            font-weight: bold;
+        }
+        
+        #video-container-wrapper {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+        
+        #video-container {
+            width: 100%;
+            aspect-ratio: 1/1; 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #qr-video {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        @supports not (aspect-ratio: 1/1) {
+            #video-container::before {
+                float: left;
+                padding-top: 100%;
+                content: "";
+            }
+            #video-container::after {
+                display: block;
+                content: "";
+                clear: both;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            #video-container-wrapper {
+                max-width: 90%;
+            }
+            
+            .auth-box {
+                padding: 15px;
+                margin: 10px auto;
+            }
+        }
+        
+        #amount-error {
+            color: #e74c3c;
+            font-weight: bold;
+            background-color: #fee;
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 3px solid #e74c3c;
+            margin-top: 10px;
         }
     </style>
 </body>
