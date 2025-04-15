@@ -109,7 +109,7 @@ Log a Chemical
                             scanner.stop();
                             
                             // Fetch chemical details to get the unit and amount
-                            fetch(`/get-chemical-details/${qrCodeValue}/`)
+                            fetch(`/get-chemical-details/${qrCodeValue}`)
                             .then(response => response.json())
                             .then(chemData => {
                                 if (chemData.success) {
@@ -222,7 +222,7 @@ Log a Chemical
                             return;
                         }
                         
-                        if (amount <= 0) {
+                        if (amount <= -1) {
                             errorMessage.textContent = 'Amount must be greater than zero';
                             errorMessage.style.display = 'block';
                             return;
