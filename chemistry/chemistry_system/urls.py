@@ -19,6 +19,7 @@ urlpatterns = [
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path("", views.home, name="home"),
+    path("<str:value>", views.home, name="home"),
 
     path('scan/', views.qr_code_scan, name='scan'),
     path("search/", views.search_page, name="search"),

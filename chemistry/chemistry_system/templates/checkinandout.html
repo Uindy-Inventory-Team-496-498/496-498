@@ -73,7 +73,7 @@ Log a Chemical
         }
 
         function setResult(label, result) {
-            const qrCodeValue = result.data;
+            const qrCodeValue = result.data.match(/\d+$/)[0];
 
             if (qrCodeValue !== lastQrCode) {
                 lastQrCode = qrCodeValue;
