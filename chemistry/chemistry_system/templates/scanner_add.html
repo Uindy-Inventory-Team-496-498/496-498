@@ -49,8 +49,9 @@ Log a Chemical
         // Handle QR Code Result
         async function handleQrCodeResult(label, qrCodeValue) {
             if (!scanningEnabled) return;
-
+            qrCodeValue = qrCodeValue.match(/\d+$/)[0];
             label.textContent = qrCodeValue;
+
             scanningEnabled = false;
 
             try {

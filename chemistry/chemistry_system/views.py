@@ -188,7 +188,7 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 @login_required
-def home(request):
+def home(request, value):
     return render(request, "home.html")
 
 @login_required
