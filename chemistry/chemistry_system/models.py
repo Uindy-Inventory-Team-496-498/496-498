@@ -50,6 +50,9 @@ class allChemicals(models.Model):
         self.save()
     class Meta:
         db_table = "allchemicalstable"
+        permissions = [
+            ("can_access_restricted", "Can access restricted pages"),
+        ]
         
 class individualChemicals(models.Model):
     chemBottleIDNUM = models.IntegerField(primary_key=True) 

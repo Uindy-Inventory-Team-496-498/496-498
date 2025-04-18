@@ -16,8 +16,16 @@ class CheckUserRole:
                               ]
     
     def __call__(self, request):
-        response = self.get_response(request)
+        if request.user.is_superuser:
+            response = self.get_response(request)
+            return response
+        
+        if request.user.has_perm('chemistry_system.can_access_restricted'):
+            response = self.get_response(request)
+            return response
+
         if request.path in self.procted_paths:
-            if not request.user.is_superuser:
-                return HttpResponse("<h1 style='color:red'>You're not allowed to access this view </h1>", status=403)
+            return HttpResponse("<h1 style='color:red'>You're not allowed to access this view </h1>", status=403)
+            
+        response = self.get_response(request)
         return response
