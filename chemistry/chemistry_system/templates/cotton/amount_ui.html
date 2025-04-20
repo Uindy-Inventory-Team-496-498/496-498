@@ -1,0 +1,73 @@
+<div class="amount-ui-container">
+    <div class="form-group">
+        <label for="amount-input" class="amount-input-label">Please enter the amount used:</label>
+        <input type="text" class="amount-input" name="amount-input" placeholder="Enter the amount..." autocomplete="off">
+        <p class="form-text">Please include units (e.g., 5 mL, 10 g)</p>
+    </div>
+</div>
+
+<style>
+    .amount-ui-container {
+        width: 100%;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+    
+    .amount-input-label {
+        font-size: 16px;
+        font-weight: 600;
+        color: #444;
+        display: block;
+        margin-bottom: 10px;
+        letter-spacing: 0.5px;
+    }
+    
+    .amount-input {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        color: #333;
+        background-color: #fff;
+    }
+    
+    .amount-input:focus {
+        border-color: #ae3d3d;
+        box-shadow: 0 0 5px rgba(174,61,61,0.3);
+        outline: none;
+    }
+    
+    .amount-input::placeholder {
+        color: #999;
+        font-style: italic;
+    }
+    
+    .form-text {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 5px 0 0 2px;
+        line-height: 1.3em;
+        font-style: italic;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    @media (max-width: 768px) {
+        .amount-ui-container {
+            padding: 12px;
+        }
+        
+        .amount-input {
+            padding: 10px;
+            font-size: 15px;
+        }
+    }
+</style>

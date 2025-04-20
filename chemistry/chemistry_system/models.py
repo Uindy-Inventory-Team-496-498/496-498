@@ -1,6 +1,8 @@
 from django.db import models
+from django.dispatch import receiver
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save, post_delete, pre_save
 from django.db.models import Sum  # Add this import
 
 def get_model_by_name(model_name):
@@ -20,19 +22,19 @@ def get_model_by_name(model_name):
     return model_mapping.get(model_name.lower())
 
 class allChemicals(models.Model):
-    chemID = models.IntegerField(primary_key=True)
+    chemID = models.AutoField(primary_key=True)
     chemMaterial = models.CharField(max_length=255) 
     chemName = models.CharField(max_length=255)
     chemLocationRoom = models.CharField(max_length=255, default="None")
     chemLocationCabinet = models.CharField(max_length=255, default="None")
     chemLocationShelf = models.CharField(max_length=255, default="None")
-    chemAmountTotal = models.FloatField(default=0)
-    chemAmountExpected = models.FloatField(default=0) 
-    chemAmountPercentage = models.FloatField(default=0)
-    chemAmountUnit = models.CharField(null = True, max_length=255)
-    chemConcentration = models.CharField(null = True, max_length=255)
-    chemSDS = models.CharField(null = True, max_length=20)
-    chemNotes = models.CharField(null = True, max_length=255)
+    chemAmountTotal = models.FloatField(max_length=255, null=True, blank=True, default=0)
+    chemAmountExpected = models.FloatField(max_length=255, null=True, blank=True, default=0) 
+    chemAmountPercentage = models.FloatField(max_length=255, null=True, blank=True, default=0)
+    chemAmountUnit = models.CharField(max_length=255, null=True, blank=True)
+    chemConcentration = models.CharField(max_length=255, null=True, blank=True)
+    chemSDS = models.CharField(max_length=20, null=True, blank=True)
+    chemNotes = models.CharField(max_length=255, null=True, blank=True)
     chemInstrument = models.CharField(null = True, max_length=255)
 
     def __str__(self):
@@ -70,7 +72,24 @@ class QRCodeData(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+# Signal to update total amount when a record is saved in individualChemicals
+@receiver(post_save, sender=individualChemicals)
+def update_total_amount_on_save(sender, instance, **kwargs):
+    if instance.chemAssociated:
+        instance.chemAssociated.update_total_amount()
+
+# Signal to update total amount when a record is deleted from individualChemicals
+@receiver(post_delete, sender=individualChemicals)
+def update_total_amount_on_delete(sender, instance, **kwargs):
+    if instance.chemAssociated_id:  # Check if the foreign key ID exists
+        try:
+            associated_chemical = allChemicals.objects.get(pk=instance.chemAssociated_id)
+            associated_chemical.update_total_amount()
+        except allChemicals.DoesNotExist:
+            # The associated allChemicals instance no longer exists, so we can safely ignore this.
+            pass
+
 class Log(models.Model):
     user = models.CharField(max_length=255)
     action = models.CharField(max_length=255)
