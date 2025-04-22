@@ -73,7 +73,8 @@ def generate_qr_pdf(request):
             current_x = first_x
             current_y += between_y
         num_so_far += 1
-        data = random.randint(0, 12000000000)  # Unique data for each QR code
+        number = random.randint(0, 12000000000)
+        data = "https://csci06.is.uindy.edu/" + str(number)  # Unique data for each QR code
         qr = qrcode.QRCode(box_size=5, border=0)  # Adjust size
         qr.add_data(data)
         qr.make(fit=True)
@@ -87,7 +88,7 @@ def generate_qr_pdf(request):
 
         # Draw text on canvas
         position = (current_x-50, current_y + 175)
-        draw.text(position, str(data), font=font, fill="black")
+        draw.text(position, str(number), font=font, fill="black")
 
 
         # Update position for next QR code
@@ -141,46 +142,60 @@ def export_chemicals_csv(request):
 
 @require_POST
 def import_chemicals_csv(request):
+    print("Importing chemicals CSV...")  # Debugging print statement
     form = CSVUploadForm(request.POST, request.FILES)
-    model_name = request.POST.get('model_name', 'individualChemicals')
+    model_name = request.POST.get('model_name', '').lower()
     model_class, required_fields = get_model_by_name(model_name)
-    
+
     if form.is_valid() and model_class:
+        print(f"Form is valid. Importing into model: {model_name}")
         csv_file = request.FILES['file']
         reader = csv.DictReader(csv_file.read().decode('utf-8').splitlines())
-        
-        id_field = required_fields[0]  # Use the first required field as the ID field
-        
+
+        # Get all field names from the model
+        model_fields = [field.name for field in model_class._meta.get_fields()]
+        print(f"Model fields: {model_fields}")
+
         row_count = 0
         for row in reader:
             try:
-                defaults = {field: row[field] for field in row if field in required_fields}
-                
-                if 'chemAssociated' in defaults:
+                # Filter out columns that are not in the model fields
+                filtered_data = {key: value for key, value in row.items() if key in model_fields}
+                #print(f"Filtered data: {filtered_data}")
+
+                # Handle the foreign key relationship for `chemAssociated` in `individualChemicals`
+                if model_name == 'individualchemicals' and 'chemAssociated' in filtered_data:
                     try:
-                        defaults['chemAssociated'] = allChemicals.objects.get(pk=defaults['chemAssociated'])
+                        associated_chemical = allChemicals.objects.get(pk=filtered_data['chemAssociated'])
+                        filtered_data['chemAssociated'] = associated_chemical
                     except allChemicals.DoesNotExist:
-                        messages.error(request, f"Chemical with ID {defaults['chemAssociated']} does not exist in allChemicals.")
+                        print(f"Associated chemical with ID {filtered_data['chemAssociated']} does not exist.")
+                        messages.error(request, f"Associated chemical with ID {filtered_data['chemAssociated']} does not exist.")
                         continue
-                
+
+                # Use the first required field as the unique identifier (e.g., primary key)
+                id_field = required_fields[0]
+                if id_field not in filtered_data:
+                    raise KeyError(f"Missing required field: {id_field}")
+
+                # Update or create the record in the database
                 model_class.objects.update_or_create(
-                    **{id_field: row[id_field]},
-                    defaults=defaults
+                    **{id_field: filtered_data[id_field]},
+                    defaults=filtered_data
                 )
                 row_count += 1
-            except KeyError as e:
-                messages.error(request, f"Missing field in CSV: {e}")
-                return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect to the referring page
             except Exception as e:
-                messages.error(request, f"Error importing row: {e}")
-                return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect to the referring page
-        
+                # Log only exceptions
+                #print(f"Error saving row: {row}. Exception: {e}")
+                messages.error(request, f"Error saving row: {row}. Exception: {e}")
+                continue
+
         logCall(request.user.username, f"Imported {row_count} rows into {model_name}")
-        messages.success(request, 'Chemicals imported successfully!')
+        messages.success(request, f"Successfully imported {row_count} rows into {model_name}.")
     else:
         messages.error(request, 'Failed to import chemicals. Please check the file format.')
 
-    return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect to the referring page
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 def update_checkout_status(request, model_name, qrcode_value):
     try:
@@ -230,6 +245,6 @@ def populate_storage():
                 chemLocationRoom=chem.chemLocationRoom,
                 chemLocationCabinet=random.choice(['Cabinet A', 'Cabinet B', 'Cabinet C']),
                 chemLocationShelf=random.choice(['Shelf 1', 'Shelf 2', 'Shelf 3']),
-                chemAmountInBottle=f"{random.randint(1, 1000)} mL",
+                chemAmountInBottle=f"{random.randint(1, 1000)}",
             )
             bottle_id += 1
