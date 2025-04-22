@@ -1,7 +1,7 @@
 <div class="join py-0" 
-    hx-target="#chem-list" 
+    hx-target="#{{ target_id }}" 
     hx-swap="outerHTML"
-    hx-include="#filter-form">
+    hx-include="#filter-form, #sort-by">
     
     <div class="flex justify-between items-center mb-4">
         <form method="get" class="flex items-center">
