@@ -27,11 +27,11 @@ def chem_display(request, table_name):
     
     model, _ = model_class  # Extract the model class
     chemMaterials = request.GET.getlist("chemMaterial")
-    
     chemLocationRoom = request.GET.getlist("chemLocationRoom")
-    
     entries_per_page = request.GET.get("entries_per_page", "10")  # Default to "10"
-    
+    sort_by = request.GET.get("sort_by", "")  # Get the sort_by parameter
+
+
     try:
         entries_per_page = int(entries_per_page) if entries_per_page != "all" else "all"
     except ValueError:
@@ -43,6 +43,18 @@ def chem_display(request, table_name):
         chemicals = chemicals.filter(chemMaterial__in=chemMaterials)
     if chemLocationRoom:
         chemicals = chemicals.filter(chemLocationRoom__in=chemLocationRoom)
+    
+    if table_name == "allChemicals":
+        if sort_by == "chemAmountAsc":
+            chemicals = chemicals.order_by("chemAmountPercentage")
+        elif sort_by == "chemAmountDesc":
+            chemicals = chemicals.order_by("-chemAmountPercentage")
+
+    if table_name == "individualChemicals":
+        if sort_by == "chemAmountAsc":
+            chemicals = chemicals.order_by("chemAmountInBottle")
+        elif sort_by == "chemAmountDesc":
+            chemicals = chemicals.order_by("-chemAmountInBottle")
 
     # Calculate counts for each filter option based on the filtered queryset
     material_counts = chemicals.values('chemMaterial').annotate(count=models.Count('chemMaterial'))
@@ -70,7 +82,8 @@ def chem_display(request, table_name):
         "table_name": table_name,  # Pass table_name to the context
         "material_dict": material_dict,
         "location_dict": location_dict,
-        "target_id": target_id
+        "target_id": target_id,
+        "sort_by": sort_by, 
     }
 
     if 'HX-Request' in request.headers:
