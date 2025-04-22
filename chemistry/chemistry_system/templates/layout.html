@@ -29,6 +29,9 @@
   <script src="{% static 'js/site.js' %}"></script>
   <script src="{% static 'js/htmx.min.js' %}"></script>
 
+
+
+
   {{ form.media }}
 </head>
 <body>
@@ -45,6 +48,8 @@
     <a href="{% url 'checkinandout' %}">Check In/Out</a>
     <a href="{% url 'print_page' %}">Print</a>
     <a href="{% url 'log' %}">Log</a>
+    <a href="{%url 'admin' %}"> Admin</a>
+
     <div class="logout-container">
       <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
@@ -92,6 +97,8 @@
     <a href="{% url 'checkinandout' %}"><i class="fa fa-exchange-alt"></i> Check In/Out</a>
     <a href="{% url 'print_page' %}"><i class="fa fa-print"></i> Print</a>
     <a href="{% url 'log' %}"><i class="fa fa-history"></i> Log</a>
+    <a href="{% url 'admin' %}"><i class="fa fa-history"></i> Admin</a>
+
 
     <!-- Logout in middle -->
     <form method="post" action="{% url 'logout' %}" class="logout-form">
