@@ -1,16 +1,16 @@
 from django.db import models
+from django.dispatch import receiver
 from django.utils import timezone
 from django.contrib.auth.models import User
-from django.db.models import Sum  # Add this import
 from django.db.models.signals import post_save, post_delete, pre_save
-from django.dispatch import receiver
+from django.db.models import Sum  # Add this import
 
 def get_model_by_name(model_name):
     model_mapping = {
         'individualchemicals': (individualChemicals, [
-            'chemBottleIDNUM', 'chemAssociated',
-            'chemAmountInBottle', 'chemLocationRoom', 
-            'chemLocationCabinet', 'chemLocationShelf'
+            'chemBottleIDNUM', 'chemAssociated__chemName', 'chemAssociated__chemMaterial',
+            'chemAmountInBottle', 'chemLocationRoom', 'chemLocationCabinet', 'chemLocationShelf',
+            'chemCheckedOutBy__username', 'chemCheckedOutDate'
         ]),
         'allchemicals': (allChemicals, [
             'chemID', 'chemMaterial', 'chemName', 'chemConcentration', 
@@ -19,7 +19,7 @@ def get_model_by_name(model_name):
             'chemInstrument', 'chemAmountExpected'  
         ]),
     }
-    return model_mapping.get(model_name.lower())  # Ensure case-insensitive lookup
+    return model_mapping.get(model_name.lower())
 
 class allChemicals(models.Model):
     chemID = models.AutoField(primary_key=True)
@@ -48,29 +48,22 @@ class allChemicals(models.Model):
         else:
             self.chemAmountPercentage = 0
         self.save()
-    class Meta:
-        db_table = "allchemicalstable"
         
 class individualChemicals(models.Model):
-    chemBottleIDNUM = models.IntegerField(primary_key=True) 
+    chemBottleIDNUM = models.IntegerField(primary_key=True)
     chemAssociated = models.ForeignKey(allChemicals, null=True, blank=True, on_delete=models.CASCADE, default=1)
-    chemMaterial = models.CharField(max_length=255, null=True, blank=True)  # New field
     chemLocationRoom = models.CharField(max_length=255, default="None")
     chemLocationCabinet = models.CharField(max_length=255, default="None")
     chemLocationShelf = models.CharField(max_length=255, default="None")
     chemAmountInBottle = models.CharField(max_length=255, default="0")
+    chemAmountUnit = models.CharField(null = True, max_length=255)
+    chemConcentration = models.CharField(null = True, max_length=255)
+    chemSDS = models.CharField(null = True, max_length=20)
+    chemNotes = models.CharField(null = True, max_length=255)
+    chemInstrument = models.CharField(null = True, max_length=255)
     chemCheckedOut = models.BooleanField(default=False)
     chemCheckedOutBy = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     chemCheckedOutDate = models.DateTimeField(null=True, blank=True)
-
-    class Meta:
-        db_table = "currentlyinstoragetable"
-
-# Signal to populate chemMaterial before saving individualChemicals
-@receiver(pre_save, sender=individualChemicals)
-def populate_chem_material(sender, instance, **kwargs):
-    if instance.chemAssociated:
-        instance.chemMaterial = instance.chemAssociated.chemMaterial
 
 class QRCodeData(models.Model):
     qr_code = models.CharField(max_length=255, unique=True)  # Field to store the QR code data

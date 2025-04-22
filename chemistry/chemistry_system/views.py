@@ -12,6 +12,7 @@ from django.core.paginator import Paginator
 from django.urls import reverse
 from django.db import models  
 
+from chemistry_system.filters import ChemicalFilter
 from chemistry_system.models import allChemicals, individualChemicals, Log, get_model_by_name
 from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
 from .utils import logCall, generate_qr_pdf, populate_storage
@@ -109,17 +110,34 @@ def currchemicals(request):
     query = request.GET.get('query', '').strip()
     message = None
 
+    fields = ['chemAssociated__chemName', 'chemBottleIDNUM', 'chemAssociated__chemMaterial',
+        'chemLocationRoom', 'chemLocationCabinet', 'chemLocationShelf',
+        'chemAmountInBottle', 'chemAssociated__chemAmountUnit', 'chemAssociated__chemConcentration',
+        'chemAssociated__chemSDS', 'chemAssociated__chemNotes', 'chemAssociated__chemInstrument',
+        'chemCheckedOutBy__username', 'chemCheckedOutDate'
+        ]
     if query:
-        chemical_list_db = individualChemicals.objects.filter(
-            Q(chemAssociated__chemName__icontains=query) |
-            Q(chemBottleIDNUM__icontains=query)
-        )
+        q_objects = Q()
+        for field in fields:
+            q_objects |= Q(**{f"{field}__icontains": query})
+        chemical_list_db = individualChemicals.objects.filter(q_objects)
+        #chemical_list_db = currentlyInStorageTable.objects.filter(
+            #prev working version:
+            #Q(chemAssociated__chemName__icontains=query) |
+            #Q(chemBottleIDNUM__icontains=query) | 
+            #Q(chemAssociated__chemMaterial__icontains=query) |
+            #Q(chemLocationRoom__icontains=query) |
+            #Q(chemLocationCabinet__icontains=query) |
+            #Q(chemLocationShelf__icontains=query) 
+            
+        #)
         if not chemical_list_db.exists():
             message = "No results found."
     else:
         chemical_list_db = individualChemicals.objects.all()
 
-    chemical_types = allChemicals.objects.values_list('chemMaterial', flat=True).distinct()
+    chemical_types = individualChemicals.objects.values_list('chemAssociated__chemMaterial', flat=True).distinct()
+    print(list(chemical_types))  # Add this line to log the data
     chemical_locations = individualChemicals.objects.values_list('chemLocationRoom', flat=True).distinct()
 
     # Get the number of entries per page from the request, default to 10
@@ -128,6 +146,9 @@ def currchemicals(request):
         entries_per_page = len(chemical_list_db)
     else:
         entries_per_page = int(entries_per_page)
+    
+    # Calculate the total number of matching entries
+    total_matching_entries = chemical_list_db.count()
 
     # Paginate
     paginator = Paginator(chemical_list_db, entries_per_page)
@@ -141,6 +162,7 @@ def currchemicals(request):
         'query': query,
         'message': message,
         'entries_per_page': entries_per_page,
+        'total_matching_entries': total_matching_entries, 
         'total_entries': paginator.count
     })
 
@@ -464,6 +486,119 @@ def print_page(request):
 
 def generate_qr_pdf_view(request):
     return generate_qr_pdf(request)
+
+
+def chem_display(request, table_name):
+    query = request.GET.get('query', '').strip()
+    model_class = get_model_by_name(table_name)
+    if not model_class:
+        raise Http404(f"Table '{table_name}' does not exist.")
+    
+    model, _ = model_class  # Extract the model class
+    query = request.GET.get('query', '').strip()
+
+    entries_per_page = request.GET.get("entries_per_page", "10")  # Default to "10"
+    message = None
+
+     # Fetch distinct materials and locations
+    if table_name == "individualChemicals":
+        chemical_types = model.objects.values_list('chemAssociated__chemMaterial', flat=True).distinct()
+        chemical_locations = model.objects.values_list('chemLocationRoom', flat=True).distinct()
+        chemSDS = model.objects.values_list('chemAssociated__chemSDS', flat=True).distinct()
+
+
+    elif table_name == "allChemicals":
+        chemical_types = model.objects.values_list('chemMaterial', flat=True).distinct()
+        chemical_locations = model.objects.values_list('chemLocationRoom', flat=True).distinct()
+        chemSDS = model.objects.values_list('chemSDS', flat=True).distinct()
+
+    else:
+        chemical_types = []
+        chemical_locations = []
+        chemSDS = []
+
+    # Base queryset
+    chemicals = model.objects.all()
+
+    # Search functionality
+    if query:
+        q_objects = Q()
+        if table_name == "individualChemicals":
+            fields = [
+                'chemAssociated__chemName', 'chemBottleIDNUM', 'chemAssociated__chemMaterial',
+                'chemLocationRoom', 'chemLocationCabinet', 'chemLocationShelf',
+                'chemAmountInBottle', 'chemAssociated__chemAmountUnit', 'chemAssociated__chemConcentration',
+                'chemAssociated__chemSDS', 'chemAssociated__chemNotes', 'chemAssociated__chemInstrument',
+                'chemCheckedOutBy__username', 'chemCheckedOutDate'
+            ]
+        elif table_name == "allChemicals":
+            fields = [
+                'chemName', 'chemMaterial', 'chemLocationRoom', 'chemLocationCabinet',
+                'chemLocationShelf', 'chemAmountTotal', 'chemAmountUnit', 'chemConcentration',
+                'chemSDS', 'chemNotes', 'chemInstrument'
+            ]
+        for field in fields:
+            q_objects |= Q(**{f"{field}__icontains": query})
+        chemicals = chemicals.filter(q_objects)
+        if not chemicals.exists():
+            message = f"No results found for '{query}'."
+
+    # Pagination
+    paginator = Paginator(chemicals, entries_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+       # Calculate the total number of matching entries
+    total_matching_entries = chemicals.count()
+
+    context = {
+        "page_obj": page_obj,
+        "chemical_count": chemicals.count(),
+        "chemical_types": chemical_types,
+        "chemical_locations": chemical_locations,
+        "chemSDS": chemSDS,
+        "entries_per_page": entries_per_page,
+        "total_matching_entries": total_matching_entries,
+        "table_name": table_name,
+        "query": query,
+        "message": message,
+    }
+
+    return render(request, "chem_display.html", context)
+
+@login_required
+def run_populate_storage(request):
+    populate_storage()
+    messages.success(request, 'Database populated with dummy data successfully!')
+    return redirect('currchemicals')
+
+@login_required
+def force_update_total_amount(request):
+    chemicals = allChemicals.objects.all()
+    for chemical in chemicals:
+        chemical.update_total_amount()
+    messages.success(request, 'Total amounts updated for all chemicals successfully!')
+    return redirect('chem_display')
+
+
+
+def show_all_chemicals(request):
+    context = {}
+
+    filtered_chemicals = ChemicalFilter(
+        request.GET, 
+        queryset=allChemicals.objects.all()
+    )
+
+    context['filtered_chemicals'] = filtered_chemicals
+
+    paginated_filtered_chemicals = Paginator(filtered_chemicals.qs, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginated_filtered_chemicals.get_page(page_number)
+
+    context['page_obj'] = page_obj
+
+    return render(request, 'show_all_chemicals.html', context)
 
 
 @login_required
