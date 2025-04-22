@@ -73,7 +73,8 @@ def generate_qr_pdf(request):
             current_x = first_x
             current_y += between_y
         num_so_far += 1
-        data = random.randint(0, 12000000000)  # Unique data for each QR code
+        number = random.randint(0, 12000000000)
+        data = "https://csci06.is.uindy.edu/" + str(number)  # Unique data for each QR code
         qr = qrcode.QRCode(box_size=5, border=0)  # Adjust size
         qr.add_data(data)
         qr.make(fit=True)
@@ -87,7 +88,7 @@ def generate_qr_pdf(request):
 
         # Draw text on canvas
         position = (current_x-50, current_y + 175)
-        draw.text(position, str(data), font=font, fill="black")
+        draw.text(position, str(number), font=font, fill="black")
 
 
         # Update position for next QR code
