@@ -6,6 +6,7 @@ class CheckUserRole:
         self.get_response = get_response
         self.procted_paths = {
             'admin' : [
+                '/',
                 '/admin-dashboard/',
                 '/chem_display/allChemicals/',
                 '/chem_display/individualChemicals/',
@@ -16,6 +17,7 @@ class CheckUserRole:
                 '/log/',
                 ],
             'professor' : [
+                '/',
                 '/chem_display/allChemicals/',
                 '/chem_display/individualChemicals/',
                 '/search/',
@@ -25,6 +27,7 @@ class CheckUserRole:
                 '/log/',
                 ],
             'student' : [
+                '/',
                 '/chem_display/allChemicals/',
                 '/chem_display/individualChemicals/',
                 '/search/',
