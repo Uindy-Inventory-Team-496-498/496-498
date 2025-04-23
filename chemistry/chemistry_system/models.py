@@ -104,7 +104,7 @@ def update_total_amount_on_delete(sender, instance, **kwargs):
 @receiver(post_save, sender=User)
 def add_user_to_default_group(sender, instance, created, **kwargs):
     if created:
-        default_group = Group.objects.get(name='Students')  #when NEW accounts are created, they are added to student by default
+        default_group = Group.objects.get(name='Students')  #when NEW accounts are registered, they are added to student by default
         instance.groups.add(default_group)
 
 class Log(models.Model):

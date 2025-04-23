@@ -49,6 +49,6 @@ urlpatterns = [
 
     path("__reload__/", include("django_browser_reload.urls")),  
     
-    path("admin-dashboard/", admin_dashboard, name='admin-dashboard-view'),
+    path("admin_dashboard/", admin_dashboard, name='admin_dashboard'),
 
 ]
