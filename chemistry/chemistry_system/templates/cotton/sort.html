@@ -1,0 +1,15 @@
+<section class="grid">
+    <div class="form-control w-full max-w-xs">
+        <label class="label">
+            <span class="label-text">Sort by</span>
+        </label>
+        <select id="sort-by" name="sort_by" class="select select-bordered" 
+                hx-get="{% url 'chem_display' table_name %}?entries_per_page={{ request.GET.entries_per_page }}" 
+                hx-target="#{{ target_id }}"
+                hx-swap="outerHTML">
+            <option value="" {% if not request.GET.sort_by %}selected{% endif %}>Default</option>
+            <option value="chemAmountAsc" {% if request.GET.sort_by == "chemAmountAsc" %}selected{% endif %}>Amount (Ascending)</option>
+            <option value="chemAmountDesc" {% if request.GET.sort_by == "chemAmountDesc" %}selected{% endif %}>Amount (Descending)</option>
+        </select>
+    </div>
+</section>
