@@ -16,8 +16,11 @@ to teardown the running container(s):
 or to stop them:
 ```docker-compose stop```
 
-go to <http://localhost:8000>
 if inaccesible, double check docker logs for the MySQL container and the Django container.
+
+## First thing
+If this is the first time the containers are being created and started, you must first run the create_super.py command. This will create a default admin user as well as the intitial structure for the groups and users.
+```python manage.py create_super.py```
 
 ## Misc Docker commands
 
