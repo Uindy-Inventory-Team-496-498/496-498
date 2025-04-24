@@ -12,6 +12,9 @@ services:
       MYSQL_PASSWORD: my_password
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
+      DJANGO_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_EMAIL: admin@uindy.edu
+      DJANGO_SUPERUSER_PASSWORD: adminpass
     depends_on:
       - mysql
     volumes:
@@ -22,6 +25,7 @@ services:
         python manage.py migrate &&
         python manage.py tailwind install &&
         python manage.py tailwind build &&
+        python create_super.py &&
         python manage.py runserver 0.0.0.0:8000"
 
   mysql:

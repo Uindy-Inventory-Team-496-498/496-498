@@ -69,7 +69,7 @@ class CheckUserRole:
             return response
         
             # Allow access to login and home pages for all users
-        if request.path in ['/accounts/login/', '/']:
+        if request.path in ['/accounts/login/', '/', '/accounts/signup/', 'accounts/logout/', '/admin/login/', '/admin/' ]:
             logger.info(f"Access allowed to public path: {request.path}")
             response = self.get_response(request)
             return response

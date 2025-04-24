@@ -54,4 +54,4 @@ RUN chmod -R u+w /app/chemistry_system/static /app/chemistry_system/static_src
 USER appuser
 
 # Entrypoint to run migrations and start the server
-CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && gunicorn --bind 0.0.0.0:8000 web_project.wsgi"]
+CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python create_super.py && gunicorn --bind 0.0.0.0:8000 web_project.wsgi"]
