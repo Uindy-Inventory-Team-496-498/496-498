@@ -1046,28 +1046,29 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 10px 10px 5px; /* Reduce left padding */
-  background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 15px; /* Match padding with other buttons */
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
+  background-color: transparent; /* Remove background */
+  border: none; /* Remove the line under Data */
+  text-align: left; /* Align text to the left */
+  transition: background-color 0.3s ease;
 }
 
 .collapsible-header:hover {
-  background-color: rgba(255, 255, 255, 0.1); /* Subtle background change */
+  background-color: rgba(255, 255, 255, 0.1); /* Optional hover effect */
 }
 
 .collapsible-header .header-content {
   display: flex;
   align-items: center;
-  gap: 5px; /* Space between the icon and text */
-  font-weight: bold;
-  color: #fff;
-  font-size: 1rem;
-  padding-left: 10px; /* Add padding to push the content left */
+  gap: 10px; /* Space between the icon and text */
 }
 
 .collapsible-header .header-content i {
-  margin-left: -5px; /* Move the icon slightly to the left */
+  margin-right: 10px; /* Space between icon and text */
 }
 
 .toggle-arrow {
@@ -1119,6 +1120,54 @@ footer {
 .collapsible-content a.active {
   color: #ffcc00; /* Highlight active link */
   font-weight: bold;
+}
+
+/* Collapsible Section Styling */
+.collapsible-section {
+  margin: 10px 0;
+}
+
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #6c1d1d; /* Match menu background */
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.collapsible-header:hover {
+  background-color: #882727; /* Slightly lighter on hover */
+}
+
+.collapsible-content {
+  display: none;
+  flex-direction: column;
+  padding: 10px 15px;
+  background-color: #6c1d1d; /* Match menu background */
+  border-radius: 4px;
+}
+
+.collapsible-content a {
+  color: #fff;
+  text-decoration: none;
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.collapsible-content a:hover {
+  background-color: #882727; /* Slightly lighter on hover */
+}
+
+/* Open state for collapsible section */
+.collapsible-section.open .collapsible-content {
+  display: flex;
 }
 
 /* Footer Styling */
@@ -1381,4 +1430,81 @@ footer {
 .pagination-link.active {
     background-color: #444;
     cursor: default;
+}
+
+/* General adjustments for smaller screens */
+@media (max-width: 768px) {
+    /* Center-align the Action Logs container */
+    .logs-container {
+        padding: 15px;
+        margin: 20px auto;
+        width: 90%; /* Reduce width for smaller screens */
+        box-shadow: none; /* Remove shadow for a cleaner look */
+    }
+
+    /* Adjust the page title */
+    .page-title {
+        font-size: 1.5rem; /* Slightly smaller font size */
+        margin-bottom: 15px;
+    }
+
+    /* Adjust the search form */
+    .search-form {
+        flex-direction: column; /* Stack inputs vertically */
+        gap: 10px; /* Add spacing between inputs */
+        align-items: stretch; /* Stretch inputs to full width */
+    }
+
+    .search-input, .date-input {
+        width: 100%; /* Full width for inputs */
+        font-size: 0.9rem; /* Slightly smaller font size */
+    }
+
+    .search-button {
+        width: 100%; /* Full width for the button */
+        font-size: 0.9rem; /* Slightly smaller font size */
+    }
+
+    /* Adjust the log entries */
+    .logs-container .log-entry {
+        padding: 10px;
+        font-size: 0.9rem; /* Slightly smaller font size */
+        border: 1px solid #ddd; /* Add a border for separation */
+        border-radius: 6px; /* Rounded corners */
+        margin-bottom: 10px; /* Add spacing between entries */
+        background-color: #fff; /* White background */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    }
+
+    /* Adjust the timestamp */
+    .logs-container .log-entry .timestamp {
+        font-size: 0.8rem; /* Smaller font size for timestamps */
+        color: #666; /* Lighter color for timestamps */
+        margin-top: 5px;
+    }
+}
+
+/* Further adjustments for very small screens (max-width: 480px) */
+@media (max-width: 480px) {
+    .logs-container {
+        width: 95%; /* Further reduce width */
+    }
+
+    .page-title {
+        font-size: 1.3rem; /* Smaller font size */
+    }
+
+    .search-input, .date-input, .search-button {
+        font-size: 0.85rem; /* Smaller font size */
+        padding: 8px; /* Reduce padding */
+    }
+
+    .logs-container .log-entry {
+        font-size: 0.85rem; /* Smaller font size */
+        padding: 8px; /* Reduce padding */
+    }
+
+    .logs-container .log-entry .timestamp {
+        font-size: 0.75rem; /* Smaller font size for timestamps */
+    }
 }
