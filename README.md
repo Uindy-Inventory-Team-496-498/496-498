@@ -47,6 +47,14 @@ If this is the first time the containers are being created and started, you must
 Migrations are how the database is managed for Django. If changes are made to the structure of hte database (contained in the models.py file) The following commands will have to be used to make sure the structure of the SQL database is up to date. The commands below are inside the django_web container.
 <https://docs.djangoproject.com/en/5.2/topics/migrations/>
 
+Heres the basic workflow for when changes are made to the SQl structure in a dev environment and you want to apply them to the running django service.
+1. Run ```python manage.py makemigrations``` on the dev machine.
+2. Run ```python manage.py migrate``` on the dev machine, in order to apply the changes locally and test them.
+3. Push your changes, including the newly created migration file, to GitHub
+4. On the machine with the application running, pull the changes from GitHub initially, Django may throw some errors since there migratory changes not yet applied.
+5. Restart the django_web container. Within the docker-compose.yml file, the ```python manage.py migrate``` command will be run on startup
+6. Wait for the container to restart
+
 To make migrations:
 ```python manage.py makemigrations```
 
