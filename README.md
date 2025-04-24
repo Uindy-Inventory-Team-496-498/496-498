@@ -1,4 +1,5 @@
 # Chemistry Inventory System
+This application was created my the University of Indianapolis ENGR/CSCI 496-498 class of 2024/2025.
 
 ## Start the Applciation and mySQL database
 <https://docs.docker.com/reference/cli/docker/compose/>
@@ -13,7 +14,7 @@ to teardown the running container(s):
 ```docker-compose down```
 
 or to stop them:
-```docker-compose stop``
+```docker-compose stop```
 
 go to <http://localhost:8000>
 if inaccesible, double check docker logs for the MySQL container and the Django container.
