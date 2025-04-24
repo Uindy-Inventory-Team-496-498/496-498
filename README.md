@@ -18,7 +18,7 @@ or to stop them:
 
 if inaccesible, double check docker logs for the MySQL container and the Django container.
 
-## Misc Docker commands
+### Misc Docker commands
 
 For checking logs:
 ```docker logs <container_name>```
@@ -68,7 +68,7 @@ On your host machine, not inside the container (if necessary)
 Restart the container:
 ```docker-compose restart web```
 
-## Misc Django commands
+### Misc Django commands
 For loading from a fixture:
 ```python manage.py loaddata chemistry_system/fixtures/chemistry_system_fixtures.json```
 
