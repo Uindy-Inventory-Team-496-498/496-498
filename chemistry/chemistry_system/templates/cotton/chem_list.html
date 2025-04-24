@@ -1,3 +1,5 @@
+
+
 <div id="chem-list">
     <h1 class="text-2xl font-bold mb-4"></h1>
 
@@ -29,13 +31,19 @@
         </div>
         {% endfor %}
 
+        <c-sort />
         <c-pagination />
     </div>
 
     <!-- Table for larger screens -->
     <div class="hidden sm:block">
         <div class="overflow-x-auto h-[calc(100vh-150px)]">
-            <c-pagination />
+
+            <div class="flex items-center space-x-4 mb-4">
+                <c-sort />
+                <c-pagination />
+            </div>
+
             <table class="table-auto w-full border-collapse border border-gray-300 shadow-lg">
                 <thead class="bg-gray-100">
                     <tr>
