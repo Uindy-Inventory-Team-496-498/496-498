@@ -54,10 +54,6 @@ On your host machine
 
 ```docker exec -it --user root django_web bash``` for root user
 
-## First thing
-If this is the first time the containers are being created and started, you must first run the create_super.py command. This will create a default admin user as well as the intitial structure for the groups and users.
-```python manage.py create_super.py```
-
 ## Migrations 
 Migrations are how the database is managed for Django. If changes are made to the structure of hte database (contained in the models.py file) The following commands will have to be used to make sure the structure of the SQL database is up to date. The commands below are inside the django_web container.
 <https://docs.djangoproject.com/en/5.2/topics/migrations/>
