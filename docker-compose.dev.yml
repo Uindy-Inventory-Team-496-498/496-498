@@ -1,0 +1,40 @@
+services:
+  web:
+    build: ./chemistry
+    container_name: django_web
+    user: baseuser
+    ports:
+      - "8000:8000"
+    restart: always
+    environment:
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: my_user
+      MYSQL_PASSWORD: my_password
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      DJANGO_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_EMAIL: admin@uindy.edu
+      DJANGO_SUPERUSER_PASSWORD: adminpass
+      DJANGO_ENV: development
+    depends_on:
+      - mysql
+    volumes:
+      - ./chemistry:/app  # Bind mount for live updates
+    command: python manage.py runserver 0.0.0.0:8000
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: my_user
+      MYSQL_PASSWORD: my_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

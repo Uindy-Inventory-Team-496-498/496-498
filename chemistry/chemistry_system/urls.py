@@ -1,4 +1,5 @@
 from chemistry_system import views
+from django.conf import settings
 from .views import ChemicalAutocomplete, admin_dashboard
 from chemistry_system.models import individualChemicals, allChemicals
 from django.contrib import admin
@@ -46,9 +47,10 @@ urlpatterns = [
 
     path("chem_display/<str:table_name>/", views.chem_display, name="chem_display"),
     path('force-update-total-amount/', views.force_update_total_amount, name='force_update_total_amount'),
-
-    path("__reload__/", include("django_browser_reload.urls")),  
     
     path("admin_dashboard/", admin_dashboard, name='admin_dashboard'),
 
 ]
+
+if settings.DJANGO_ENV == 'development':
+    urlpatterns += [path("__reload__/", include("django_browser_reload.urls"))]

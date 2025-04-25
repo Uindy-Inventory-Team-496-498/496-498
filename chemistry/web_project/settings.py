@@ -13,9 +13,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
+# Determine the environment (default to 'production')
+DJANGO_ENV = os.getenv('DJANGO_ENV', 'production')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -24,10 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-&a602tkz7g^rkys5q)elh6$zrhxe)(c=&)j$qf)&h5t%1rlc6x'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
+DEBUG = False
+if DJANGO_ENV == 'development':
+    DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -45,8 +49,8 @@ INSTALLED_APPS = [
     'django_filters',
     'django_cotton',
     'tailwind',
-    'django_browser_reload',
-    "django_htmx"
+    'django_htmx',
+    'django_browser_reload'
 ]
 
 TAILWIND_APP_NAME = 'chemistry_system'
@@ -54,6 +58,7 @@ TAILWIND_APP_NAME = 'chemistry_system'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django_htmx.middleware.HtmxMiddleware',

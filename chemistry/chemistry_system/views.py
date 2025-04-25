@@ -90,7 +90,7 @@ def chem_display(request, table_name):
     }
 
     if 'HX-Request' in request.headers:
-        print("-------------------------" + request.htmx.target  + "-------------------------")
+        #print("-------------------------" + request.htmx.target  + "-------------------------")
         if request.htmx.target == target_id:
             return render(request, f"cotton/{target_html}.html", context)
         
