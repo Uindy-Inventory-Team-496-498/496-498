@@ -51,12 +51,12 @@ RUN SECRET_KEY=nothing python manage.py tailwind install --no-input && \
 # Create a non-root user (baseuser) in the users group
 RUN useradd -m -r -g users -u 1000 baseuser
 
-# Ensure all files are owned by the `baseuser` and `users` group
-RUN chown -R baseuser:users /app /home/baseuser && chmod -R g+rwx /app /home/baseuser
-
 # Ensure the entrypoint script is executable
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
+
+# Ensure all files are owned by the `baseuser` and `users` group
+RUN chown -R baseuser:users /app /home/baseuser && chmod -R g+rwx /app /home/baseuser
 
 USER baseuser
 
