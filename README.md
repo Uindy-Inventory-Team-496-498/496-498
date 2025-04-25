@@ -4,17 +4,32 @@ This application was created my the University of Indianapolis ENGR/CSCI 496-498
 ## Start the Applciation and mySQL database
 <https://docs.docker.com/reference/cli/docker/compose/>
 
+There are two separete docker-compose files, one for production and one for development. use the -f flag to specify the file to use. The dev enviroment uses a bind mount so changes are reflected right away, while the prod enviroment uses a named volume, so changes must be reflected manually (delete the named volume and restart). 
+
+Additionally, the prod enviroment specifies DEBUG to be False so errors are not reported directly to users, and it serves static files via whitenoise (acceptable in low volume situations)
+
 To create a new docker image:
-```docker compose build```
+
+```docker compose -f docker-compose.dev.yml build``` or
+
+```docker compose -f docker-compose.prod.yml build```
 
 to start the docker container (including the MySQL database). use the flag -d to have no output, but be careful as the output is often helpful for debugging. The --force-recreate can be useful to start clean.
-```docker-compose up```
 
-to teardown the running container(s):
-```docker-compose down```
+```docker compose -f docker-compose.dev.yml up``` or 
+
+```docker compose -f docker-compose.prod.yml up```
+
+to teardown the running container(s). Use the ```-v``` flag for removing the volumes, useful in prod enviroments, so that on the next docker compose up, a new volume will be created that reflects the most recent changes:
+
+```docker compose -f docker-compose.prod.yml down -v``` or 
+
+```docker compose -f docker-compose.prod.yml down```
+
 
 or to stop them:
-```docker-compose stop```
+
+```docker compose stop```
 
 if inaccesible, double check docker logs for the MySQL container and the Django container.
 
@@ -30,7 +45,7 @@ See current volumes:
 ```docker volume ls```
 
 Restart the container:
-```docker-compose restart web```
+```docker compose restart```
 
 ## To access the Django container
 
