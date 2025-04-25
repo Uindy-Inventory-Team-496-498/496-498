@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models import Sum  # Add this import
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
@@ -50,6 +50,9 @@ class allChemicals(models.Model):
         self.save()
     class Meta:
         db_table = "allchemicalstable"
+        permissions = [
+            ("can_access_restricted", "Can access restricted pages"),
+        ]
         
 class individualChemicals(models.Model):
     chemBottleIDNUM = models.IntegerField(primary_key=True) 
@@ -96,6 +99,13 @@ def update_total_amount_on_delete(sender, instance, **kwargs):
         except allChemicals.DoesNotExist:
             # The associated allChemicals instance no longer exists, so we can safely ignore this.
             pass
+
+
+@receiver(post_save, sender=User)
+def add_user_to_default_group(sender, instance, created, **kwargs):
+    if created:
+        default_group = Group.objects.get(name='Students')  #when NEW accounts are registered, they are added to student by default
+        instance.groups.add(default_group)
 
 class Log(models.Model):
     user = models.CharField(max_length=255)

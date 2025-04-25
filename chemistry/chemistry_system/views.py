@@ -19,6 +19,9 @@ from .utils import logCall, generate_qr_pdf, populate_storage
 from dal import autocomplete # type: ignore
 from PIL import Image, ImageDraw, ImageFont # type: ignore
 
+def admin_dashboard(request):
+    return HttpResponse("<h1> Admin Dashboard </h1>")
+
 @login_required
 def chem_display(request, table_name):
     model_class = get_model_by_name(table_name)
