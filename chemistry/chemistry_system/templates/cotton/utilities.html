@@ -1,3 +1,4 @@
+{% load custom_tags %}
 <div class="flex justify-between items-center mb-4">
     <div class="flex space-x-4">
 
@@ -10,14 +11,18 @@
             <button type="submit" class="button-style">Export CSV</button>
         </form>
 
+        {% if user|has_group:"Admin" %}
         <form action="{% url 'import_chemicals_csv' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="model_name" value="{{ table_name}}">
             <input type="file" name="file" required class="file-input file-input-bordered file-input-sm">
             <button type="submit" class="button-style">Import CSV</button>
         </form>
+        {% endif %}
+
     </div>
 
+    {% if user|has_group:"Admin" %}
     <!-- Hidden on smaller screens -->
     <div class="hidden sm:flex space-x-4">
         <form action="{% url 'delete_all_chemicals' %}" method="post">
@@ -36,5 +41,6 @@
             <button type="submit" class="button-style">Populate Individ Chem DB</button>
         </form>
     </div>
+    {% endif %}
 </div>
 
