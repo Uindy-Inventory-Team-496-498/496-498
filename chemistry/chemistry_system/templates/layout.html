@@ -14,17 +14,18 @@
   <!-- Optional Autocomplete / Select2 -->
   <script src="{% static 'autocomplete_light/autocomplete_light.js' %}"></script>
   <script src="{% static 'autocomplete_light/select2.js' %}"></script>
-  <link rel="stylesheet" href="{% static 'autocomplete_light/select2.css' %}">
-
+  
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="{% static 'css/site.css' %}" />
+  <!-- Tailwind + DaisyUI -->
+  <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet"> 
+  
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  <!-- Tailwind + DaisyUI -->
-  <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet"> 
-  <!-- Main CSS -->
-  <link rel="stylesheet" href="{% static 'css/site.css' %}" />
   
-  
+  <link rel="stylesheet" href="{% static 'autocomplete_light/select2.css' %}">
+
   <!-- site.js incudes htmx -->
   <script src="{% static 'js/site.js' %}"></script>
   <script src="{% static 'js/htmx.min.js' %}"></script>
