@@ -2,7 +2,7 @@ services:
   web:
     build: ./chemistry
     container_name: django_web
-    user: root
+    user: baseuser
     ports:
       - "8000:8000"
     restart: always
@@ -15,17 +15,12 @@ services:
       DJANGO_SUPERUSER_USERNAME: admin
       DJANGO_SUPERUSER_EMAIL: admin@uindy.edu
       DJANGO_SUPERUSER_PASSWORD: adminpass
+      DJANGO_ENV: development
     depends_on:
       - mysql
     volumes:
       - ./chemistry:/app 
-    command: >
-        sh -c "chown -R appuser:appuser /app &&
-        until nc -z mysql 3306; do echo 'Waiting for MySQL...'; sleep 2; done &&
-        python manage.py migrate &&
-        python manage.py tailwind install &&
-        python manage.py tailwind build &&
-        python manage.py runserver 0.0.0.0:8000"
+    command: python manage.py runserver 0.0.0.0:8000
 
   mysql:
     image: mysql:8.0
