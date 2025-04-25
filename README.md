@@ -1,22 +1,24 @@
 # Chemistry Inventory System
-
-Note: MySQL needs to be installed manually before running the below configuration, try ```pip install mysql```
+This application was created my the University of Indianapolis ENGR/CSCI 496-498 class of 2024/2025.
 
 ## Start the Applciation and mySQL database
+<https://docs.docker.com/reference/cli/docker/compose/>
 
-to create the relevant docker image (This will need to be run anytime changes are made to the web app):
-```docker-compose build```
+To create a new docker image:
+```docker compose build```
 
-to start the docker container (including the MySQL database). use the flag -d to have no output, but be careful as the output is often helpful for debugging. After starting the container, you will need to manually make and apply migrations. This should be done from within the Django container. See below for the instructions:
+to start the docker container (including the MySQL database). use the flag -d to have no output, but be careful as the output is often helpful for debugging. The --force-recreate can be useful to start clean.
 ```docker-compose up```
 
-to stop the running container(s):
+to teardown the running container(s):
 ```docker-compose down```
 
-go to <http://localhost:8000>
+or to stop them:
+```docker-compose stop```
+
 if inaccesible, double check docker logs for the MySQL container and the Django container.
 
-## Misc Docker commands
+### Misc Docker commands
 
 For checking logs:
 ```docker logs <container_name>```
@@ -27,17 +29,33 @@ Show current docker processes:
 See current volumes:
 ```docker volume ls```
 
+Restart the container:
+```docker-compose restart web```
+
 ## To access the Django container
 
 On your host machine
-```docker exec -it django_web bash```
-docker exec -it --user root django_web bash
-The commands below are inside the web container
+```docker exec -it django_web bash``` for default user
 
-Make migrations:  
+```docker exec -it --user root django_web bash``` for root user
 
-```cd /app```
+## First thing
+If this is the first time the containers are being created and started, you must first run the create_super.py command. This will create a default admin user as well as the intitial structure for the groups and users.
+```python manage.py create_super.py```
 
+## Migrations 
+Migrations are how the database is managed for Django. If changes are made to the structure of hte database (contained in the models.py file) The following commands will have to be used to make sure the structure of the SQL database is up to date. The commands below are inside the django_web container.
+<https://docs.djangoproject.com/en/5.2/topics/migrations/>
+
+Heres the basic workflow for when changes are made to the SQl structure in a dev environment and you want to apply them to the running django service.
+1. Run ```python manage.py makemigrations``` on the dev machine.
+2. Run ```python manage.py migrate``` on the dev machine, in order to apply the changes locally and test them.
+3. Push your changes, including the newly created migration file, to GitHub
+4. On the machine with the application running, pull the changes from GitHub initially, Django may throw some errors since there migratory changes not yet applied.
+5. Restart the django_web container. Within the docker-compose.yml file, the ```python manage.py migrate``` command will be run on startup
+6. Wait for the container to restart
+
+To make migrations:
 ```python manage.py makemigrations```
 
 Apply migrations:
@@ -50,16 +68,7 @@ On your host machine, not inside the container (if necessary)
 Restart the container:
 ```docker-compose restart web```
 
-## Misc Django commands
-
-<https://django-tailwind.readthedocs.io/en/4.0.1/usage.html>
-python manage.py tailwind install
-
-python manage.py tailwind build
-
-python manage.py tailwind start
-
-
+### Misc Django commands
 For loading from a fixture:
 ```python manage.py loaddata chemistry_system/fixtures/chemistry_system_fixtures.json```
 
@@ -80,8 +89,23 @@ If you accidentally modify the database directly and migrations are out of sync,
 
 While in the docker container, you can run this to populate the Individual Bottles table with some dummy data
 ```python manage.py populate_storage```
+##Tailwind
+Tailwind is a tool used by the application for deploying CSS. Tailwind should be built and deployed automatically when the docker compose file is used
+<https://django-tailwind.readthedocs.io/en/4.0.1/usage.html>
+
+To install dependencies
+```python manage.py tailwind install```
+
+To build the tailwind css file used for production:
+```python manage.py tailwind build```
+
+For development environment, the following command can be used to have tailwind actively looking for changes and update real-time. This is only suitable for development:
+```python manage.py tailwind start```
 
 ## mySQL Commands
+The web applicaton uses MySQL for persistent data and user information.
+<https://dev.mysql.com/doc/refman/8.4/en/mysql-commands.html>
+<https://www.sqltutorial.org/sql-cheat-sheet/>
 
 Access the mysql database (from the django container):
 ```python manage.py dbshell```

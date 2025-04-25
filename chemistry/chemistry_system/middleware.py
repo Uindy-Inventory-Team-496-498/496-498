@@ -90,7 +90,7 @@ class CheckUserRole:
                     "<h1 style='color:red'>You're not allowed to access this view </h1>",
                     status=403,
                 )
-
+              
         else:
             # Block access for users with undefined roles
             logger.warning(f"Access denied for user {request.user.username} to {request.path}")

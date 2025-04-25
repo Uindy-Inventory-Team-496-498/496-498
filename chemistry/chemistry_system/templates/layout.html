@@ -49,12 +49,14 @@
     <a href="{% url 'checkinandout' %}">Check In/Out</a>
     <a href="{% url 'print_page' %}">Print</a>
     <a href="{% url 'log' %}">Log</a>
+
     {% if user|has_group:"Admin" %}
       <a href="{% url 'admin_dashboard' %}"> Admin</a>
     {% endif %}
     <div class="profile-text">
       <strong>{{ user.username }}</strong>
     </div>
+
     <div class="logout-container">
       <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
