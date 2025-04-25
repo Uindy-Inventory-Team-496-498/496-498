@@ -7,24 +7,25 @@
   <title>{% block title %}{% endblock %}</title>
 
   {% load static %}
-
+  {% load custom_tags %}
   <!-- jQuery (if needed) -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
   <!-- Optional Autocomplete / Select2 -->
   <script src="{% static 'autocomplete_light/autocomplete_light.js' %}"></script>
   <script src="{% static 'autocomplete_light/select2.js' %}"></script>
-  <link rel="stylesheet" href="{% static 'autocomplete_light/select2.css' %}">
-
+  
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="{% static 'css/site.css' %}" />
+  <!-- Tailwind + DaisyUI -->
+  <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet"> 
+  
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  <!-- Tailwind + DaisyUI -->
-  <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet"> 
-  <!-- Main CSS -->
-  <link rel="stylesheet" href="{% static 'css/site.css' %}" />
   
-  
+  <link rel="stylesheet" href="{% static 'autocomplete_light/select2.css' %}">
+
   <!-- site.js incudes htmx -->
   <script src="{% static 'js/site.js' %}"></script>
   <script src="{% static 'js/htmx.min.js' %}"></script>
@@ -48,7 +49,13 @@
     <a href="{% url 'checkinandout' %}">Check In/Out</a>
     <a href="{% url 'print_page' %}">Print</a>
     <a href="{% url 'log' %}">Log</a>
-    <a href="{% url 'admin_dashboard' %}"> Admin</a>
+
+    {% if user|has_group:"Admin" %}
+      <a href="{% url 'admin_dashboard' %}"> Admin</a>
+    {% endif %}
+    <div class="profile-text">
+      <strong>{{ user.username }}</strong>
+    </div>
 
     <div class="logout-container">
       <form method="post" action="{% url 'logout' %}">
