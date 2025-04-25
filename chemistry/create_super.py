@@ -1,5 +1,6 @@
 import os
 import django
+import argparse
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'web_project.settings')
 django.setup()
@@ -9,9 +10,15 @@ from django.contrib.auth.models import Group
 
 User = get_user_model()
 
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description="Create a superuser with specified credentials.")
+parser.add_argument('--username', required=True, help="Superuser username")
+parser.add_argument('--email', required=True, help="Superuser email")
+args = parser.parse_args()
+
 # Define superuser credentials
-SUPERUSER_USERNAME = os.getenv('DJANGO_SUPERUSER_USERNAME', 'admin')
-SUPERUSER_EMAIL = os.getenv('DJANGO_SUPERUSER_EMAIL', 'admin@uindy.edu')
+SUPERUSER_USERNAME = args.username
+SUPERUSER_EMAIL = args.email
 SUPERUSER_PASSWORD = os.getenv('DJANGO_SUPERUSER_PASSWORD', 'adminpass')
 
 # Define required groups

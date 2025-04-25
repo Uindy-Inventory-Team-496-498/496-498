@@ -48,10 +48,17 @@ RUN SECRET_KEY=nothing python manage.py tailwind install --no-input && \
     SECRET_KEY=nothing python manage.py tailwind build --no-input && \
     SECRET_KEY=nothing python manage.py collectstatic --no-input
 
-# Create a non-root user with an explicit UID and add permission to access the /app folder
-RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser:appuser /app
-RUN chmod -R u+w /app/chemistry_system/static /app/chemistry_system/static_src
-USER appuser
+# Create a non-root user (baseuser) in the users group
+RUN useradd -m -r -g users -u 1000 baseuser
+
+# Ensure all files are owned by the `baseuser` and `users` group
+RUN chown -R baseuser:users /app /home/baseuser && chmod -R g+rwx /app /home/baseuser
+
+# Ensure the entrypoint script is executable
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+USER baseuser
 
 # Entrypoint to run migrations and start the server
-CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && gunicorn --bind 0.0.0.0:8000 web_project.wsgi"]
+ENTRYPOINT ["/app/entrypoint.sh"]
