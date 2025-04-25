@@ -50,7 +50,10 @@
     <a href="{% url 'print_page' %}">Print</a>
     <a href="{% url 'log' %}">Log</a>
     <a href="{% url 'admin_dashboard' %}"> Admin</a>
-
+    <div class="profile-text">
+      <strong>{{ user.username }}</strong>
+      <span class="profile-email">: {{ user.email|default_if_none:"[No email]" }}</span>
+    </div>
     <div class="logout-container">
       <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
