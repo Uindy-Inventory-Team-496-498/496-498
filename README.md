@@ -31,6 +31,12 @@ or to stop them:
 
 ```docker compose stop```
 
+After changes are made and you want to update a prod evironment
+1. ```docker compose -f docker-compose.prod.yml down```
+2. ```git pull```
+3. ```docker volume delete 496-498_app_data```
+4. ```docker compose -f docker-compose.prod.yml up```
+
 if inaccesible, double check docker logs for the MySQL container and the Django container.
 
 ### Misc Docker commands
