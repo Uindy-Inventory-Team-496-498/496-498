@@ -20,9 +20,9 @@ to start the docker container (including the MySQL database). use the flag -d to
 
 ```docker compose -f docker-compose.prod.yml up```
 
-to teardown the running container(s). Use the ```-v``` flag for removing the volumes, useful in prod enviroments, so that on the next docker compose up, a new volume will be created that reflects the most recent changes:
+to teardown the running container(s).
 
-```docker compose -f docker-compose.prod.yml down -v``` or 
+```docker compose -f docker-compose.prod.yml down``` or 
 
 ```docker compose -f docker-compose.prod.yml down```
 
