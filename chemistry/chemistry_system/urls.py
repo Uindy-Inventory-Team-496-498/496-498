@@ -48,8 +48,6 @@ urlpatterns = [
     path("chem_display/<str:table_name>/", views.chem_display, name="chem_display"),
     path('force-update-total-amount/', views.force_update_total_amount, name='force_update_total_amount'),
     
-    path("admin_dashboard/", admin.site.urls),
-
 ]
 
 if settings.DJANGO_ENV == 'development':
