@@ -10,6 +10,17 @@
     <!-- Search Form -->
     <form action="{% url 'search' %}" method="get" class="search-form">
         <div class="search-box-container">
+            <!-- Dropdown to select table -->
+            <select name="table" id="table-select" class="table-select">
+                <option value="individualChemicals" {% if table == "individualChemicals" %}selected{% endif %}>
+                    Individual Chemicals
+                </option>
+                <option value="allChemicals" {% if table == "allChemicals" %}selected{% endif %}>
+                    All Chemicals
+                </option>
+            </select>
+
+            <!-- Search input -->
             <input
                 type="text"
                 name="query"
@@ -49,31 +60,57 @@
             <table class="results-table">
                 <thead>
                     <tr>
-                        <th>Bottle ID</th>
-                        <th>Material</th>
-                        <th>Name</th>
-                        <th>Cabinet</th>
-                        <th>Shelf</th>
-                        <th>Amount</th>
-                        <th>Unit</th>
-                        <th>Concentration</th>
-                        <th>SDS</th>
-                        <th>Instrument</th>
+                        {% if table == "individualChemicals" %}
+                            <th>Bottle ID</th>
+                            <th>Material</th>
+                            <th>Name</th>
+                            <th>Cabinet</th>
+                            <th>Shelf</th>
+                            <th>Amount</th>
+                            <th>Unit</th>
+                            <th>Concentration</th>
+                            <th>SDS</th>
+                            <th>Instrument</th>
+                        {% elif table == "allChemicals" %}
+                            <th>Chemical ID</th>
+                            <th>Material</th>
+                            <th>Name</th>
+                            <th>Room</th>
+                            <th>Cabinet</th>
+                            <th>Shelf</th>
+                            <th>Total Amount</th>
+                            <th>Expected Amount</th>
+                            <th>Percentage</th>
+                            <th>Notes</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in results %}
                     <tr>
-                        <td data-label="Bottle ID">{{ item.chemBottleIDNUM }}</td>
-                        <td data-label="Material">{{ item.chemAssociated.chemMaterial }}</td>
-                        <td data-label="Name">{{ item.chemAssociated.chemName }}</td>
-                        <td data-label="Cabinet">{{ item.chemLocationCabinet }}</td>
-                        <td data-label="Shelf">{{ item.chemLocationShelf }}</td>
-                        <td data-label="Amount">{{ item.chemAmountInBottle }}</td>
-                        <td data-label="Unit">{{ item.chemAssociated.chemAmountUnit }}</td>
-                        <td data-label="Concentration">{{ item.chemAssociated.chemConcentration }}</td>
-                        <td data-label="SDS">{{ item.chemAssociated.chemSDS }}</td>
-                        <td data-label="Instrument">{{ item.chemAssociated.chemInstrument }}</td>                        
+                        {% if table == "individualChemicals" %}
+                            <td data-label="Bottle ID">{{ item.chemBottleIDNUM }}</td>
+                            <td data-label="Material">{{ item.chemAssociated.chemMaterial }}</td>
+                            <td data-label="Name">{{ item.chemAssociated.chemName }}</td>
+                            <td data-label="Cabinet">{{ item.chemLocationCabinet }}</td>
+                            <td data-label="Shelf">{{ item.chemLocationShelf }}</td>
+                            <td data-label="Amount">{{ item.chemAmountInBottle }}</td>
+                            <td data-label="Unit">{{ item.chemAssociated.chemAmountUnit }}</td>
+                            <td data-label="Concentration">{{ item.chemAssociated.chemConcentration }}</td>
+                            <td data-label="SDS">{{ item.chemAssociated.chemSDS }}</td>
+                            <td data-label="Instrument">{{ item.chemAssociated.chemInstrument }}</td>
+                        {% elif table == "allChemicals" %}
+                            <td data-label="Chemical ID">{{ item.chemID }}</td>
+                            <td data-label="Material">{{ item.chemMaterial }}</td>
+                            <td data-label="Name">{{ item.chemName }}</td>
+                            <td data-label="Room">{{ item.chemLocationRoom }}</td>
+                            <td data-label="Cabinet">{{ item.chemLocationCabinet }}</td>
+                            <td data-label="Shelf">{{ item.chemLocationShelf }}</td>
+                            <td data-label="Total Amount">{{ item.chemAmountTotal }}</td>
+                            <td data-label="Expected Amount">{{ item.chemAmountExpected }}</td>
+                            <td data-label="Percentage">{{ item.chemAmountPercentage }}</td>
+                            <td data-label="Notes">{{ item.chemNotes }}</td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -83,7 +120,7 @@
         <!-- Pagination -->
         <div class="pagination">
             {% if results.has_previous %}
-                <a href="?query={{ query }}&page={{ results.previous_page_number }}" 
+                <a href="?query={{ query }}&table={{ table }}&page={{ results.previous_page_number }}" 
                    class="pagination-link">Previous</a>
             {% endif %}
 
@@ -93,7 +130,7 @@
                         {% if page_num == results.number %}
                             <span class="pagination-link active">{{ page_num }}</span>
                         {% else %}
-                            <a href="?query={{ query }}&page={{ page_num }}"
+                            <a href="?query={{ query }}&table={{ table }}&page={{ page_num }}"
                                class="pagination-link">{{ page_num }}</a>
                         {% endif %}
                     {% endif %}
@@ -101,7 +138,7 @@
             {% endwith %}
 
             {% if results.has_next %}
-                <a href="?query={{ query }}&page={{ results.next_page_number }}" 
+                <a href="?query={{ query }}&table={{ table }}&page={{ results.next_page_number }}" 
                    class="pagination-link">Next</a>
             {% endif %}
         </div>
