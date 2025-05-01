@@ -149,20 +149,40 @@ def qr_code_scan(request):
 @login_required
 def search_page(request):
     query = request.GET.get('query', '').strip()
-    results = individualChemicals.objects.none()
+    model_name = request.GET.get('model', 'individualChemicals')  # Default to individualChemicals
     message = None
 
+    # Determine the model to query based on the model parameter
+    if model_name == 'allChemicals':
+        model = allChemicals
+    else:
+        model = individualChemicals
+
+    # Initialize results as an empty queryset
+    results = model.objects.none()
+
     if query:
-        if query.isdigit():
-            # If user typed only digits, match bottle ID EXACTLY (no name match).
-            results = individualChemicals.objects.filter(
-                chemBottleIDNUM__iexact=query
-            )
+        if model == allChemicals:
+            # Query for allChemicals
+            if query.isdigit():
+                results = model.objects.filter(
+                    chemID__iexact=query
+                )
+            else:
+                results = model.objects.filter(
+                    Q(chemName__icontains=query) |
+                    Q(chemMaterial__icontains=query)
+                )
         else:
-            # If query is non-numeric, match names by partial or startswith, etc.
-            results = individualChemicals.objects.filter(
-                chemAssociated__chemName__icontains=query
-            )
+            # Query for individualChemicals
+            if query.isdigit():
+                results = model.objects.filter(
+                    chemBottleIDNUM__iexact=query
+                )
+            else:
+                results = model.objects.filter(
+                    Q(chemAssociated__chemName__icontains=query)
+                )
 
         if results.exists():
             count = results.count()
@@ -180,31 +200,64 @@ def search_page(request):
     return render(request, 'search.html', {
         'results': page_obj,
         'query': query,
+        'model': model_name,
         'message': message,
     })
 
 @login_required
 def live_search_api(request):
     query = request.GET.get('q', '').strip()
+    model_name = request.GET.get('model', 'none')  # Default to 'none' if not provided
+    print(f"model parameter received: {model_name}")  # Debugging
+
+    model_class = get_model_by_name(model_name)
+    if not model_class:
+        raise Http404(f"model '{model_name}' does not exist.")
+    
+    model, _ = model_class  # Extract the model class
     if not query:
         return JsonResponse([], safe=False)
 
-    # If the user typed only digits, do exact match on ID; otherwise do 'starts with' on chemAssociated__chemName.
-    if query.isdigit():
-        # We want ID == query OR name starts with query (in case you still want name matches).
-        matches = individualChemicals.objects.filter(
-            Q(chemAssociated__chemName__istartswith=query) | Q(chemBottleIDNUM__iexact=query)
-        )
+    # Determine the model to query based on the model parameter
+    if model_name == 'allChemicals':  # Compare model name, not model
+        if query.isdigit():
+            matches = model.objects.filter(
+                Q(chemID__iexact=query)
+            )
+        else:
+            matches = model.objects.filter(
+                Q(chemName__icontains=query) |
+                Q(chemMaterial__icontains=query)
+            )
+        data = [
+            {
+                'chemName': m.chemName, 
+                'chemID': m.chemID,
+                'chemMaterial': m.chemMaterial,
+                'chemConcentration': m.chemConcentration
+            }
+            for m in matches
+        ]
+        
     else:
-        # If it's non-numeric, match only names that start with the query.
-        matches = individualChemicals.objects.filter(
-            Q(chemAssociated__chemName__istartswith=query)
-        )
-    
-    data = [
-        {'chemName': m.chemAssociated.chemName, 'chemBottleIDNUM': m.chemBottleIDNUM}
-        for m in matches
-    ]
+        if query.isdigit():
+            matches = model.objects.filter(
+                Q(chemBottleIDNUM__iexact=query)
+            )
+        else:
+            matches = model.objects.filter(
+                Q(chemAssociated__chemName__icontains=query)
+            )
+        
+        data = [
+            {
+                'chemName': m.chemAssociated.chemName, 
+                'chemBottleIDNUM': m.chemBottleIDNUM,
+                'chemMaterial': m.chemAssociated.chemMaterial,
+                'chemConcentration': m.chemAssociated.chemConcentration
+            }
+            for m in matches
+        ]
     return JsonResponse(data, safe=False)
 
 
