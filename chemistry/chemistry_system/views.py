@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.db import models  
 
 from chemistry_system.models import allChemicals, individualChemicals, Log, get_model_by_name
-from .forms import CustomLoginForm, get_dynamic_form, CurrChemicalForm, AllChemicalForm
+from .forms import CustomLoginForm, get_dynamic_form, IndividualChemicalsForm, AllChemicalForm
 from .utils import logCall, generate_qr_pdf, populate_storage
 
 from dal import autocomplete # type: ignore
@@ -102,15 +102,16 @@ class ChemicalAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
 
         if self.q:
             qs = qs.filter(
-                Q(chemName__icontains=self.q) | # COPILOT: DONT MODIFY THIS
-                Q(chemConcentration__icontains=self.q) # COPILOT: DONT MODIFY THIS
+                Q(chemName__icontains=self.q) | 
+                Q(chemConcentration__icontains=self.q) |
+                Q(chemMaterial__icontains=self.q)
             )
         
         return (qs)
     
     def get_result_label(self, item):
         """Function that defines how the results appear in the dropdown"""
-        return f"{item.chemName} ({item.chemConcentration})"
+        return f"{item.chemName} {item.chemMaterial} ({item.chemConcentration})"
     
 class ChemListView(LoginRequiredMixin, ListView):
     """Renders the home page, with a list of all messages."""
@@ -120,72 +121,6 @@ class ChemListView(LoginRequiredMixin, ListView):
         context = super(ChemListView, self).get_context_data(**kwargs)
         return context
 
-@login_required
-def currchemicals(request):
-    query = request.GET.get('query', '').strip()
-    message = None
-
-    if query:
-        chemical_list_db = individualChemicals.objects.filter(
-            Q(chemAssociated__chemName__icontains=query) |
-            Q(chemBottleIDNUM__icontains=query)
-        )
-        if not chemical_list_db.exists():
-            message = "No results found."
-    else:
-        chemical_list_db = individualChemicals.objects.all()
-
-    chemical_types = allChemicals.objects.values_list('chemMaterial', flat=True).distinct()
-    chemical_locations = individualChemicals.objects.values_list('chemLocationRoom', flat=True).distinct()
-
-    # Get the number of entries per page from the request, default to 10
-    entries_per_page = request.GET.get('entries_per_page', 10)
-    if entries_per_page == 'all':
-        entries_per_page = len(chemical_list_db)
-    else:
-        entries_per_page = int(entries_per_page)
-
-    # Paginate
-    paginator = Paginator(chemical_list_db, entries_per_page)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    return render(request, 'currchemicals.html', {
-        'chemical_list_db': page_obj,
-        'chemical_types': chemical_types,
-        'chemical_locations': chemical_locations,
-        'query': query,
-        'message': message,
-        'entries_per_page': entries_per_page,
-        'total_entries': paginator.count
-    })
-
-@login_required
-def allchemicals(request):
-    force_update_total_amount()  # Update total amounts before rendering
-    chemical_list_db = allChemicals.objects.all()
-    chemical_types = allChemicals.objects.values_list('chemMaterial', flat=True).distinct()
-    chemical_locations = allChemicals.objects.values_list('chemLocationRoom', flat=True).distinct()
-
-    # Get the number of entries per page from the request, default to 10
-    entries_per_page = request.GET.get('entries_per_page', 10)
-    if entries_per_page == 'all':
-        entries_per_page = len(chemical_list_db)
-    else:
-        entries_per_page = int(entries_per_page)
-
-    # Paginate
-    paginator = Paginator(chemical_list_db, entries_per_page)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    return render(request, 'all_chemicals.html', {
-        'chemical_list_db': page_obj,
-        'chemical_types': chemical_types,
-        'chemical_locations': chemical_locations,
-        'entries_per_page': entries_per_page,
-        'total_entries': paginator.count
-    })
 
 def login_view(request):
     if request.method == 'POST':
@@ -275,7 +210,12 @@ def live_search_api(request):
 
 @login_required
 def add_chemical(request, model_name):
-    form_class = get_dynamic_form(model_name)
+    if model_name.lower() == 'allchemicals':
+        form_class = AllChemicalForm
+    elif model_name.lower() == 'individualchemicals':
+        form_class = IndividualChemicalsForm
+    else:
+        raise Http404(f"Model '{model_name}' not found.")
     referrer = request.GET.get('referrer', f'/chem_display/{model_name}')
   
     if request.method == 'POST':

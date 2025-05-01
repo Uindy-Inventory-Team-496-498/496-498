@@ -29,10 +29,10 @@ urlpatterns = [
     
     path('current_chemicals/', views.list_chemicals, {'model_name': 'individualChemicals'}, name='current_chemicals'),
     path('add_chemical/<str:model_name>/', views.add_chemical, name='add_chemical'),
+    path('add/<str:model_name>/', views.add_chemical, name='add_chemical'),
     path('edit_chemical/<str:model_name>/<int:pk>/', views.edit_chemical, name='edit_chemical'),
     path('delete_chemical/<str:model_name>/<int:pk>/', views.delete_chemical, name='delete_chemical'),
     path('scanner_add/<str:model_name>/', views.scanner_add, name='scanner_add'),
-    path('add/<str:model_name>/', views.add_chemical, name='add_chemical'),
     path('export_chemicals_csv/', export_chemicals_csv, name='export_chemicals_csv'),  
     path('import_chemicals_csv/', import_chemicals_csv, name='import_chemicals_csv'),  
     path('update-checkout-status/<str:model_name>/<str:qrcode_value>/', update_checkout_status, name='update_checkout_status'),  
