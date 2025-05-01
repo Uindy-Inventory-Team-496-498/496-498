@@ -10,12 +10,12 @@
     <!-- Search Form -->
     <form action="{% url 'search' %}" method="get" class="search-form">
         <div class="search-box-container">
-            <!-- Dropdown to select table -->
-            <select name="table" id="table-select" class="table-select">
-                <option value="individualChemicals" {% if table == "individualChemicals" %}selected{% endif %}>
+            <!-- Dropdown to select model -->
+            <select name="model" id="model-select" class="model-select">
+                <option value="individualChemicals" {% if model == "individualChemicals" %}selected{% endif %}>
                     Individual Chemicals
                 </option>
-                <option value="allChemicals" {% if table == "allChemicals" %}selected{% endif %}>
+                <option value="allChemicals" {% if model == "allChemicals" %}selected{% endif %}>
                     All Chemicals
                 </option>
             </select>
@@ -50,7 +50,7 @@
         <p class="no-results-msg">Enter a search query to find chemicals.</p>
     {% endif %}
 
-    <!-- If there are results, show the table -->
+    <!-- If there are results, show the model -->
     {% if results and results|length > 0 %}
         <p class="results-summary">
             Found {{ results|length }} result{{ results|pluralize }} for ({{ query }})
@@ -60,7 +60,7 @@
             <table class="results-table">
                 <thead>
                     <tr>
-                        {% if table == "individualChemicals" %}
+                        {% if model == "individualChemicals" %}
                             <th>Bottle ID</th>
                             <th>Material</th>
                             <th>Name</th>
@@ -71,7 +71,7 @@
                             <th>Concentration</th>
                             <th>SDS</th>
                             <th>Instrument</th>
-                        {% elif table == "allChemicals" %}
+                        {% elif model == "allChemicals" %}
                             <th>Chemical ID</th>
                             <th>Material</th>
                             <th>Name</th>
@@ -88,7 +88,7 @@
                 <tbody>
                     {% for item in results %}
                     <tr>
-                        {% if table == "individualChemicals" %}
+                        {% if model == "individualChemicals" %}
                             <td data-label="Bottle ID">{{ item.chemBottleIDNUM }}</td>
                             <td data-label="Material">{{ item.chemAssociated.chemMaterial }}</td>
                             <td data-label="Name">{{ item.chemAssociated.chemName }}</td>
@@ -99,7 +99,7 @@
                             <td data-label="Concentration">{{ item.chemAssociated.chemConcentration }}</td>
                             <td data-label="SDS">{{ item.chemAssociated.chemSDS }}</td>
                             <td data-label="Instrument">{{ item.chemAssociated.chemInstrument }}</td>
-                        {% elif table == "allChemicals" %}
+                        {% elif model == "allChemicals" %}
                             <td data-label="Chemical ID">{{ item.chemID }}</td>
                             <td data-label="Material">{{ item.chemMaterial }}</td>
                             <td data-label="Name">{{ item.chemName }}</td>
@@ -120,7 +120,7 @@
         <!-- Pagination -->
         <div class="pagination">
             {% if results.has_previous %}
-                <a href="?query={{ query }}&table={{ table }}&page={{ results.previous_page_number }}" 
+                <a href="?query={{ query }}&model={{ model }}&page={{ results.previous_page_number }}" 
                    class="pagination-link">Previous</a>
             {% endif %}
 
@@ -130,7 +130,7 @@
                         {% if page_num == results.number %}
                             <span class="pagination-link active">{{ page_num }}</span>
                         {% else %}
-                            <a href="?query={{ query }}&table={{ table }}&page={{ page_num }}"
+                            <a href="?query={{ query }}&model={{ model }}&page={{ page_num }}"
                                class="pagination-link">{{ page_num }}</a>
                         {% endif %}
                     {% endif %}
@@ -138,7 +138,7 @@
             {% endwith %}
 
             {% if results.has_next %}
-                <a href="?query={{ query }}&table={{ table }}&page={{ results.next_page_number }}" 
+                <a href="?query={{ query }}&model={{ model }}&page={{ results.next_page_number }}" 
                    class="pagination-link">Next</a>
             {% endif %}
         </div>

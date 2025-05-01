@@ -149,11 +149,11 @@ def qr_code_scan(request):
 @login_required
 def search_page(request):
     query = request.GET.get('query', '').strip()
-    table = request.GET.get('table', 'individualChemicals')  # Default to individualChemicals
+    model_name = request.GET.get('model', 'individualChemicals')  # Default to individualChemicals
     message = None
 
-    # Determine the model to query based on the table parameter
-    if table == 'allChemicals':
+    # Determine the model to query based on the model parameter
+    if model_name == 'allChemicals':
         model = allChemicals
     else:
         model = individualChemicals
@@ -162,7 +162,7 @@ def search_page(request):
     results = model.objects.none()
 
     if query:
-        if table == 'allChemicals':
+        if model == allChemicals:
             # Query for allChemicals
             if query.isdigit():
                 results = model.objects.filter(
@@ -200,26 +200,26 @@ def search_page(request):
     return render(request, 'search.html', {
         'results': page_obj,
         'query': query,
-        'table': table,
+        'model': model_name,
         'message': message,
     })
 
 @login_required
 def live_search_api(request):
     query = request.GET.get('q', '').strip()
-    table = request.GET.get('table', 'none')  # Default to 'none' if not provided
-    print(f"Table parameter received: {table}")  # Debugging
+    model_name = request.GET.get('model', 'none')  # Default to 'none' if not provided
+    print(f"model parameter received: {model_name}")  # Debugging
 
-    model_class = get_model_by_name(table)
+    model_class = get_model_by_name(model_name)
     if not model_class:
-        raise Http404(f"Table '{table}' does not exist.")
+        raise Http404(f"model '{model_name}' does not exist.")
     
     model, _ = model_class  # Extract the model class
     if not query:
         return JsonResponse([], safe=False)
 
-    # Determine the model to query based on the table parameter
-    if model == 'allChemicals':
+    # Determine the model to query based on the model parameter
+    if model_name == 'allChemicals':  # Compare model name, not model
         if query.isdigit():
             matches = model.objects.filter(
                 Q(chemID__iexact=query)
