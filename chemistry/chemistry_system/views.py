@@ -230,7 +230,12 @@ def live_search_api(request):
                 Q(chemMaterial__icontains=query)
             )
         data = [
-            {'chemName': m.chemName, 'chemID': m.chemID}
+            {
+                'chemName': m.chemName, 
+                'chemID': m.chemID,
+                'chemMaterial': m.chemMaterial,
+                'chemConcentration': m.chemConcentration
+            }
             for m in matches
         ]
         
@@ -245,7 +250,12 @@ def live_search_api(request):
             )
         
         data = [
-            {'chemName': m.chemAssociated.chemName, 'chemBottleIDNUM': m.chemBottleIDNUM}
+            {
+                'chemName': m.chemAssociated.chemName, 
+                'chemBottleIDNUM': m.chemBottleIDNUM,
+                'chemMaterial': m.chemAssociated.chemMaterial,
+                'chemConcentration': m.chemAssociated.chemConcentration
+            }
             for m in matches
         ]
     return JsonResponse(data, safe=False)

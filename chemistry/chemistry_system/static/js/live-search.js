@@ -34,7 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ${data.map(item => `
           <li class="suggestion-item">
             <a href="/search/?query=${encodeURIComponent(item.chemName)}&model=${encodeURIComponent(selectedModel)}" class="dropdown-link">
-              ${highlightQuery(item.chemName, query)} (ID: ${item.chemID || item.chemBottleIDNUM})
+              <div class="suggestion-content">
+                <span class="chem-name">${highlightQuery(item.chemName, query)}</span>
+                ${item.chemMaterial ? `<span class="chem-material">${item.chemMaterial}</span>` : ''}
+                ${item.chemConcentration ? `<span class="chem-concentration">${item.chemConcentration}</span>` : ''}
+                <span class="chem-id">(ID: ${item.chemID || item.chemBottleIDNUM})</span>
+              </div>
             </a>
           </li>
         `).join('')}
