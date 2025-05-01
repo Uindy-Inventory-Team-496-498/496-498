@@ -38,7 +38,7 @@ class AllChemicalForm(forms.ModelForm):
         model = allChemicals
         fields = '__all__'  # Include all fields from the model
 
-class CurrChemicalForm(forms.ModelForm):
+class IndividualChemicalsForm(forms.ModelForm):
     chemAssociated = forms.ModelChoiceField(
         queryset=allChemicals.objects.all(),
         label="Associated Chemical",
