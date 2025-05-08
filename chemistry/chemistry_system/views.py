@@ -451,12 +451,30 @@ def get_chemical_details(request, qrcode_value):
         
         chemical = model_class.objects.get(chemBottleIDNUM=qrcode_value)
         
+        # Validate and format the amount
+        current_amount_str = chemical.chemAmountInBottle
+        match = re.match(r'([\d.]+)\s*([a-zA-Z]+)?', current_amount_str)
+        if not match:
+            return JsonResponse({
+                'success': False,
+                'message': f"Invalid amount format: {current_amount_str}"
+            }, status=400)
+        
+        amount_value = float(match.group(1))
+        amount_unit = match.group(2) if match.group(2) else ""
+
         return JsonResponse({
             'success': True,
-            'totalAmount': chemical.chemAmountInBottle,
+            'totalAmount': f"{amount_value} {amount_unit}".strip(),
             'name': getattr(chemical, 'chemName', ''),
             'id': chemical.chemBottleIDNUM
         })
+        
+    except model_class.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': f"Chemical with ID {qrcode_value} not found"
+        }, status=404)
         
     except Exception as e:
         return JsonResponse({

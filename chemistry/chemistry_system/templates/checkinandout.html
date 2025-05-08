@@ -113,21 +113,25 @@ Log a Chemical
                             .then(response => response.json())
                             .then(chemData => {
                                 if (chemData.success) {
-                                    const amountMatch = /^([\d.]+)\s*([a-zA-Z]+)$/.exec(chemData.totalAmount);
+                                    const amountMatch = /^([\d.]+)\s*([a-zA-Z]+)?$/.exec(chemData.totalAmount);
                                     if (amountMatch) {
                                         chemicalAmount = parseFloat(amountMatch[1]);
-                                        chemicalUnit = amountMatch[2];
+                                        chemicalUnit = amountMatch[2] || ""; // Default to an empty string if no unit is provided
                                         
                                         const currentAmountInfo = document.getElementById('current-amount-info');
                                         if (currentAmountInfo) {
                                             currentAmountInfo.textContent = `Current amount: ${chemicalAmount} ${chemicalUnit}`;
                                         }
+                                    } else {
+                                        console.error("Invalid amount format:", chemData.totalAmount);
+                                        chemicalAmount = 0;
+                                        chemicalUnit = "";
                                     }
                                     
                                     if (amountUiContainer) {
                                         const amountInput = document.querySelector('.amount-input');
                                         if (amountInput) {
-                                            amountInput.placeholder = `Enter amount in ${chemicalUnit}`;
+                                            amountInput.placeholder = `Enter amount in ${chemicalUnit || "units"}`;
                                         }
                                         
                                         amountUiContainer.style.display = "block";

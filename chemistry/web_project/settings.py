@@ -161,4 +161,4 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://csci06.is.uindy.edu']
+CSRF_TRUSTED_ORIGINS = ['https://csci06.is.uindy.edu', 'https://localhost:8000', 'http://localhost:8000', 'https://special-space-waddle-pq9xrgg7q4qfqj-8000.app.github.dev/']
