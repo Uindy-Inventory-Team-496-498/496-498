@@ -378,7 +378,7 @@ def update_chemical_amount(request):
                 }, status=400)
                 
             amount_value = float(match.group(1))
-            amount_unit = match.group(2) if match.group(2) else ""
+            amount_unit = match.group(2).strip().lower() if match.group(2) else ""
             
             model_class, _ = get_model_by_name('individualChemicals')
             if model_class is None:
@@ -396,14 +396,14 @@ def update_chemical_amount(request):
                 }, status=400)
                 
             current_value = float(current_match.group(1))
-            current_unit = current_match.group(2) if current_match.group(2) else ""
+            current_unit = current_match.group(2).strip().lower() if current_match.group(2) else ""
             
             # Validate units
-            if amount_unit.lower() != current_unit.lower():
-                return JsonResponse({
-                    'success': False,
-                    'message': f"Units don't match. Chemical has {current_unit}, but you entered {amount_unit}."
-                }, status=400)
+            # if amount_unit != current_unit:
+            #     return JsonResponse({
+            #         'success': False,
+            #         'message': f"Units don't match. Chemical has {current_unit}, but you entered {amount_unit}."
+            #     }, status=400)
                 
             new_value = current_value - amount_value
             
@@ -416,7 +416,7 @@ def update_chemical_amount(request):
                 
             # Update the amount
             new_amount_str = f"{new_value} {current_unit}"
-            chemical.chemAmountInBottle = new_amount_str
+            chemical.chemAmountInBottle = new_value
             chemical.save()
             logCall(request.user.username, f"Updated amount for chemical {chem_id}: used {used_amount}, remaining {new_amount_str}")
             
@@ -451,22 +451,23 @@ def get_chemical_details(request, qrcode_value):
         
         chemical = model_class.objects.get(chemBottleIDNUM=qrcode_value)
         
-        # Validate and format the amount
+        # Get the amount from chemAmountInBottle
         current_amount_str = chemical.chemAmountInBottle
-        match = re.match(r'([\d.]+)\s*([a-zA-Z]+)?', current_amount_str)
-        if not match:
+        try:
+            amount_value = float(current_amount_str)
+        except ValueError:
             return JsonResponse({
                 'success': False,
                 'message': f"Invalid amount format: {current_amount_str}"
             }, status=400)
         
-        amount_value = float(match.group(1))
-        amount_unit = match.group(2) if match.group(2) else ""
+        # Get the unit from the associated allChemicals instance
+        amount_unit = chemical.chemAssociated.chemAmountUnit if chemical.chemAssociated else ""
 
         return JsonResponse({
             'success': True,
             'totalAmount': f"{amount_value} {amount_unit}".strip(),
-            'name': getattr(chemical, 'chemName', ''),
+            'name': getattr(chemical.chemAssociated, 'chemName', ''),
             'id': chemical.chemBottleIDNUM
         })
         

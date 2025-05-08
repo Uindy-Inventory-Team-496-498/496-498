@@ -113,7 +113,7 @@ Log a Chemical
                             .then(response => response.json())
                             .then(chemData => {
                                 if (chemData.success) {
-                                    const amountMatch = /^([\d.]+)\s*([a-zA-Z]+)?$/.exec(chemData.totalAmount);
+                                    const amountMatch = /^([\d.]+)\s*(.+)?$/.exec(chemData.totalAmount);
                                     if (amountMatch) {
                                         chemicalAmount = parseFloat(amountMatch[1]);
                                         chemicalUnit = amountMatch[2] || ""; // Default to an empty string if no unit is provided
